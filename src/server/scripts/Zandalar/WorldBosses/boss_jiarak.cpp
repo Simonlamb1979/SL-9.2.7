@@ -34,13 +34,13 @@ struct boss_jiarak : public BossAI
 {
     boss_jiarak(Creature* creature) : BossAI(creature, DATA_JIRAK) { }
 
-    void Reset() override
+    void Reset()
     {
         events.Reset();
         summons.DespawnAll();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* who)
     {
         BossAI::JustEngagedWith(who);
 
@@ -50,7 +50,7 @@ struct boss_jiarak : public BossAI
         events.ScheduleEvent(EVENT_HURRICANE_CRASH, 45000);
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 diff)
     {
         if (!UpdateVictim())
             return;

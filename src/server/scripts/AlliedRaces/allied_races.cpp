@@ -48,7 +48,7 @@ public:
 	AlliedRaces() : PlayerScript("AlliedRaces") { }
 
 
-    void OnLogin(Player* player, bool firstLogin) override
+    void OnLogin(Player* player, bool firstLogin)
     {
 		if (firstLogin)
 		{
@@ -75,7 +75,7 @@ public:
 		}
     }
 
-    void OnUpdateArea(Player* player, uint32 newArea, uint32 /*oldArea*/) override
+    void OnUpdateArea(Player* player, uint32 newArea, uint32 /*oldArea*/)
     {
         /* Fix allied race deathknight missing aura */
         /* Dominion Over Acherus */
@@ -99,7 +99,7 @@ class npc_valkyr_battle_maiden_allied : public CreatureScript
 public:
     npc_valkyr_battle_maiden_allied() : CreatureScript("npc_valkyr_battle_maiden_allied") { }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    CreatureAI* GetAI(Creature* creature) const 
     {
         return new npc_valkyr_battle_maiden_alliedAI(creature);
     }
@@ -124,7 +124,7 @@ public:
         float x, y, z;
         uint32 phase;
 
-        void Reset() override
+        void Reset()
         {
             me->setActive(true);
             me->SetVisible(false);
@@ -139,7 +139,7 @@ public:
             //me->SetPosition(x, y, z, 0.0f);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             if (FlyBackTimer <= diff)
             {
@@ -199,7 +199,7 @@ class zone_allied_dk : public ZoneScript
 public:
     zone_allied_dk() : ZoneScript("zone_allied_dk") { }
 
-    void OnPlayerDeath(Player* player) override
+    void OnPlayerDeath(Player* player)
     {
         if (player->GetMapId() == MAP_ALLIED_DK_ICECROWN)
             player->SummonCreature(228534, player->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0U, 0U);

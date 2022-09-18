@@ -37,12 +37,12 @@ struct boss_dunegorger_kraulok : public BossAI
 {
     boss_dunegorger_kraulok(Creature* creature) : BossAI(creature, DATA_DUNEGORGER_KRAULOK) { }
 
-    void InitializeAI() override
+    void InitializeAI()
     {
         BossAI::InitializeAI();
     }
 
-    void SpellHitTarget(Unit* target, SpellInfo const* spell) override
+    void SpellHitTarget(Unit* target, SpellInfo const* spell)
     {
         if (spell->Id == SPELL_SHAKE_LOSE)
         {
@@ -53,13 +53,13 @@ struct boss_dunegorger_kraulok : public BossAI
             me->CastSpell(target, SPELL_SONIC_BELLOW_VISUAL);
     }
 
-    void Reset() override
+    void Reset()
     {
         events.Reset();
         summons.DespawnAll();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* who)
     {
         BossAI::JustEngagedWith(who);
 
@@ -69,7 +69,7 @@ struct boss_dunegorger_kraulok : public BossAI
         events.ScheduleEvent(EVENT_SONIC_BELLOW, 9000);
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 diff)
     {
         if (!UpdateVictim())
             return;

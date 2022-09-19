@@ -35,20 +35,20 @@ struct boss_head_machinist_sparkflux : public BossAI
 {
     boss_head_machinist_sparkflux(Creature* creature) : BossAI(creature, DATA_HEAD_MACHINIST_SPARKFLUX) { }
 
-    void Reset() override
+    void Reset()
     {
         BossAI::Reset();
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/)
     {
         _JustEngagedWith();
         DoCastSelf(SPELL_PERIODIC_ENERGY_GAIN);
     }
 
-    void ExecuteEvent(uint32 eventid) override
+    void ExecuteEvent(uint32 eventid)
     {
         if (me->GetPower(POWER_ENERGY) == 100)
         {
@@ -65,7 +65,7 @@ struct boss_head_machinist_sparkflux : public BossAI
             break;
 
         case EVENT_DISCOM:
-            //DoCastRandom(SPELL_DISCOM_MISSILE, 100.0f, true);
+            DoCastRandom(SPELL_DISCOM_MISSILE, 100.0f, true);
             events.Repeat(20s);
             break;
 
@@ -74,10 +74,10 @@ struct boss_head_machinist_sparkflux : public BossAI
         }
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* /*killer*/) 
     {
         _JustDied();
-       // instance->DoModifyPlayerCurrencies(1553, 35);
+        instance->DoModifyPlayerCurrencies(1553, 35);
     }
 };
 

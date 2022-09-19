@@ -46,7 +46,7 @@ struct boss_tusle_tonks : public BossAI
 {
     boss_tusle_tonks(Creature* creature) : BossAI(creature, DATA_TUSSLE_TONKS) { }
 
-    void Reset() override
+    void Reset()
     {
         switch (me->GetEntry())
         {
@@ -55,7 +55,7 @@ struct boss_tusle_tonks : public BossAI
             me->AddAura(SPELL_PLATINUM_PLATING, me);
             if (Aura* plating = me->GetAura(SPELL_PLATINUM_PLATING))            
                 plating->SetStackAmount(3);
-        //    me->DespawnCreaturesInArea(NPC_BUZZ_SAW, 125.0f);
+            me->DespawnCreaturesInArea(NPC_BUZZ_SAW, 125.0f);
             break;
 
         case NPC_GNOMERCY:
@@ -65,7 +65,7 @@ struct boss_tusle_tonks : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/)
     {
         switch (me->GetEntry())
         {
@@ -90,7 +90,7 @@ struct boss_tusle_tonks : public BossAI
         }
     }
 
-    void ExecuteEvent(uint32 eventid) override
+    void ExecuteEvent(uint32 eventid)
     {
         switch (eventid)
         {
@@ -108,20 +108,22 @@ struct boss_tusle_tonks : public BossAI
                 if (Creature* stalker = me->FindNearestCreature(NPC_STALKER_ROBODROME_ARENA, 100.0f, true))
                 {
                     buzz_saws->SetFacingToObject(stalker);
-                  //  me->GetScheduler().Schedule(1s, [buzz_saws, stalker] (TaskContext context)
+                    me->GetScheduler().Schedule(1s, [buzz_saws, stalker] (TaskContext context)
                     {                        
                         buzz_saws->GetMotionMaster()->MoveCharge(stalker->GetPositionX(), stalker->GetPositionY(), stalker->GetPositionZ(), 80.0f, 1, true);
-                    }//);
-                   // me->GetScheduler().Schedule(3s, [buzz_saws, stalker] (TaskContext context)
+                    };
+                    me->GetScheduler().Schedule(3s, [buzz_saws, stalker] (TaskContext context)
                     {
                         buzz_saws->GetMotionMaster()->MoveRandom(30.0f);
-                    }//);
-                   // me->GetScheduler().Schedule(6s, [buzz_saws, stalker] (TaskContext context)
+                    };
+                    me->GetScheduler().Schedule(6s, [buzz_saws, stalker] (TaskContext context)
                     {
                         buzz_saws->DespawnOrUnsummon();
-                    }//);
+                    };
                 }
-        }   }
+           }
+        }
+           
         events.Repeat(35s);
         break;
 
@@ -131,17 +133,17 @@ struct boss_tusle_tonks : public BossAI
             break;
 
         case EVENT_LAY_MINE:
-           // DoCastRandom(SPELL_LAY_MINE_MISSILE, 100.0f, true);
+            DoCastRandom(SPELL_LAY_MINE_MISSILE, 100.0f, true);
             events.Repeat(30s);
             break;
 
         case EVENT_MAXIMUM_THRUST:
             if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))
             {
-              // me->GetScheduler().Schedule(1s, [this, target] (TaskContext context)
+               me->GetScheduler().Schedule(1s, [this, target] (TaskContext context)
                 {
                     me->GetMotionMaster()->MoveCharge(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 100.0f, 1, true);
-                }//);
+                };
             }
             events.Repeat(20s);
             break;
@@ -158,7 +160,7 @@ struct boss_tusle_tonks : public BossAI
         }
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason /*why*/)
     {
         _JustReachedHome();
         switch (me->GetEntry())
@@ -166,7 +168,7 @@ struct boss_tusle_tonks : public BossAI
         case NPC_PLATINUM_PUMMELER:
             me->NearTeleportTo(me->GetHomePosition());
             me->ForcedDespawn(0, 15s);
-           // me->DespawnCreaturesInArea(NPC_BUZZ_SAW, 125.0f);
+            me->DespawnCreaturesInArea(NPC_BUZZ_SAW, 125.0f);
             if (Creature* gnomercy = me->FindNearestCreature(NPC_GNOMERCY, 100.0f, false))
             {
                 gnomercy->NearTeleportTo(me->GetHomePosition());
@@ -177,7 +179,7 @@ struct boss_tusle_tonks : public BossAI
         case NPC_GNOMERCY:
             me->NearTeleportTo(me->GetHomePosition());
             me->ForcedDespawn(0, 15s);
-          //  me->DespawnCreaturesInArea(NPC_BUZZ_SAW, 125.0f);
+            me->DespawnCreaturesInArea(NPC_BUZZ_SAW, 125.0f);
             if (Creature* pummeler = me->FindNearestCreature(NPC_PLATINUM_PUMMELER, 100.0f, false))
             {
                 pummeler->NearTeleportTo(me->GetHomePosition());
@@ -187,13 +189,13 @@ struct boss_tusle_tonks : public BossAI
         }
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* /*killer*/)
     {
         switch (me->GetEntry())
         {
         case NPC_PLATINUM_PUMMELER:
             _JustDied();
-        //    instance->DoModifyPlayerCurrencies(1553, 35);
+            instance->DoModifyPlayerCurrencies(1553, 35);
             break;
 
         case NPC_GNOMERCY:
@@ -208,7 +210,7 @@ struct npc_buzz_saw : public ScriptedAI
 {
     npc_buzz_saw(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void Reset()
     {
         ScriptedAI::Reset();
         me->SetReactState(REACT_PASSIVE);

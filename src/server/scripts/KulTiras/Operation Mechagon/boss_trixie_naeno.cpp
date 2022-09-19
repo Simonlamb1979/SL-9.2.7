@@ -73,7 +73,7 @@ struct boss_trixie_naeno : public BossAI
 {
     boss_trixie_naeno(Creature* creature) : BossAI(creature, DATA_TRIXIE_NAENO) { }
 
-    void Reset() override
+    void Reset()
     {
         switch (me->GetEntry())
         {
@@ -96,7 +96,7 @@ struct boss_trixie_naeno : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/)
     {
         switch (me->GetEntry())
         {
@@ -134,7 +134,7 @@ struct boss_trixie_naeno : public BossAI
         }
     }    
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason /*why*/)
     {
         std::list<Creature*> gnomes_list;
         gnomes_list.clear();
@@ -152,12 +152,12 @@ struct boss_trixie_naeno : public BossAI
         }
     }
 
-    void ExecuteEvent(uint32 eventid) override
+    void ExecuteEvent(uint32 eventid)
     {
         switch (eventid)
         {
         case EVENT_TAZE:
-          //  DoCastRandom(SPELL_TAZE, 100.0f, false);
+            DoCastRandom(SPELL_TAZE, 100.0f, false);
             events.Repeat(5s);
             break;
 
@@ -165,12 +165,12 @@ struct boss_trixie_naeno : public BossAI
             Talk(SAY_TRIXIE_ELECTRIC_SLIDE);
             if (Creature* stalker = me->FindNearestCreature(NPC_JUMP_POINT_STALKER, 25.0f, true))
             {                
-                //me->CastSpell(stalker->GetPosition(), SPELL_ELECTRIC_SLIDE, false);
+                me->CastSpell(stalker->GetPosition(), SPELL_ELECTRIC_SLIDE, false);
                 me->GetMotionMaster()->MoveJump(stalker->GetPosition(), 0.8F, 30.0f, 30.0f, true);
-             //   me->GetScheduler().Schedule(3s, [this] (TaskContext context)
+                me->GetScheduler().Schedule(3s, [this] (TaskContext context)
                 {
                     me->RemoveAura(SPELL_ELECTRIC_SLIDE);
-                }//);
+                };
             }
             events.Repeat(20s);
             break;
@@ -181,14 +181,14 @@ struct boss_trixie_naeno : public BossAI
             {
                 me->SetFacingToObject(target);
                 me->CastSpell(target, SPELL_MEGA_TAZE_CHANNEL, false);
-              //  me->GetScheduler().Schedule(8s, [target, this] (TaskContext context)
+                me->GetScheduler().Schedule(8s, [target, this] (TaskContext context)
                 {
                     if (!target->HasAura(SPELL_SMOKE_CLOUD_AURA))
                     {
                         me->CastSpell(target, SPELL_MEGA_TAZE_VISUAL_MISSILE, true);
                         me->CastSpell(target, SPELL_MEGA_TAZE_DAMAGE, true);
                     }
-                }//);
+                };
             }
             events.Repeat(30s);
             break;
@@ -243,7 +243,7 @@ struct boss_trixie_naeno : public BossAI
                 if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))
                 {                    
                     mechacycle->SetFacingToObject(target, true);                    
-                 //   mechacycle->CastSpell(target->GetPosition(), SPELL_PEDAL_TO_THE_METAL, false);
+                    mechacycle->CastSpell(target->GetPosition(), SPELL_PEDAL_TO_THE_METAL, false);
                 }
             }
             events.Repeat(20s);
@@ -268,7 +268,7 @@ struct boss_trixie_naeno : public BossAI
         }
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit* killer)
     {
         switch (me->GetEntry())
         {
@@ -289,7 +289,7 @@ struct boss_trixie_naeno : public BossAI
             if (Creature* mechacycle = me->FindNearestCreature(NPC_MECHACYCLE, 100.0f, true))
                 mechacycle->DespawnOrUnsummon();
 
-          //  instance->DoModifyPlayerCurrencies(1553, 35);
+            instance->DoModifyPlayerCurrencies(1553, 35);
             break;
 
         case NPC_MECHACYCLE:
@@ -307,7 +307,7 @@ struct npc_smoke_cloud_stalker : public ScriptedAI
 {
     npc_smoke_cloud_stalker(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void Reset()
     {
         ScriptedAI::Reset();
         me->CastSpell(nullptr, SPELL_SMOKE_CLOUD_CREATE_AT, true);

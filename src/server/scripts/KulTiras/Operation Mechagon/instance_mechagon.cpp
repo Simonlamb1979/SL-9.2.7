@@ -5,12 +5,12 @@
 #include "ObjectMgr.h"
 #include "operation_mechagon.h"
 
-/*DoorData const doorData[] =
+void DoorData const doorData[] =
 {
     { , , DOOR_TYPE_ROOM },
     { , , DOOR_TYPE_ROOM },
     { , , DOOR_TYPE_ROOM },
-};*/
+};
 
 struct instance_operation_mechagon : public InstanceScript
 {
@@ -20,31 +20,31 @@ struct instance_operation_mechagon : public InstanceScript
         SetBossNumber(EncounterCount);
     }
 
-    void OnPlayerEnter(Player* player) override
+    void OnPlayerEnter(Player* player) 
     {        
         Conversation::CreateConversation(CONVERSATION_OPERATION_MECHAGON_INTRO, player, player->GetPosition(), { player->GetGUID() });
     };
 
-    void OnCreatureCreate(Creature* cre) override
+    void OnCreatureCreate(Creature* Creature)
     {
-    //    if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(cre->GetEntry()))
-      //  {
-        //    if (cInfo->MechanicImmuneMask == 0)
-          //  {
-            //    if (instance->IsMythic())
-                  //  if (cre->GetFaction() == 16)
-                      //  cre->SetBaseHealth(cre->GetMaxHealth() * 6.0f);
+        if (CreatureTemplate const* cInfo = sObjectMgr->GetCreatureTemplate(cre->GetEntry()))
+        {
+            if (cInfo->MechanicImmuneMask == 0)
+            {
+                if (instance->IsMythic())
+                    if (cre->GetFaction() == 16)
+                        cre->SetBaseHealth(cre->GetMaxHealth() * 6.0f);
 
-            //    if (instance->IsHeroic())
-                //    if (cre->GetFaction() == 16)
-                  //      cre->SetBaseHealth(cre->GetMaxHealth() * 5.0f);
+                if (instance->IsHeroic())
+                    if (cre->GetFaction() == 16)
+                        cre->SetBaseHealth(cre->GetMaxHealth() * 5.0f);
 
-             //   else
-                 //   if (cre->GetFaction() == 16)
-                    //    cre->SetBaseHealth(cre->GetMaxHealth() * 4.0f);
-       //     }
+                else
+                    if (cre->GetFaction() == 16)
+                        cre->SetBaseHealth(cre->GetMaxHealth() * 4.0f);
+            }
         }
-  //  };
+    };
 };
 
 void AddSC_instance_operation_mechagon()

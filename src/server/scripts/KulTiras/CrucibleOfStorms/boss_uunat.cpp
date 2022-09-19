@@ -369,11 +369,11 @@ public:
 			}
 		}
 
-		void KilledUnit(Unit*) override
+		void KilledUnit(Unit*) 
 		{
 			SelectSoundAndText(me, 8);
 		}
-		void Reset() override
+		void Reset() 
 		{
 			RemoveTormentFromPlayers();
 			phase1 = false;
@@ -391,7 +391,7 @@ public:
 			instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 		}
 
-		void MoveInLineOfSight(Unit* who) override
+		void MoveInLineOfSight(Unit* who) 
 		{
 			if (!introText)
 			{
@@ -407,7 +407,7 @@ public:
 			}
 		}
 
-		void JustDied(Unit*) override
+		void JustDied(Unit*) 
 		{
 			RemoveTormentFromPlayers();
 			SelectSoundAndText(me, 9);
@@ -418,7 +418,7 @@ public:
 			DespawnRelics(NPC_TEMPEST_RELIC);
 		}
 
-		void EnterEvadeMode(EvadeReason why) override
+		void EnterEvadeMode(EvadeReason why) 
 		{
 			RemoveTormentFromPlayers();
 			DespawnRelics(NPC_VOID_RELIC);
@@ -473,7 +473,7 @@ public:
 				tridentRelic->SetNpcFlags(UNIT_NPC_FLAG_GOSSIP);
 		}
 
-		void DamageTaken(Unit* t, uint32& damage) override
+		void DamageTaken(Unit* t, uint32& damage) 
 		{
 			if (me->HealthBelowPct(70) && !phase2)
 			{
@@ -490,7 +490,7 @@ public:
 			}
 		}
 
-		void JustSummoned(Creature* summon) override
+		void JustSummoned(Creature* summon) 
 		{
 			summons.Summon(summon);
 
@@ -586,7 +586,7 @@ public:
 			}
 			}
 
-		//	me->GetScheduler().Schedule(10s, [this](TaskContext /*context*/)
+			me->GetScheduler()//.Schedule(10s, [this](TaskContext /*context*/)
 				{
 					DespawnPiercingGaze();
 				}//);
@@ -663,7 +663,7 @@ public:
 			}
 		}
 
-		void MovementInform(uint32 type, uint32 pointId) override
+		void MovementInform(uint32 type, uint32 pointId)
 		{
 			switch (pointId)
 			{
@@ -905,7 +905,7 @@ public:
 			}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			events.Update(diff);
 
@@ -1056,7 +1056,7 @@ public:
 					break;
 				}
 				case EVENT_UNKNOWABLE_TERROR:
-					//me->CastSpell(3506.11f, -1167.28f, -375.83f, SPELL_UNKNOWABLE_TERROR_CAST);
+					me->CastSpell(3506.11f, -1167.28f, -375.83f, SPELL_UNKNOWABLE_TERROR_CAST);
 					events.ScheduleEvent(EVENT_UNKNOWABLE_TERROR, TIMER_UNKNOWABLE_TERROR);
 					break;
 				}
@@ -1065,7 +1065,7 @@ public:
 		}
 	};
 	
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_boss_uunat_AI(creature);
 	}
@@ -1136,13 +1136,13 @@ public:
         EventMap events;
         bool regen;
 
-        void Reset() override
+        void Reset() 
         {
             regen = false;
             events.Reset();
         }
 
-        void DamageTaken(Unit* at, uint32& damage) override
+        void DamageTaken(Unit* at, uint32& damage) 
         {
             if (damage >= me->GetHealth() && !regen)
             {
@@ -1179,17 +1179,17 @@ public:
             {
                 if (hunger->GetStackAmount() >= 15)
                 {
-                    //	me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_INTERRUPT_FLAG_INTERRUPT, true);
+                    	me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_INTERRUPT_FLAG_INTERRUPT, true);
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_AURA_MOD_STUN, true);
                 }
                 else
                 {
-                    //me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_INTERRUPT_FLAG_INTERRUPT, false);
+                    me->ApplySpellImmune(0, IMMUNITY_STATE, SPELL_INTERRUPT_FLAG_INTERRUPT, false);
                     me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_AURA_MOD_STUN, false);
                 }
             }
         }
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff) 
         {
             events.Update(diff);
 
@@ -1222,7 +1222,7 @@ public:
 
                     for (auto player : playerList)
                     {
-                        //me->AddThreat(player, 9999999.9f);
+                        me->AddThreat(player, 9999999.9f);
                         me->AI()->AttackStart(player);
                     }
                     events.ScheduleEvent(EVENT_FIXATE_TANK, 10 * IN_MILLISECONDS); // just to make sure its still on tank
@@ -1261,7 +1261,7 @@ public:
         }
     };
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_undying_guardian_AI(creature);
 	}
@@ -1283,7 +1283,7 @@ public:
 
 		EventMap events;
 
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 		}
@@ -1298,14 +1298,14 @@ public:
 			events.ScheduleEvent(EVENT_CONSUME_ESSENCE, 1500);
 		}
 
-		void JustDied(Unit*) override
+		void JustDied(Unit*) 
 		{
 			for (uint8 i = 0; i < 3; ++i)
 				me->SummonCreature(NPC_SWARMING_VOIDSPAWN, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), TEMPSUMMON_CORPSE_DESPAWN);
 
 		}
 
-		void OnSpellCastInterrupt(SpellInfo const* spell) override
+		void OnSpellCastInterrupt(SpellInfo const* spell) 
 		{
 			if (me->HasAura(42716))
 			{
@@ -1313,7 +1313,7 @@ public:
 			}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff)
 		{
 			events.Update(diff);
 
@@ -1335,7 +1335,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_primordial_mindbender_AI(creature);
 	}
@@ -1356,7 +1356,7 @@ public:
 
 		EventMap events;
 
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 		}
@@ -1370,7 +1370,7 @@ public:
 			}
 		}
 
-		void DamageTaken(Unit* at, uint32& damage) override
+		void DamageTaken(Unit* at, uint32& damage) 
 		{
 			if (damage >= me->GetHealth())
 			{
@@ -1380,7 +1380,7 @@ public:
 			}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			events.Update(diff);
 
@@ -1415,7 +1415,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_swarming_voidspawns_AI(creature);
 	}
@@ -1432,7 +1432,7 @@ public:
 		bfa_at_oblivion_terror_AI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
 
-		void OnUnitEnter(Unit* unit) override
+		void OnUnitEnter(Unit* unit) 
 		{
 			if (unit->IsPlayer() && !unit->ToPlayer()->IsGameMaster())
 			{
@@ -1446,7 +1446,7 @@ public:
 
 	};
 
-	AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+	AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const 
 	{
 		return new bfa_at_oblivion_terror_AI(areatrigger);
 	}
@@ -1505,7 +1505,7 @@ public:
 
 		EventMap events;
 		uint32 checkTimer;
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 			checkTimer = 0;
@@ -1527,7 +1527,7 @@ public:
 			return fabs(sin(angle)) * source.GetExactDist2d(obj->GetPositionX(), obj->GetPositionY()) < beamWidth;
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			checkTimer += diff;
 
@@ -1556,7 +1556,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_piercing_gaze_trigger_AI(creature);
 	}
@@ -1589,7 +1589,7 @@ public:
 
 		EventMap events;
 
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 		}
@@ -1620,7 +1620,7 @@ public:
 				}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff)
 		{
 			events.Update(diff);
 
@@ -1639,7 +1639,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_void_stone_relic_AI(creature);
 	}
@@ -1705,7 +1705,7 @@ public:
 
 		EventMap events;
 
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 		}
@@ -1736,7 +1736,7 @@ public:
 				}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			events.Update(diff);
 
@@ -1755,7 +1755,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_trident_of_deep_ocean_relic_AI(creature);
 	}
@@ -1822,7 +1822,7 @@ public:
 
 		EventMap events;
 
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 		}
@@ -1853,7 +1853,7 @@ public:
 				}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			events.Update(diff);
 
@@ -1872,7 +1872,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_tempest_caller_relic_AI(creature);
 	}
@@ -1961,14 +1961,14 @@ public:
 		EventMap events;
 		InstanceScript* instance;
 
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 			events.ScheduleEvent(EVENT_ABYSSAL_COLLAPSE, 20 * IN_MILLISECONDS);
 			events.ScheduleEvent(EVENT_ADD_FRAME, 100);
 		}
 
-		void JustDied(Unit*) override
+		void JustDied(Unit*) 
 		{
 			me->RemoveAreaTrigger(SPELL_CUSTODY_AT);
 			instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -1991,7 +1991,7 @@ public:
 				}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			events.Update(diff);
 
@@ -2019,7 +2019,7 @@ public:
 
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_ocean_rune_trigger_AI(creature);
 	}
@@ -2039,7 +2039,7 @@ public:
 
 		uint32 damageToRune;
 
-		bool Load() override
+		bool Load() 
 		{
 			damageToRune = 0;
 			return true;

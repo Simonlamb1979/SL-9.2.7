@@ -244,7 +244,7 @@ public:
 			}
 		}
 
-		void DamageTaken(Unit* at, uint32& damage) override
+		void DamageTaken(Unit* at, uint32& damage)
 		{
 			if (at->HasAura(SPELL_CUSTODY_OF_THE_DEEP))
 			{
@@ -403,12 +403,12 @@ public:
 			return me->FindNearestCreature(BOSS_FATHUUL_THE_FEARED, 500.0f, true);
 		}
 
-		void EnterEvadeMode(EvadeReason why) override
+		void EnterEvadeMode(EvadeReason why) 
 		{
 			_DespawnAtEvade(15);
 		}
 
-		void JustSummoned(Creature* summon) override
+		void JustSummoned(Creature* summon)
 		{
 			summons.Summon(summon);
 
@@ -419,7 +419,7 @@ public:
 				break;
 			}
 		}
-		void JustDied(Unit*) override
+		void JustDied(Unit*)
 		{
 			instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 			summons.DespawnAll();
@@ -436,7 +436,7 @@ public:
 			events.ScheduleEvent(EVENT_DARK_HERALD, TIMER_DARK_HERALD);
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff)
 		{
 			events.Update(diff);
 
@@ -484,7 +484,7 @@ public:
 				{
 					std::list<Player*> playerList;
 					me->GetPlayerListInGrid(playerList, 100.0f);
-				//	playerList.remove_if(checkSpec());
+					playerList.remove_if(checkSpec());
 					if (!playerList.empty())
 					{
 						playerList.resize(1);
@@ -506,7 +506,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_boss_zaxasj_the_speaker_AI(creature);
 	}
@@ -577,7 +577,7 @@ public:
 			return me->FindNearestCreature(NPC_OCEAN_RUNE, 500.0f, true);
 		}
 
-		void DamageTaken(Unit* at, uint32& damage) override
+		void DamageTaken(Unit* at, uint32& damage)
 		{
 			if (at->HasAura(SPELL_CUSTODY_OF_THE_DEEP))
 			{
@@ -741,7 +741,7 @@ public:
 			voidstoneActivated = false;
 		}
 
-		void Reset() override
+		void Reset() 
 		{
 			instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 			voidCrashTargets.clear();
@@ -761,7 +761,7 @@ public:
 			return me->FindNearestCreature(BOSS_ZAXASJ_THE_SPEAKER, 500.0f, true);
 		}
 
-		void EnterEvadeMode(EvadeReason why) override
+		void EnterEvadeMode(EvadeReason why) 
 		{
 			DespawnCreature(NPC_VOID_STONE_RELIC);
 			DespawnCreature(NPC_TEMPEST_CALLER_RELIC);
@@ -769,7 +769,7 @@ public:
 			_DespawnAtEvade(15);
 		}
 
-		void JustDied(Unit*) override
+		void JustDied(Unit*)
 		{
 			DespawnCreature(NPC_VOID_STONE_RELIC);
 			DespawnCreature(NPC_TEMPEST_CALLER_RELIC);
@@ -778,7 +778,7 @@ public:
 			summons.DespawnAll();
 		}
 
-		void JustSummoned(Creature* summon) override
+		void JustSummoned(Creature* summon) 
 		{
 			summons.Summon(summon);
 
@@ -834,7 +834,7 @@ public:
 				voidCrashTargets.clear();
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff)
 		{
 			events.Update(diff);
 
@@ -898,7 +898,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_boss_fathuul_the_feared_AI(creature);
 	}
@@ -1123,7 +1123,7 @@ public:
 
 		EventMap events;
 
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 		}
@@ -1135,7 +1135,7 @@ public:
 				me->CastSpell(me, SPELL_INCOMPLETE_FORM, true);
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff)
 		{
 			events.Update(diff);
 
@@ -1165,7 +1165,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_eldritch_abomination_AI(creature);
 	}
@@ -1189,13 +1189,13 @@ public:
 		EventMap events;
 		InstanceScript* instance;
 
-		void Reset() override
+		void Reset() 
 		{
 			canCoalesce = false;
 			events.Reset();
 		}
 
-		void DamageTaken(Unit* a, uint32& damage) override
+		void DamageTaken(Unit* a, uint32& damage) 
 		{
 			if (damage >= me->GetHealth() && !canCoalesce)
 			{
@@ -1217,7 +1217,7 @@ public:
 			events.ScheduleEvent(EVENT_TERRIFYING_ECHO, 3000);
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			events.Update(diff);
 
@@ -1261,7 +1261,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_visage_from_beyond_AI(creature);
 	}
@@ -1285,7 +1285,7 @@ public:
 
 		EventMap events;
 
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 		}
@@ -1307,7 +1307,7 @@ public:
 			}
 		}
 		
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			events.Update(diff);
 
@@ -1330,7 +1330,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_void_stone_AI(creature);
 	}
@@ -1346,19 +1346,19 @@ public:
 	{
 		bfa_at_void_essence_AI(AreaTrigger* areatrigger) : AreaTriggerAI(areatrigger) { }
 
-		void OnUnitEnter(Unit* unit) override
+		void OnUnitEnter(Unit* unit)
 		{
 			unit->ApplyMovementForce(at->GetGUID(), at->GetPosition(), -5.0f, 0);
 		}
 
-		void OnUnitExit(Unit* unit) override
+		void OnUnitExit(Unit* unit)
 		{
 			unit->RemoveMovementForce(at->GetGUID());
 		}
 
 	};
 
-	AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const override
+	AreaTriggerAI* GetAI(AreaTrigger* areatrigger) const 
 	{
 		return new bfa_at_void_essence_AI(areatrigger);
 	}
@@ -1382,7 +1382,7 @@ public:
 
 		EventMap events;
 
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 		}
@@ -1416,7 +1416,7 @@ public:
 				}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			events.Update(diff);
 
@@ -1453,7 +1453,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_tempest_caller_AI(creature);
 	}
@@ -1473,7 +1473,7 @@ public:
 
 		EventMap events;
 
-		void Reset() override
+		void Reset() 
 		{
 			me->CastSpell(me, SPELL_OCEANIC_ESSENCE_AT);
 			me->CastSpell(me, SPELL_OCEANIC_ESSENCE_VISUAL);
@@ -1497,14 +1497,14 @@ public:
 				}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			events.Update(diff);
 			CheckNearbyPlayers();
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_oceanic_essence_AI(creature);
 	}
@@ -1531,7 +1531,7 @@ public:
 		EventMap events;
 		InstanceScript* instance;
 
-		void Reset() override
+		void Reset() 
 		{
 			events.Reset();
 		}
@@ -1579,7 +1579,7 @@ public:
 			}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff)
 		{
 			events.Update(diff);
 
@@ -1615,7 +1615,7 @@ public:
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_trident_of_deep_ocean_AI(creature);
 	}
@@ -1634,7 +1634,7 @@ public:
 			me->AddUnitState(UNIT_STATE_ROOT);
 		}
 
-		void JustDied(Unit*) override
+		void JustDied(Unit*) 
 		{
 			if(Creature* relic = me->FindNearestCreature(NPC_TRIDENT_OF_DEEP_OCEAN_RELIC, 10.0f, true))
 				CAST_AI(bfa_npc_trident_of_deep_ocean::bfa_npc_trident_of_deep_ocean_AI, relic->AI())->OceanHasBeenKilled();
@@ -1658,13 +1658,13 @@ public:
 				}
 		}
 
-		void UpdateAI(uint32 diff) override
+		void UpdateAI(uint32 diff) 
 		{
 			CheckNearbyPlayers();
 		}
 	};
 
-	CreatureAI* GetAI(Creature* creature) const override
+	CreatureAI* GetAI(Creature* creature) const 
 	{
 		return new bfa_npc_ocean_rune_AI(creature);
 	}

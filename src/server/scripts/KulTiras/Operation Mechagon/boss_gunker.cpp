@@ -44,7 +44,7 @@ struct boss_gunker : public BossAI
 {
     boss_gunker(Creature* creature) : BossAI(creature, DATA_GUNKER) { }
 
-    void Reset() override
+    void Reset()
     {
         BossAI::Reset();
         SetCombatMovement(false);
@@ -53,10 +53,10 @@ struct boss_gunker : public BossAI
         me->SummonCreature(NPC_SQUIRT_BOT, squirt_bot_pos, TEMPSUMMON_MANUAL_DESPAWN);
         me->SummonCreature(NPC_SQUIRT_BOT, squirt_bot_pos2, TEMPSUMMON_MANUAL_DESPAWN);
         me->SummonCreature(NPC_SQUIRT_BOT, squirt_bot_pos3, TEMPSUMMON_MANUAL_DESPAWN);
-   //     me->AddAura(AURA_OVERRIDE_POWER_COLOR_GREEN);
+        me->AddAura(AURA_POWER_COLOR_GREEN);
     }
 
-    void MoveInLineOfSight(Unit* unit) override
+    void MoveInLineOfSight(Unit* unit)
     {
         if (unit->IsPlayer() && instance->GetBossState(DATA_KING_GOBBAMAK) == DONE)
         {
@@ -68,7 +68,7 @@ struct boss_gunker : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* who)
     {
         _JustEngagedWith();
         DoCastSelf(SPELL_PERIODIC_ENERGY_GAIN);        
@@ -89,13 +89,13 @@ struct boss_gunker : public BossAI
         }
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason /*why*/) 
     {
         _JustReachedHome();
         _DespawnAtEvade();
     }
 
-    void ExecuteEvent(uint32 eventid) override
+    void ExecuteEvent(uint32 eventid)
     {
         switch (eventid)
         {
@@ -136,11 +136,11 @@ struct boss_gunker : public BossAI
         }
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit* killer)
     {       
         _JustDied();
-     //   me->DespawnCreaturesInArea(NPC_SQUIRT_BOT, 125.0f);
-     //   instance->DoModifyPlayerCurrencies(1553, 35);
+        me->DespawnCreaturesInArea(NPC_SQUIRT_BOT, 125.0f);
+        instance->DoModifyPlayerCurrencies(1553, 35);
     }    
 };
 
@@ -155,12 +155,12 @@ struct npc_squirt_bot : public ScriptedAI
 {
     npc_squirt_bot(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void Reset()
     {
         ScriptedAI::Reset();
     }
 
-    //void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
+    void SpellHit(Unit* caster, SpellInfo const* spellInfo)
 };
 
 void AddSC_boss_gunker()

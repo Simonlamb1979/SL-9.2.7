@@ -43,13 +43,13 @@ struct boss_kujo : public BossAI
 {
     boss_kujo(Creature* creature) : BossAI(creature, DATA_KUJO) { }
 
-    void Reset() override
+    void Reset()
     {
         BossAI::Reset();
-      //  me->DespawnCreaturesInArea(NPC_FLYING_CLAW);
+        me->DespawnCreaturesInArea(NPC_FLYING_CLAW);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/)
     {
         _JustEngagedWith();
         if (Creature* wendy = me->FindNearestCreature(NPC_WENDY_COGSWORTH, 300.0f, true))
@@ -60,7 +60,7 @@ struct boss_kujo : public BossAI
         events.ScheduleEvent(EVENT_EXPLOSIVE_LEAP, 38s);
     }
 
-    void ExecuteEvent(uint32 eventid) override
+    void ExecuteEvent(uint32 eventid)
     {
         switch (eventid)
         {
@@ -71,10 +71,10 @@ struct boss_kujo : public BossAI
             if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))
             {
                 me->SetFacingToObject(target);
-             //   me->GetScheduler().Schedule(3s, [this, target](TaskContext context)
+                me->GetScheduler().Schedule(3s, [this, target](TaskContext context)
                 {
                     me->GetMotionMaster()->MoveCharge(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 80.0f, 1, true);
-                }//);
+                };
             }
             events.Repeat(20s);
             break;
@@ -100,14 +100,14 @@ struct boss_kujo : public BossAI
         }
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* /*killer*/)
     {
         _JustDied();
         if (Creature* wendy = me->FindNearestCreature(NPC_WENDY_COGSWORTH, 300.0f, true))
             wendy->AI()->Talk(SAY_DEATH);
-      //  me->DespawnCreaturesInArea(NPC_FLYING_CLAW);
-      //
-      //  instance->DoModifyPlayerCurrencies(1553, 35);
+        me->DespawnCreaturesInArea(NPC_FLYING_CLAW);
+      
+        instance->DoModifyPlayerCurrencies(1553, 35);
     }
 };
 
@@ -119,7 +119,7 @@ struct npc_flying_claw : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) override
+    void IsSummonedBy(Unit* /*summoner*/) 
     {        
         me->GetMotionMaster()->MoveFall();
     }

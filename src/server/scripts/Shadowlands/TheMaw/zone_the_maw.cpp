@@ -19,13 +19,13 @@
 #include "GameObject.h"
 #include "GameObjectAI.h"
 #include "torghast_tower_of_the_damned.h"
-//#include "instance_torgast_tower_of_the_damned"
-//#include "Scenario_Coldheart_Interstitia"
-//#include "Scenario_Mort'regar"
-//#include "Scenario_Skoldus_Hall"
-//#include "Scenario_The_Fracture_Chambers"
-//#include "Scenario_The_Soulforges"
-//#include "Scenario_The_Upper_Reaches"
+#include "torgast_tower_of_the_damned.h"
+#include "Scenario_Coldheart_Interstitia.h"
+#include "Scenario_Mort'regar.h"
+#include "Scenario_Skoldus_Hall.h"
+#include "Scenario_The_Fracture_Chambers.h"
+#include "Scenario_The_Soulforges.h"
+#include "Scenario_The_Upper_Reaches.h"
 
 enum TheMaw
 {

@@ -41,15 +41,15 @@ struct boss_king_gobbamak : public BossAI
 {
     boss_king_gobbamak(Creature* creature) : BossAI(creature, DATA_KING_GOBBAMAK) { }
 
-    void Reset() override
+    void Reset()
     {
         BossAI::Reset();
         me->SetPowerType(POWER_ENERGY);
-       // me->AddAura(AURA_OVERRIDE_POWER_COLOR_OCEAN);
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_OCEAN);
         me->SetPower(POWER_ENERGY, 0);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/)
     {
         this->pack_counter = 0;
         _JustEngagedWith();
@@ -62,21 +62,21 @@ struct boss_king_gobbamak : public BossAI
         events.ScheduleEvent(EVENT_GETEM, 17s);
     }
 
-    void JustDied(Unit* killer) override
+    void JustDied(Unit* killer)
     {
         _JustDied();
         Talk(SAY_DEATH);
-       // me->DespawnCreaturesInArea(NPC_STOLEN_SCRAPBOT, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_STOLEN_SHOCK_COIL, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_SCRAPBONE_GRUNTER, 125.0f);
-      //  instance->DoModifyPlayerCurrencies(1553, 35);
+        me->DespawnCreaturesInArea(NPC_STOLEN_SCRAPBOT, 125.0f);
+        me->DespawnCreaturesInArea(NPC_STOLEN_SHOCK_COIL, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SCRAPBONE_GRUNTER, 125.0f);
+        instance->DoModifyPlayerCurrencies(1553, 35);
     }
 
-    void JustReachedHome() override
+    void JustReachedHome() 
     {
         _JustReachedHome();
 
-      //  me->DespawnCreaturesInArea(NPC_SCRAPBONE_GRUNTER);
+        me->DespawnCreaturesInArea(NPC_SCRAPBONE_GRUNTER);
         if (Creature* stolen_scrapbot = me->FindNearestCreature(NPC_STOLEN_SCRAPBOT, 100.0f, true))
         {            
             stolen_scrapbot->ForcedDespawn(0, 1s);            
@@ -91,7 +91,7 @@ struct boss_king_gobbamak : public BossAI
         }
     }
 
-    void KilledUnit(Unit* unit) override
+    void KilledUnit(Unit* unit)
     {
         uint32 randomChance = urand(0, 1);
 
@@ -110,7 +110,7 @@ struct boss_king_gobbamak : public BossAI
         }
     }
 
-    void JustSummoned(Creature* summon) override
+    void JustSummoned(Creature* summon)
     {
         switch (summon->GetEntry())
         {
@@ -120,7 +120,7 @@ struct boss_king_gobbamak : public BossAI
         }
     }
 
-    void ExecuteEvent(uint32 eventid) override
+    void ExecuteEvent(uint32 eventid)
     {
         if (me->GetPower(POWER_ENERGY) == 100)
         {
@@ -132,7 +132,7 @@ struct boss_king_gobbamak : public BossAI
         switch (eventid)
         {
         case EVENT_ELECTRICAL_CHARGE:
-        //    DoCastRandom(SPELL_ELECTRICAL_CHARGE, 100.0f, true);
+            DoCastRandom(SPELL_ELECTRICAL_CHARGE, 100.0f, true);
             events.Repeat(15s);
             break;
 
@@ -145,7 +145,7 @@ struct boss_king_gobbamak : public BossAI
 
         case EVENT_GETEM:
             Talk(SAY_GETEM);
-        //    me->GetScheduler().Schedule(3s, [this] (TaskContext context)
+            me->GetScheduler().Schedule(3s, [this] (TaskContext context)
             {
                 for (uint8 i = 0; i < 4; i++)
                 {
@@ -153,11 +153,11 @@ struct boss_king_gobbamak : public BossAI
                     me->SummonCreature(NPC_SCRAPBONE_GRUNTER, cave_pos, TEMPSUMMON_MANUAL_DESPAWN);
                 }                
 
-               // if (this->pack_counter < 4)
-                //    context.Repeat(3s);
+                if (this->pack_counter < 4)
+                    context.Repeat(3s);
 
-              //  else this->pack_counter = 0;
-            }//);
+                else this->pack_counter = 0;
+            };
             events.Repeat(25s);
             break;
         }
@@ -183,14 +183,14 @@ struct npc_stolen_scrapbot : public ScriptedAI
 {
     npc_stolen_scrapbot(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void Reset()
     {
         ScriptedAI::Reset();
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 diff)
     {
-     //   events.Update(diff);
+        events.Update(diff);
 
         if (Creature* gobbamak = me->FindNearestCreature(NPC_SCRAPBONE_GRUNTER, 30.0f, true))
         {
@@ -242,9 +242,9 @@ struct npc_stolen_shock_coil : public ScriptedAI
         ScriptedAI::Reset();
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 diff)
     {
-    //    events.Update(diff);
+        events.Update(diff);
 
         if (Creature* gobbamak = me->FindNearestCreature(NPC_SCRAPBONE_GRUNTER, 30.0f, true))
         {

@@ -53,12 +53,12 @@ struct boss_hk_8 : public BossAI
     {
         BossAI::Reset();
         me->SetCanFly(true);
-        //me->SetFlying(true);
+        me->SetFlying(true);
         flight_to_encounter = false;
         hk_vulnerable = false;
     }
 
-    void MovementInform(uint32 type, uint32 point) override
+    void MovementInform(uint32 type, uint32 point)
     {
         if (type != POINT_MOTION_TYPE || point != 1)
             return;
@@ -69,16 +69,16 @@ struct boss_hk_8 : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void JustEngagedWith(Unit* /*who*/)
     {
 
     }
 
-    void JustDied(Unit* /*killer*/) override
+    void JustDied(Unit* /*killer*/) 
     {        
         _JustDied();
         Talk(SAY_DEATH);
-     //   instance->DoModifyPlayerCurrencies(1553, 35);
+        instance->DoModifyPlayerCurrencies(1553, 35);
     }
 
 private:
@@ -103,28 +103,28 @@ struct npc_tank_buster_mk1 : public ScriptedAI
 {
     npc_tank_buster_mk1(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void Reset() 
     {
         ScriptedAI::Reset();
         init_stage_two = false;        
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* who)
     {
-      //  if (instance)
-      //      instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-     //   events.ScheduleEvent(EVENT_WRECK, 3s);
-     //   events.ScheduleEvent(EVENT_ZAP, 8s);
-      //  events.ScheduleEvent(EVENT_REINFORCEMENTS, 13s);
-      //  events.ScheduleEvent(EVENT_CANNON_BLAST, 19s);
+        if (instance)
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+            events.ScheduleEvent(EVENT_WRECK, 3s);
+            events.ScheduleEvent(EVENT_ZAP, 8s);
+            events.ScheduleEvent(EVENT_REINFORCEMENTS, 13s);
+            events.ScheduleEvent(EVENT_CANNON_BLAST, 19s);
         if (Creature* hk8 = me->FindNearestCreature(NPC_HK_8_AERIAL_OPPRESION_UNIT, 100.0f, true))
         {
-           // instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, hk8);
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, hk8);
             hk8->AI()->Talk(SAY_HK_AGGRO);
         }
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) override
+    void EnterEvadeMode(EvadeReason /*why*/)
     {
         me->DespawnOrUnsummon();
         std::list<Creature*> encounter_list;
@@ -148,15 +148,15 @@ struct npc_tank_buster_mk1 : public ScriptedAI
     {
         if (me->HealthBelowPct(2) && !init_stage_two)
         {
-           // events.CancelEvent(EVENT_CANNON_BLAST);
-           // events.CancelEvent(EVENT_REINFORCEMENTS);
+            events.CancelEvent(EVENT_CANNON_BLAST);
+            events.CancelEvent(EVENT_REINFORCEMENTS);
             init_stage_two = true;
             me->AttackStop();
             me->SetReactState(REACT_PASSIVE);
             me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetHealth(me->GetMaxHealth());
             me->SetFaction(35);
-          ////  instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             me->DespawnOrUnsummon(3s);
             if (Creature* hk8 = me->FindNearestCreature(NPC_HK_8_AERIAL_OPPRESION_UNIT, 100.0f, true))
             {                
@@ -167,18 +167,18 @@ struct npc_tank_buster_mk1 : public ScriptedAI
                 {
                     hk8->NearTeleportTo(annhilation_pos, false);
                     hk8->CastSpell(center_stalker, SPELL_ANNIHILATION_RAY_CHANNEL, false);
-                 //   events.ScheduleEvent(EVENT_ANNIHILATION_EXPLOSION, 3min);
+                    events.ScheduleEvent(EVENT_ANNIHILATION_EXPLOSION, 3min);
                 }
                 if (Creature* station = me->FindNearestCreature(NPC_OVERCHARGE_STATION, 250.0f, true))
                 {
-                 //   instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, station);
+                    instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, station);
                     station->AddNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
                 }
             }
         }
     }
 
-    void ExecuteEvent(uint32 eventid)// override
+    void ExecuteEvent(uint32 eventid)
     {
         switch (eventid)
         {
@@ -186,17 +186,17 @@ struct npc_tank_buster_mk1 : public ScriptedAI
             if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.0f, true))
             {
                 DoCast(target, SPELL_WRECK, false);
-               // me->GetScheduler().Schedule(2900ms, [target, this] (TaskContext context)
+                me->GetScheduler().Schedule(2900ms, [target, this] (TaskContext context)
                 {
                     DoCast(target, SPELLW_WRECK_DAMAGE, false);
-                }//);
+                }
             }
-           // events.Repeat(3s);
+            events.Repeat(3s);
             break;
 
         case EVENT_ZAP:
-         //   DoCastRandom(SPELL_FULMINATING_ZAP, false);
-          //  events.Repeat(15s);
+            DoCastRandom(SPELL_FULMINATING_ZAP, false);
+            events.Repeat(15s);
             break;
 
         case EVENT_REINFORCEMENTS:
@@ -208,7 +208,7 @@ struct npc_tank_buster_mk1 : public ScriptedAI
                     me->CastSpell(center_stalker, SPELL_REINFORCEMENT_RELAY_TRIGGER_SUMMON, false);
                 }
             }
-           // events.Repeat(30s);
+            events.Repeat(30s);
             break;
 
         case EVENT_CANNON_BLAST:
@@ -218,17 +218,17 @@ struct npc_tank_buster_mk1 : public ScriptedAI
                 {
                     hk8->AI()->Talk(SAY_CANNON_BLAST);
                     hk8->AI()->DoCast(SPELL_CANNON_BLAST_TRIGGER);
-                  //  me->GetScheduler().Schedule(3s, [hk8, this] (TaskContext context)
+                    me->GetScheduler().Schedule(3s, [hk8, this] (TaskContext context)
                     {
                         std::list<Player*> target_list;
                         target_list.clear();
                         me->GetPlayerListInGrid(target_list, 300.0f);
                         for (auto& targets : target_list)                        
                             hk8->CastSpell(targets, SPELL_CANNON_BLAST_MISSILE);
-                    }//);
+                    }
                 }
             }
-           // events.Repeat(35s);
+            events.Repeat(35s);
             break;
 
         case EVENT_ANNIHILATION_EXPLOSION:
@@ -255,28 +255,30 @@ struct npc_walkie_shockie_x1 : public ScriptedAI
         me->SetWalk(true);
         me->SetPower(POWER_ENERGY, 100);
         DoCastSelf(SPELL_AREA_DENIAL_BOT);
-     //   me->GetScheduler().Schedule(10s, [this] (TaskContext context)
+        me->GetScheduler().Schedule(10s, [this] (TaskContext context)
         {                
             DoCastAOE(SPELL_SELF_DESTRUCT);
-        }//);
+        };
     }
 
     void IsSummonedBy(Unit* unit) override
     {
-      //  me->GetScheduler().Schedule(1500ms, [this] (TaskContext context)
+        me->GetScheduler().Schedule(1500ms, [this] (TaskContext context)
         {
             me->AI()->DoZoneInCombat(nullptr);
-        }//);
+        };
     }
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 diff)
     {
         scheduler.Update(diff);
     }
 
 private:
     TaskScheduler scheduler;
-};
+    bool overcharged;
+    bool move_fall;
+}
 
 //152138
 struct npc_overcharge_station : public ScriptedAI
@@ -291,13 +293,13 @@ struct npc_overcharge_station : public ScriptedAI
     {
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 100);
-      //  me->AddAura(AURA_OVERRIDE_POWER_COLOR_OCEAN);
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_OCEAN);
         overcharged = false;
         move_fall = false;
         me->SetFaction(35);
     }
 
-    void OnSpellClick(Unit* clicker, bool& result) override
+    void OnSpellClick(Unit* clicker, bool& result)
     {
         if (!overcharged)
         {
@@ -325,27 +327,29 @@ struct npc_overcharge_station : public ScriptedAI
                 hk8->SetReactState(REACT_PASSIVE);
                 hk8->AddUnitFlag2(UNIT_FLAG2_DISABLE_TURN);
                 hk8->SetCanFly(false);
-             //   hk8->SetFlying(false);
+                hk8->SetFlying(false);
                 hk8->GetMotionMaster()->MoveFall();
                 hk8->AddAura(SPELL_HAYWIRE, hk8);
                 if (hk8->HasUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC)))
                     hk8->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
 
-             //    hk8->GetScheduler().Schedule(31s, [hk8, this] (TaskContext context)
-                 {
-                 //   events.CancelEvent(EVENT_ANNIHILATION_EXPLOSION);
+                 hk8->GetScheduler().Schedule(31s, [hk8, this] (TaskContext context)
+                {
+
+                    events.CancelEvent(EVENT_ANNIHILATION_EXPLOSION);
                     hk8->AI()->DoCast(SPELL_LIFT_OFF);
-                    //hk8->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                    hk8->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
                     hk8->SetCanFly(true);
-                 //   hk8->SetFlying(true);
+                    hk8->SetFlying(true);
                     hk8->GetMotionMaster()->MoveTargetedHome();
-                    //TODO Phase 1 repeat
-                 }//);
-            }
+                     //TODO Phase 1 repeat
+                }
+            }        
         }
     }
+}            
 
-    void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 diff)
     {
         scheduler.Update(diff);
     }
@@ -361,21 +365,21 @@ struct npc_hk8_arena_center_stalker : public ScriptedAI
 {
     npc_hk8_arena_center_stalker(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void Reset()
     {
         ScriptedAI::Reset();
-      //  me->DespawnCreaturesInArea(NPC_HK_8_AERIAL_OPPRESION_UNIT, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_TANK_BUSTER_MK1, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_WALKIE_SHOCKIE_X1, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_TANK_BUSTER_MK2, 125.0f);
+        me->DespawnCreaturesInArea(NPC_HK_8_AERIAL_OPPRESION_UNIT, 125.0f);
+        me->DespawnCreaturesInArea(NPC_TANK_BUSTER_MK1, 125.0f);
+        me->DespawnCreaturesInArea(NPC_WALKIE_SHOCKIE_X1, 125.0f);
+        me->DespawnCreaturesInArea(NPC_TANK_BUSTER_MK2, 125.0f);
         me->RemoveAllAreaTriggers();
     }
 
     void MoveInLineOfSight(Unit* unit) override
     {
-        if (unit->IsPlayer()) /*&& instance->GetBossState(DATA_TRIXIE_NAENO) == DONE && instance->GetBossState(DATA_GUNKER) == DONE)*/
+        if (unit->IsPlayer()) && instance->GetBossState(DATA_TRIXIE_NAENO) == DONE && instance->GetBossState(DATA_GUNKER) == DONE)
         {            
-          //  if (instance->GetBossState(DATA_HK8) != DONE)
+            if (instance->GetBossState(DATA_HK8) != DONE)
             {
                 if (Creature* stalker = me->FindNearestCreature(NPC_HK_8_AERIAL_OPPRESION_UNIT, 100.0f, true))                
                     return;
@@ -394,7 +398,7 @@ struct npc_tank_buster_mk2 : public ScriptedAI
 {
     npc_tank_buster_mk2(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() override
+    void Reset()
     {
         ScriptedAI::Reset();        
     }

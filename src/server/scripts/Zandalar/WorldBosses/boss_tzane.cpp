@@ -41,13 +41,13 @@ struct boss_tzane : public BossAI
 {
     boss_tzane(Creature* creature) : BossAI(creature, DATA_TZANE) { }
 
-    void Reset()
+    void Reset() override
     {
         summons.DespawnAll();
         BossAI::Reset();
     }
 
-    void JustEngagedWith(Unit* who)
+    void JustEngagedWith(Unit* who) override
     {
         events.ScheduleEvent(EVENT_CRUSHING_SLAM, 22000);
         events.ScheduleEvent(EVENT_TERROR_WALL, 11000);
@@ -56,7 +56,7 @@ struct boss_tzane : public BossAI
         BossAI::JustEngagedWith(who);
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (!UpdateVictim())
             return;
@@ -115,7 +115,7 @@ class spell_coalseced_essence : public SpellScript
         }
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_coalseced_essence::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
@@ -135,7 +135,7 @@ class spell_terror_wall : public SpellScript
         caster->CastSpell(target, SPELL_TERROR_WALL_VISUAL);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_terror_wall::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
@@ -155,7 +155,7 @@ class spell_terror_wall_visual : public SpellScript
         caster->CastSpell(target, SPELL_TERROR_WALL_VISUAL_BACK);
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_terror_wall_visual::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
@@ -175,7 +175,7 @@ class spell_terror_wall_visual_back : public SpellScript
         //no idea what to do
     }
 
-    void Register()
+    void Register() override
     {
         OnEffectHitTarget += SpellEffectFn(spell_terror_wall_visual_back::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
@@ -187,14 +187,14 @@ struct npc_orb_of_swirling : public ScriptedAI
 
     int time = 2000;
 
-    void InitializeAI()
+    void InitializeAI() override
     {
         me->SetReactState(REACT_PASSIVE);
         SetCombatMovement(false);
         ScriptedAI::InitializeAI();
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         if (time > 0)
         {

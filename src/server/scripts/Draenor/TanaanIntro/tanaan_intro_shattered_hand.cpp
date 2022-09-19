@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -470,7 +470,7 @@ public:
 
             creatureList.remove_if([](Creature* creature) -> bool
             {
-                if (creature->GetFaction() != 2580)
+                if (creature->getFaction() != 2580)
                     return true;
 
                 if (creature->GetPositionX() > 4450.0f ||

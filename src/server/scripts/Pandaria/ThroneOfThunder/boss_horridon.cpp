@@ -2745,7 +2745,7 @@ public:
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_horridon_double_swipe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENEMY_104);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_horridon_double_swipe_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
         }
     };
 

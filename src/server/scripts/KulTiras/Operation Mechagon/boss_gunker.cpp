@@ -44,7 +44,7 @@ struct boss_gunker : public BossAI
 {
     boss_gunker(Creature* creature) : BossAI(creature, DATA_GUNKER) { }
 
-    void Reset()
+    void Reset() override
     {
         BossAI::Reset();
         SetCombatMovement(false);
@@ -53,10 +53,10 @@ struct boss_gunker : public BossAI
         me->SummonCreature(NPC_SQUIRT_BOT, squirt_bot_pos, TEMPSUMMON_MANUAL_DESPAWN);
         me->SummonCreature(NPC_SQUIRT_BOT, squirt_bot_pos2, TEMPSUMMON_MANUAL_DESPAWN);
         me->SummonCreature(NPC_SQUIRT_BOT, squirt_bot_pos3, TEMPSUMMON_MANUAL_DESPAWN);
-        me->AddAura(AURA_POWER_COLOR_GREEN);
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_GREEN);
     }
 
-    void MoveInLineOfSight(Unit* unit)
+    void MoveInLineOfSight(Unit* unit) override
     {
         if (unit->IsPlayer() && instance->GetBossState(DATA_KING_GOBBAMAK) == DONE)
         {
@@ -68,9 +68,9 @@ struct boss_gunker : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* who)
+    void EnterCombat(Unit* who) override
     {
-        _JustEngagedWith();
+        _EnterCombat();
         DoCastSelf(SPELL_PERIODIC_ENERGY_GAIN);        
         events.ScheduleEvent(EVENT_SLUDGE_BOLT, 1s);
         events.ScheduleEvent(EVENT_SPLATTER, 8s);
@@ -89,13 +89,13 @@ struct boss_gunker : public BossAI
         }
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/) 
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _JustReachedHome();
         _DespawnAtEvade();
     }
 
-    void ExecuteEvent(uint32 eventid)
+    void ExecuteEvent(uint32 eventid) override
     {
         switch (eventid)
         {
@@ -108,7 +108,7 @@ struct boss_gunker : public BossAI
             break;
 
         case EVENT_SLUDGE_BOLT:
-            if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 10.0f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
             {
                 if (target->GetDistance2d(me) > 5.0f)
                 {
@@ -136,7 +136,7 @@ struct boss_gunker : public BossAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* killer) override
     {       
         _JustDied();
         me->DespawnCreaturesInArea(NPC_SQUIRT_BOT, 125.0f);
@@ -155,12 +155,12 @@ struct npc_squirt_bot : public ScriptedAI
 {
     npc_squirt_bot(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset()
+    void Reset() override
     {
         ScriptedAI::Reset();
     }
 
-    void SpellHit(Unit* caster, SpellInfo const* spellInfo)
+    //void SpellHit(Unit* caster, SpellInfo const* spellInfo) override
 };
 
 void AddSC_boss_gunker()

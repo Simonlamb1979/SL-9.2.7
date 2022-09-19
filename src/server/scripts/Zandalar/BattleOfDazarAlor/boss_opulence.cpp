@@ -62,8 +62,8 @@ struct boss_opulence : public BossAI
         me->SetPowerType(POWER_ENERGY);
         me->RemoveAura(PERIODIC_ENERGY_GAIN);
         me->SetPower(POWER_ENERGY, 0);
-       // me->AddAura(AURA_OVERRIDE_POWER_COLOR_PURPLE);
-     //   me->DespawnCreaturesInArea(NPC_SPIRIT_OF_GOLD, 125.0f);
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_PURPLE);
+        me->DespawnCreaturesInArea(NPC_SPIRIT_OF_GOLD, 125.0f);
         me->NearTeleportTo(me->GetHomePosition());
         _JustReachedHome();
         engaged = false;
@@ -83,9 +83,9 @@ struct boss_opulence : public BossAI
         DoStartMovement(who);
     }
 
-    void EnterCombat(Unit* /*unit*/) //override
+    void EnterCombat(Unit* /*unit*/) override
     {
-      //  _EnterCombat();        
+        _EnterCombat();        
         DoCast(PERIODIC_ENERGY_GAIN);
         if (Creature* gallywix = me->FindNearestCreature(NPC_TRADE_PRINCE_GALLYWIX, 100.0f, true))
         {
@@ -107,7 +107,7 @@ struct boss_opulence : public BossAI
         events.ScheduleEvent(EVENT_WAIL_OF_GREED, 23s);
     }
 
-    void OnSpellFinished(SpellInfo const* spellInfo)// override
+    void OnSpellFinished(SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == HOARD_POWER)        
             return;
@@ -140,7 +140,7 @@ struct boss_opulence : public BossAI
     void JustDied(Unit* unit) override
     {
         _JustDied();
-       // me->DespawnCreaturesInArea(NPC_SPIRIT_OF_GOLD, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SPIRIT_OF_GOLD, 125.0f);
         if (IsMythic())
             instance->DoCompleteAchievement(13299);
 
@@ -150,11 +150,11 @@ struct boss_opulence : public BossAI
 
     void EnterEvadeMode(EvadeReason /*why*/) override 
     { 
-       /* if (instance->IsWipe())
+        if (instance->IsWipe())
         {
             me->DespawnCreaturesInArea(NPC_SPIRIT_OF_GOLD, 125.0f);
             me->ForcedDespawn(100, 3s);            
-        }*/
+        }
         engaged = true;
     }
 
@@ -176,7 +176,7 @@ struct boss_opulence : public BossAI
         case EVENT_LIQUID_GOLD:
         {
             UnitList tarlist;
-          //  SelectTargetList(tarlist, 2, SELECT_TARGET_RANDOM, 100.0f, true);
+            SelectTargetList(tarlist, 2, SELECT_TARGET_RANDOM, 100.0f, true);
             for (Unit* tar : tarlist)
             DoCast(tar, LIQUID_GOLD_AURA);
             events.Repeat(15s);
@@ -185,7 +185,7 @@ struct boss_opulence : public BossAI
         case EVENT_COIN_SHOWER:
         {
             UnitList tarlist;
-         //   SelectTargetList(tarlist, 10, SELECT_TARGET_RANDOM, 100.0f, true);
+            SelectTargetList(tarlist, 10, SELECT_TARGET_RANDOM, 100.0f, true);
             for (Unit* tar : tarlist)
             DoCast(tar, COIN_SHOWER_MISSILE);
             events.Repeat(20s);
@@ -200,7 +200,7 @@ struct boss_opulence : public BossAI
         case EVENT_WAIL_OF_GREED:
         {
             DoCastAOE(WAIL_OF_GREED);
-            me->AddAura(GREED_AURA, me);
+            me->AddAura(GREED_AURA);
             events.Repeat(35s);
             break;
         }

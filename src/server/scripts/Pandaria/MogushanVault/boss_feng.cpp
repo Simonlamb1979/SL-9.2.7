@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -623,7 +622,7 @@ class boss_feng : public CreatureScript
                         if (Unit* target = me->GetVictim())
                             me->CastSpell(target, dotSpellId, false);
 
-                        /*else if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                        /*else if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(target, dotSpellId, false);*/
 
                         events.ScheduleEvent(EVENT_DOT_ATTACK, 12500);
@@ -631,7 +630,7 @@ class boss_feng : public CreatureScript
                     }
                     case EVENT_RE_ATTACK:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->GetMotionMaster()->MoveChase(target);
                             me->SetReactState(REACT_AGGRESSIVE);
                         break;
@@ -1595,7 +1594,7 @@ public:
     {
         go_inversionAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/) override
+        bool GossipHello(Player* /*player*/, bool /*isUse*/) override
         {
             return false;
         }
@@ -1617,7 +1616,7 @@ public:
     {
         go_cancelAI(GameObject* go) : GameObjectAI(go) { }
 
-        bool GossipHello(Player* /*player*/) override
+        bool GossipHello(Player* /*player*/, bool /*isUse*/) override
         {
             return false;
         }

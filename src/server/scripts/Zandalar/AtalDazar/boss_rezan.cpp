@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -147,7 +147,7 @@ struct boss_ataldazar_rezan : public BossAI
             me->CastSpell(point, SPELL_PILE_OF_BONES_AREATRIGGER);
     }
 
-    void EnterCombat(Unit* who) //override
+    void EnterCombat(Unit* who) override
     {
         // Events
         events.ScheduleEvent(EVENT_TAIL, urand(15000, 20000)); //timed event like onyxia
@@ -155,7 +155,7 @@ struct boss_ataldazar_rezan : public BossAI
         events.ScheduleEvent(EVENT_SERRATHED_TEETH, 6000);
         events.ScheduleEvent(EVENT_PURSUIT, 21800);
 
-      //  BossAI::EnterCombat(who);
+        BossAI::EnterCombat(who);
     }
 
     void DoAction(int32 action) override
@@ -297,12 +297,12 @@ struct areatrigger_ancient_bones : AreaTriggerAI
                         if (unit == rezan)
                             return;
                     if (unit != rezan && unit->IsPlayer())
-                        unit->AddAura(SPELL_PILE_OF_BONES_SLOW, unit);
+                        unit->AddAura(SPELL_PILE_OF_BONES_SLOW);
                     rezan->GetAI()->DoAction(ACTION_AREATRIGGER_ACTIVATED);
                     if (rezan->GetMap()->IsMythic())
-                        rezan->CastSpell(at->GetPosition(), SPELL_PILE_OF_BONES_SPAWN_HEROIC);
+                        rezan->CastSpell(at->GetPosition(), SPELL_PILE_OF_BONES_SPAWN_HEROIC, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
                     else
-                        rezan->CastSpell(at->GetPosition(), SPELL_PILE_OF_BONES_SPAWN_NORMAL);
+                        rezan->CastSpell(at->GetPosition(), SPELL_PILE_OF_BONES_SPAWN_NORMAL, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
                     at->Remove();
                 }
         }

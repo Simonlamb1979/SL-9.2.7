@@ -1022,7 +1022,7 @@ class boss_thok_the_bloodthirsty : public CreatureScript
                 if (Creature* pPrisoner = instance->instance->GetCreature(m_PrisonerGuid))
                 {
                     int32 seatId = SEAT_FACE;
-                    pPrisoner->CastCustomSpell(me, SPELL_CHOMP_2, &seatId, nullptr, true);
+                    pPrisoner->CastCustomSpell(me, SPELL_CHOMP_2, &seatId, NULL, NULL, true);
                 }
             }
 
@@ -1900,7 +1900,7 @@ class go_thok_the_bloodthirsty_prison : public GameObjectScript
             {
             }
 
-            bool GossipHello(Player* player) override
+            bool GossipHello(Player* player, bool /*reportUse*/) override
             {
                 if (!IsEncounterInProgress(player))
                     return true;

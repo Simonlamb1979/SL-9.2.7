@@ -2668,13 +2668,13 @@ class npc_paragons_of_the_klaxxi_mantid_amber : public CreatureScript
                 me->AddAura(SPELL_COSMETIC_FOR_FIGHT_STARTER, me);
             }
 
-            bool GossipHello(Player* player) override
+            void sGossipHello(Player* player) override
             {
                 if (player->IsInCombat())
-                    return true;
+                    return;
 
                 if (IsEncounterDone())
-                    return true;
+                    return;
 
                 if (Creature* pController = GetController())
                 {
@@ -2682,8 +2682,6 @@ class npc_paragons_of_the_klaxxi_mantid_amber : public CreatureScript
                 }
 
                 me->DespawnOrUnsummon(100);
-
-                return true;
             }
 
         private:
@@ -3220,8 +3218,8 @@ class npc_paragons_of_the_klaxxi_blood : public CreatureScript
 
             void DoBloodInfusion(Creature* pTarget)
             {
-                float healthPct = me->GetHealthPct();
-                me->CastCustomSpell(pTarget, SPELL_BLOOD_INFUSION, &healthPct, nullptr, nullptr, true);
+                int32 healthPct = (int32)me->GetHealthPct();
+                me->CastCustomSpell(pTarget, SPELL_BLOOD_INFUSION, &healthPct, NULL, NULL, true);
             }
 
         private:

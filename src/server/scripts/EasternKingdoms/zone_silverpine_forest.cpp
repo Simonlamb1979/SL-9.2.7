@@ -1,5 +1,5 @@
  /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -60,11 +60,11 @@ class npc_deathstalker_erland : public CreatureScript
 public:
     npc_deathstalker_erland() : CreatureScript("npc_deathstalker_erland") { }
 
-    struct npc_deathstalker_erlandAI : public EscortAI
+    struct npc_deathstalker_erlandAI : public npc_escortAI
     {
-        npc_deathstalker_erlandAI(Creature* creature) : EscortAI(creature) { }
+        npc_deathstalker_erlandAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -107,20 +107,24 @@ public:
 
         void Reset() override { }
 
-        void JustEngagedWith(Unit* who) override
+        void EnterCombat(Unit* who) override
         {
             Talk(SAY_AGGRO, who);
         }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_ESCORTING)
-            {
-                Talk(SAY_QUESTACCEPT, player);
-                Start(true, false, player->GetGUID());
-            }
-        }
     };
+
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_ESCORTING)
+        {
+            creature->AI()->Talk(SAY_QUESTACCEPT, player);
+
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_deathstalker_erland::npc_deathstalker_erlandAI, creature->AI()))
+                pEscortAI->Start(true, false, player->GetGUID());
+        }
+
+        return true;
+    }
 
     CreatureAI* GetAI(Creature* creature) const override
     {

@@ -2821,7 +2821,7 @@ class spell_foundry_massive_shattering_smash : public SpellScriptLoader
                 {
                     int32 l_BasePoint = 75;
 
-                    l_Caster->CastCustomSpell(l_Caster, eSpell::Revitalize, &l_BasePoint, nullptr, true);
+                    l_Caster->CastCustomSpell(l_Caster, eSpell::Revitalize, &l_BasePoint, nullptr, nullptr, true);
                 }
 
                 if (Creature* l_Boss = l_Caster->ToCreature())

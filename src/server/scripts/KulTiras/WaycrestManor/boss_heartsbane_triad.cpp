@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2022 BfaCore Reforged
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #include "ScriptMgr.h"
 #include "waycrest_manor.h"
 #include "SpellAuras.h"
@@ -97,10 +114,10 @@ struct boss_heartsbane_triad : public BossAI
 					solena->AttackStop();
 					solena->CastStop();
 					solena->CastSpell(iris, CLAIM_THE_IRIS);
-					solena->AddAura(FOCUSING_IRIS, solena);
+					solena->AddAura(FOCUSING_IRIS);
 					events.ScheduleEvent(EVENT_SOUL_MANIPULATION, 5s);
 					events.ScheduleEvent(EVENT_DIRE_RITUAL, 15s);
-					if (IsHeroic() /*|| IsMythic()*/)
+					if (IsHeroic() || IsMythic())
 					{
 						events.ScheduleEvent(EVENT_AURA_OF_APATHY, 2s);
 					}
@@ -124,11 +141,11 @@ struct boss_heartsbane_triad : public BossAI
 						briar->AttackStop();
 						briar->CastStop();
 						briar->CastSpell(iris, CLAIM_THE_IRIS);
-						briar->AddAura(FOCUSING_IRIS, briar);
+						briar->AddAura(FOCUSING_IRIS);
 						briar->RemoveAura(IRONBARK_SHIELD);
 						events.ScheduleEvent(EVENT_JAGGED_NEATTLES, 5s);
 						events.ScheduleEvent(EVENT_DIRE_RITUAL, 15s);
-						if (IsHeroic() /*|| IsMythic()*/)	
+						if (IsHeroic() || IsMythic())	
 							events.ScheduleEvent(EVENT_AURA_OF_THORNS, 2s);
 					}
 				}
@@ -151,12 +168,12 @@ struct boss_heartsbane_triad : public BossAI
 						malady->AttackStop();
 						malady->CastStop();
 						malady->CastSpell(iris, CLAIM_THE_IRIS);
-						malady->AddAura(FOCUSING_IRIS, malady);
+						malady->AddAura(FOCUSING_IRIS);
 						malady->RemoveAura(RUNIC_MARK);
 						events.ScheduleEvent(EVENT_UNSTABLE_RUNIC_MARK, 5s);
 						events.ScheduleEvent(EVENT_DIRE_RITUAL, 15s);
 						events.ScheduleEvent(EVENT_RESET_IRIS, 18s);
-						if (IsHeroic()/* || IsMythic()*/)
+						if (IsHeroic() || IsMythic())
 							events.ScheduleEvent(EVENT_AURA_OF_DREAD, 2s);
 					}
 				}
@@ -164,24 +181,24 @@ struct boss_heartsbane_triad : public BossAI
 		}
 	}
 
-	void JustEngagedWith(Unit* u) override
+	void EnterCombat(Unit* u) override
 	{
 		switch (me->GetEntry())
 		{
 		case NPC_SISTER_SOLENA:
 			 Talk(SAY_SOLENA_AGGRO);
-			 _JustEngagedWith();			 
+			 _EnterCombat();			 
 			 events.ScheduleEvent(EVENT_SOUL_BOLT, 3s);
 			 events.ScheduleEvent(EVENT_FOCUSING_IRIS, 5s);
 			 break;
 
 		case NPC_SISTER_BRIAR:		
-			 _JustEngagedWith();
+			 _EnterCombat();
 			 events.ScheduleEvent(EVENT_BRAMBLE_BOLT, 3s);
 			 break;
 
 		case NPC_SISTER_MALADY:
-			 _JustEngagedWith();
+			 _EnterCombat();
 			 events.ScheduleEvent(EVENT_RUINOUS_BOLT, 3s);
 			 break;
 
@@ -220,7 +237,7 @@ struct boss_heartsbane_triad : public BossAI
 			if (Creature* briar = me->FindNearestCreature(NPC_SISTER_BRIAR, 100.0f, true))
 			{
 				briar->AI()->Talk(SAY_BRIAR_ABILITY);
-			//	briar->AI()->DoCastRandom(JAGGED_NEATTLES, 40.0f);
+				briar->AI()->DoCastRandom(JAGGED_NEATTLES, 40.0f);
 			}
 			break;
 		}
@@ -295,7 +312,7 @@ struct boss_heartsbane_triad : public BossAI
 				solena->AI()->Talk(SAY_SOLENA_SOUL_MANIP);
 				if (Unit* tar = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
 				{
-					tar->AddAura(SOUL_MANIPULATION_AURA, tar);
+					tar->AddAura(SOUL_MANIPULATION_AURA);
 					me->RemoveAura(SOUL_MANIPULATION_REDUCE_DAMAGE);
 				}				
 				break;
@@ -306,7 +323,7 @@ struct boss_heartsbane_triad : public BossAI
 		{
 			if (Creature* solena = me->FindNearestCreature(NPC_SISTER_SOLENA, 100.0f, true))
 			{
-				solena->AddAura(AURA_OF_APATHY, solena);			
+				solena->AddAura(AURA_OF_APATHY);			
 				std::list<Player*> p_list;
 				solena->GetPlayerListInGrid(p_list, 100.0f);
 				for (auto & p : p_list)
@@ -319,7 +336,7 @@ struct boss_heartsbane_triad : public BossAI
 			if (Creature* briar = me->FindNearestCreature(NPC_SISTER_BRIAR, 100.0f, true))
 			{
 				briar->AI()->Talk(SAY_THORN_AURA_BRIAR);
-				briar->AddAura(AURA_OF_THORNS, briar);
+				briar->AddAura(AURA_OF_THORNS);
 			}
 			break;
 		}
@@ -327,7 +344,7 @@ struct boss_heartsbane_triad : public BossAI
 		{
 			if (Creature* malady = me->FindNearestCreature(NPC_SISTER_MALADY, 100.0f, true))
 			{
-				malady->AddAura(AURA_OF_DREAD, malady);
+				malady->AddAura(AURA_OF_DREAD);
 				malady->AI()->Talk(SAY_DREAD_AURA_MALADY);
 				std::list<Player*> p_list;
 				malady->GetPlayerListInGrid(p_list, 100.0f);
@@ -384,9 +401,9 @@ struct boss_heartsbane_triad : public BossAI
 };
 
 // 260703
-class spell_unstable_runic_mark : public AuraScript
+class bfa_spell_unstable_runic_mark : public AuraScript
 {
-	PrepareAuraScript(spell_unstable_runic_mark);
+	PrepareAuraScript(bfa_spell_unstable_runic_mark);
 
 	void HandleRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
 	{
@@ -397,14 +414,14 @@ class spell_unstable_runic_mark : public AuraScript
 
 	void Register() override
 	{
-		OnEffectRemove += AuraEffectRemoveFn(spell_unstable_runic_mark::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+		OnEffectRemove += AuraEffectRemoveFn(bfa_spell_unstable_runic_mark::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
 	}
 };
 
 // 268086
-class spell_aura_of_dread : public AuraScript
+class bfa_spell_aura_of_dread : public AuraScript
 {
-	PrepareAuraScript(spell_aura_of_dread);
+	PrepareAuraScript(bfa_spell_aura_of_dread);
 
 	void HandlePeriodic(AuraEffect const*)
 	{
@@ -416,13 +433,13 @@ class spell_aura_of_dread : public AuraScript
 
 	void Register() override
 	{
-		OnEffectPeriodic += AuraEffectPeriodicFn(spell_aura_of_dread::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
+		OnEffectPeriodic += AuraEffectPeriodicFn(bfa_spell_aura_of_dread::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE);
 	}
 };
 
 void AddSC_boss_heartsbane_triad()
 {
 	RegisterCreatureAI(boss_heartsbane_triad);
-	RegisterAuraScript(spell_unstable_runic_mark);
-	RegisterAuraScript(spell_aura_of_dread);
+	RegisterAuraScript(bfa_spell_unstable_runic_mark);
+	RegisterAuraScript(bfa_spell_aura_of_dread);
 }

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,6 +53,7 @@ enum eSpells
     SPELL_CLONE_VISUAL          = 119053,
     SPELL_LIFE_FRAGILE_THREAD   = 116227,
     SPELL_CROSSED_OVER          = 116161, // Todo : virer le summon
+    SPELL_ANIM_VISUAL           = 121475,
 
     SPELL_FRAIL_SOUL            = 117723, // Heroic
     SPELL_SOUL_EXPLOSION        = 120639,
@@ -84,17 +84,20 @@ enum eEvents
     // Shadowy Minion
     EVENT_SHADOW_BOLT           = 6,
     EVENT_SPIRITUAL_GRASP       = 7,
+    EVENT_CHECK_PLAYER          = 8,
+    EVENT_CLONE_TAKEOFF         = 9,
+
 
     // Gara'Jal Ghost
-    EVENT_GROWTH                = 8,
-    EVENT_TALK_DEATH            = 9,
-    EVENT_SUMMON_PORTAL         = 10,
-    EVENT_DISAPPEAR             = 11,
+    EVENT_GROWTH                = 10,
+    EVENT_TALK_DEATH            = 11,
+    EVENT_SUMMON_PORTAL         = 12,
+    EVENT_DISAPPEAR             = 13,
 
     // Enrage
-    EVENT_FINAL_DESTINATION     = 12,
-    EVENT_SOUL_EXPLOSION        = 13,
-    EVENT_CHECK_POSITION        = 14
+    EVENT_FINAL_DESTINATION     = 14,
+    EVENT_SOUL_EXPLOSION        = 15,
+    EVENT_CHECK_POSITION        = 16
 };
 
 enum GarajalTalk
@@ -296,7 +299,7 @@ class boss_garajal : public CreatureScript
                     {
                         case EVENT_SECONDARY_ATTACK:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             {
                                 uint32 spellId = RAND(SPELL_RIGHT_CROSS, SPELL_LEFT_HOOK, SPELL_HAMMER_FIST, SPELL_SWEEPING_KICK);
                                 me->CastSpell(target, spellId, true);
@@ -331,7 +334,7 @@ class boss_garajal : public CreatureScript
 
                             for (int32 i = 0; i < mobCount; ++i)
                             {
-                                if (Unit* target = SelectTarget(i == 0 ? SELECT_TARGET_MAXTHREAT : SELECT_TARGET_RANDOM, 0, 0, true, true, -SPELL_VOODOO_DOLL_VISUAL))
+                                if (Unit* target = SelectTarget(i == 0 ? SELECT_TARGET_TOPAGGRO : SELECT_TARGET_RANDOM, 0, 0, true, -SPELL_VOODOO_DOLL_VISUAL))
                                 {
                                     voodooTargets[i] = target->GetGUID();
                                     me->TextEmote("You are a |cffba2200|Hspell:116000|h[Voodoo Doll]|h|r ! Damage you take is copied to the other Voodoo Dolls in your raid !", target, true);
@@ -346,7 +349,7 @@ class boss_garajal : public CreatureScript
                         }
                         case EVENT_BANISHMENT:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             {
                                 me->AddAura(SPELL_BANISHMENT,       target);
                                 me->AddAura(SPELL_SOUL_CUT_SUICIDE, target);
@@ -360,10 +363,10 @@ class boss_garajal : public CreatureScript
                                         soulCutter->GetPhaseShift().AddPhase(170, PhaseFlags::None, nullptr);
                                         soulCutter->AI()->AttackStart(target);
                                         soulCutter->SetInCombatWith(target);
-                                        soulCutter->GetThreatManager().addThreat(target, 10000.0f);
+                                        soulCutter->getThreatManager().addThreat(target, 10000.0f);
                                     }
 
-                                me->GetThreatManager().resetAllAggro();
+                                me->getThreatManager().resetAllAggro();
                             }
 
                             m_Instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_VOODOO_DOLL_VISUAL);
@@ -628,9 +631,9 @@ class mob_shadowy_minion : public CreatureScript
                         // Spirit World
                         case EVENT_SHADOW_BOLT:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, false, true, SPELL_CROSSED_OVER))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, false, SPELL_CROSSED_OVER))
                                 me->CastSpell(target, SPELL_SHADOW_BOLT, false);
-                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, false, true, SPELL_SOUL_CUT_SUICIDE))
+                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, false, SPELL_SOUL_CUT_SUICIDE))
                                 me->CastSpell(target, SPELL_SHADOW_BOLT, false);
 
                             events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(2000, 3000));
@@ -639,9 +642,9 @@ class mob_shadowy_minion : public CreatureScript
                         // Real World
                         case EVENT_SPIRITUAL_GRASP:
                         {
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, false, true, -SPELL_SOUL_CUT_SUICIDE))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, false, -SPELL_SOUL_CUT_SUICIDE))
                                 me->CastSpell(target, SPELL_SPIRITUAL_GRASP, false);
-                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, false, true, -SPELL_CROSSED_OVER))
+                            else if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, false, -SPELL_CROSSED_OVER))
                                 me->CastSpell(target, SPELL_SPIRITUAL_GRASP, false);
 
                             events.ScheduleEvent(EVENT_SPIRITUAL_GRASP, urand(5000, 8000));
@@ -889,6 +892,45 @@ class spell_voodoo_doll : public SpellScriptLoader
         }
 };
 
+// 60240 - Clone player
+struct mob_clone_player : public ScriptedAI
+{
+    mob_clone_player(Creature* creature) : ScriptedAI(creature)
+    {
+    }
+
+    void IsSummonedBy(Unit* summoner) override
+    {
+        me->AddAura(SPELL_ANIM_VISUAL, me);
+        me->SetCanFly(true);
+        me->SetDisableGravity(true);
+        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE));
+        events.ScheduleEvent(EVENT_CHECK_PLAYER, 5000);
+        events.ScheduleEvent(EVENT_CLONE_TAKEOFF, 3000);
+    }
+
+    void UpdateAI(const uint32 diff) override
+    {
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+                // Spirit World
+            case EVENT_CHECK_PLAYER:
+                if (me->ToTempSummon())
+                    if (Unit * Summoner = me->ToTempSummon()->GetSummoner())
+                        if (!Summoner->HasAura(SPELL_CROSSED_OVER))
+                            me->DespawnOrUnsummon();
+                events.ScheduleEvent(EVENT_CHECK_PLAYER, 1000);
+                break;
+            case EVENT_CLONE_TAKEOFF:
+                me->GetMotionMaster()->MoveTakeoff(1, me->GetPositionX());
+                break;
+            }
+        }
+    }
+};
+
 void AddSC_boss_garajal()
 {
     new boss_garajal();
@@ -900,4 +942,5 @@ void AddSC_boss_garajal()
     new spell_soul_back();
     new spell_final_destination();
     new spell_voodoo_doll();
+    RegisterCreatureAI(mob_clone_player);
 }

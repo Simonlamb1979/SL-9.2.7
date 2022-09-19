@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -45,12 +45,12 @@ struct boss_jes_howlis : public BossAI
         BossAI::Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void EnterCombat(Unit* who) override
     {
         events.ScheduleEvent(EVENT_CRIP_SHIV, 7200);
         events.ScheduleEvent(EVENT_HOWLING_FEAR, 8500);
         events.ScheduleEvent(EVENT_FLASHING_DAGGER, 12100);
-        BossAI::JustEngagedWith(who);
+        BossAI::EnterCombat(who);
     }
 
     void SpellHitTarget(Unit* target, SpellInfo const* spell) override

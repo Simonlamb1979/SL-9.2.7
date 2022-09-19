@@ -1,5 +1,5 @@
 /*
- * Copyright 2021
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -89,9 +89,9 @@ struct boss_harlan_sweete : public BossAI
         instance->SetBossState(FreeholdData::DataHarlanSweete, FAIL);
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) override
     {
-        _JustEngagedWith();
+        _EnterCombat(true);
         Talk(HarlanTalk::TalkAggro);
         instance->SetBossState(FreeholdData::DataHarlanSweete, IN_PROGRESS);
         events.ScheduleEvent(HarlanSweeteEvents::EventCannonBarrage, 8000);
@@ -104,22 +104,17 @@ struct boss_harlan_sweete : public BossAI
         _JustDied();
         Talk(HarlanTalk::TalkDead);
         instance->SetBossState(FreeholdData::DataHarlanSweete, DONE);
-     //   instance->DoCompleteAchievement(12831);
-      /*  if (IsHeroic())
-            instance->DoCompleteAchievement(12832);
-        if (IsMythic())
-            instance->DoCompleteAchievement(12833);*/
     }
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
-     //   if (me->HealthWillBeBelowPctDamaged(60, damage) && !sixtyPercent)
+        if (me->HealthWillBeBelowPctDamaged(60, damage) && !sixtyPercent)
         {
             sixtyPercent = true;
             Talk(HarlanTalk::Talk60Percent);
             me->CastSpell(me, HarlanSweeteSpells::LoadedDiceAllHands, true);
         }
-     //   else if (me->HealthWillBeBelowPctDamaged(30, damage) && !thirtyPercent)
+        else if (me->HealthWillBeBelowPctDamaged(30, damage) && !thirtyPercent)
         {
             thirtyPercent = true;
             Talk(HarlanTalk::Talk30Percent);
@@ -155,20 +150,19 @@ struct boss_harlan_sweete : public BossAI
 
                         if (!playerList.empty())
                         {
-                            playerList.remove_if([](Player* player) -> bool // playerlist is modified here..... (continues on line 164)
+                            playerList.remove_if([](Player* player) -> bool
                                 {
                                     if (player->HasAura(HarlanSweeteSpells::CannonBarrage))
                                         return true;
 
-                                 //   if (player->GetRoleForGroup() == Roles::ROLE_TANK)
-                                   //     return true;
+                                    if (player->GetRoleForGroup() == Roles::ROLE_TANK)
+                                        return true;
 
                                     return false;
                                 });
 
-                            if (!playerList.empty()) // so it needs to be rechecked here or we might get a crash..... -varjgard
-                                if (Player* secondTarget = Trinity::Containers::SelectRandomContainerElement(playerList))
-                                    me->CastSpell(secondTarget, HarlanSweeteSpells::CannonBarrage, true);
+                            if (Player* secondTarget = Trinity::Containers::SelectRandomContainerElement(playerList))
+                                me->CastSpell(secondTarget, HarlanSweeteSpells::CannonBarrage, true);
                         }
                     }
                 }
@@ -220,46 +214,46 @@ struct npc_irontide_granadier : public ScriptedAI
     void IsSummonedBy(Unit* summoner) override
     {
         me->SetReactState(REACT_PASSIVE);
-       // targetGUID.Clear();
-      //  AddTimedDelayedOperation(800, [this]() -> void
+        targetGUID.Clear();
+        AddTimedDelayedOperation(800, [this]() -> void
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                 {
                     me->CastSpell(target, HarlanSweeteSpells::BlackPowderBombAura, true);
-                    me->GetThreatManager().resetAllAggro();
-                    me->GetThreatManager().addThreat(target, 1000000.0f);
+                    me->getThreatManager().resetAllAggro();
+                    me->getThreatManager().addThreat(target, 1000000.0f);
                     me->GetMotionMaster()->MoveChase(target);
-                 //   targetGUID = target->GetGUID();
+                    targetGUID = target->GetGUID();
                 }
 
-              //  events.ScheduleEvent(HarlanSweeteEvents::EventCheckPlayer, 500);
-            }//);
+                events.ScheduleEvent(HarlanSweeteEvents::EventCheckPlayer, 500);
+            });
     }
 
     void UpdateAI(uint32 diff) override
     {
-       // UpdateOperations(diff);
-       // events.Update(diff);
+        UpdateOperations(diff);
+        events.Update(diff);
 
-   //     while (uint32 eventId = events.ExecuteEvent())
-      //  {
-         //   switch (eventId)
-           // {
-          //  case HarlanSweeteEvents::EventCheckPlayer:
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case HarlanSweeteEvents::EventCheckPlayer:
             {
                 if (!me->HasAura(HarlanSweeteSpells::BlackPowderBombAura))
                     me->CastSpell(me, HarlanSweeteSpells::BlackPowderBomb, false);
 
-               // if (Creature* target = ObjectAccessor::GetCreature(*me, targetGUID))
-               // {
-               //     if (me->GetDistance(target) <= 3.0f)
+                if (Creature* target = ObjectAccessor::GetCreature(*me, targetGUID))
+                {
+                    if (me->GetDistance(target) <= 3.0f)
                         me->CastSpell(me, HarlanSweeteSpells::BlackPowderBomb, false);
                 }
-              //  events.Repeat(500);
-               // break;
-           // }
-          //  }
-     //   }
+                events.Repeat(500);
+                break;
+            }
+            }
+        }
     }
 
 private:
@@ -276,17 +270,17 @@ struct npc_swiftwind_saber : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
         float orientation = me->GetOrientation();
 
-    //    AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, orientation]() -> void
+        AddTimedDelayedOperation(2 * TimeConstants::IN_MILLISECONDS, [this, orientation]() -> void
             {
                 float x = 0, y = 0;
-             //   GetPositionWithDistInOrientation(me, 100.0f, orientation, x, y);
+                GetPositionWithDistInOrientation(me, 100.0f, orientation, x, y);
                 me->GetMotionMaster()->MoveCharge(x, y, me->GetPositionZ(), 24.0f);
-            }//);
+            });
     }
 
     void UpdateAI(uint32 diff) override
     {
-       // UpdateOperations(diff);
+        UpdateOperations(diff);
     }
 };
 
@@ -402,10 +396,10 @@ struct at_swiftwind_saber : AreaTriggerAI
 
     void OnInitialize() override
     {
-      //  at->SetPeriodicProcTimer(1000);
+        at->SetPeriodicProcTimer(1000);
     }
 
-    void OnPeriodicProc() //override
+    void OnPeriodicProc() override
     {
         if (Unit* caster = at->GetCaster())
         {

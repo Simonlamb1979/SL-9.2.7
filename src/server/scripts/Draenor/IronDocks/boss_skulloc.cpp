@@ -284,7 +284,7 @@ static void SkullocEnforcersWiningCondition(InstanceScript* p_Instance, Creature
                 {
                     if (Player* l_Player = ObjectAccessor::GetPlayer(*p_Me, p_KillerGuid))
                     {
-                        l_Skulloc->SetLootRecipient(l_Player);
+                        l_Skulloc->AddLootRecipient(l_Player);
                         p_Instance->SetBossState(eIronDocksDatas::DataSkulloc, EncounterState::DONE);
                     }
                 }

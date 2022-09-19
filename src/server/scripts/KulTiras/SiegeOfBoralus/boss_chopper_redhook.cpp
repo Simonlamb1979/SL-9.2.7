@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -55,9 +55,9 @@ struct boss_chopper_redhook : public BossAI
 		BossAI::Reset();		
 	}
 
-	void JustEngagedWith(Unit* u) override
+	void EnterCombat(Unit* u) override
 	{
-		_JustEngagedWith();
+		_EnterCombat();
 		events.ScheduleEvent(EVENT_GORE_CRASH, 1s);
 		events.ScheduleEvent(EVENT_ON_THE_HOOK, 3s);
 		events.ScheduleEvent(EVENT_BARRAGE, 6s);
@@ -82,12 +82,12 @@ struct boss_chopper_redhook : public BossAI
 			break;
 
 		case EVENT_ON_THE_HOOK:
-			if (Unit* tar = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))
+			if (Unit* tar = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
 			{
 				Talk(SAY_HOOK);
 				me->RemoveAurasDueToSpell(HEAVY_HITTER);
 				me->AddAura(ON_THE_HOOK, tar);
-				//me->AddThreat(tar, 100.0f, SPELL_SCHOOL_MASK_NORMAL);	
+				me->AddThreat(tar, 100.0f, SPELL_SCHOOL_MASK_NORMAL);	
 				me->SetWalk(false);
 				me->SetSpeedRate(MOVE_RUN, 0.5f);
 				if (!me->HasAura(BOILING_RAGE))

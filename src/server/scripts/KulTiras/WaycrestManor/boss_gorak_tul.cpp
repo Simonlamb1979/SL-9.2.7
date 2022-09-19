@@ -47,9 +47,9 @@ struct boss_gorak_tul : public BossAI
 		me->SetPower(POWER_LUNAR_POWER, 1);
 	}
 
-	void JustEngagedWith(Unit* u) override
+	void EnterCombat(Unit* u) override
 	{	
-		_JustEngagedWith();
+		_EnterCombat();
 		Talk(SAY_AGGRO);
 		events.ScheduleEvent(EVENT_DARKENED_LIGHTNING, 8s);
 		events.ScheduleEvent(EVENT_DEATHTOUCHED_SLAVER, 13s);
@@ -60,7 +60,7 @@ struct boss_gorak_tul : public BossAI
 	{
 		Talk(SAY_DEATH);
 		_JustDied();
-		//me->DespawnCreaturesInArea(NPC_DEATHTOUCHED_SLAVER);
+		me->DespawnCreaturesInArea(NPC_DEATHTOUCHED_SLAVER);
 	}
 
 	void ExecuteEvent(uint32 eventId) override
@@ -93,7 +93,7 @@ struct boss_gorak_tul : public BossAI
 		}
 	}
 
-	void OnSpellFinished(SpellInfo const* spellInfo) //override
+	void OnSpellFinished(SpellInfo const* spellInfo) override
 	{
 		switch (spellInfo->Id)
 		{
@@ -129,25 +129,25 @@ struct npc_deathtouched_slaver : public ScriptedAI
 		me->AI()->DoZoneInCombat();
 	}
 
-	void JustEngagedWith(Unit* u) override
+	void EnterCombat(Unit* u) override
 	{
-	//	events.ScheduleEvent(EVENT_DARK_LEAP, 3s);
-	//	events.ScheduleEvent(EVENT_DREAD_BOLT, 6s);
-	//	if (IsHeroic() || IsMythic())
-		//	events.ScheduleEvent(EVENT_DEATH_LENS, 9s);
+		events.ScheduleEvent(EVENT_DARK_LEAP, 3s);
+		events.ScheduleEvent(EVENT_DREAD_BOLT, 6s);
+		if (IsHeroic() || IsMythic())
+			events.ScheduleEvent(EVENT_DEATH_LENS, 9s);
 	}
 
-	void ExecuteEvent(uint32 eventId) //override
+	void ExecuteEvent(uint32 eventId) override
 	{
 		switch (eventId)
 		{
 		case EVENT_DARK_LEAP:
-			if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))
+			if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
 			{
 				DoCast(target, DARK_LEAP);
 				DoCast(target, DARK_LEAP_2);
 			}
-			//events.Repeat(15s);
+			events.Repeat(15s);
 			break;
 
 		case EVENT_DREAD_BOLT:
@@ -155,16 +155,16 @@ struct npc_deathtouched_slaver : public ScriptedAI
 			{
 				DoCast(target, DREAD_BOLT);
 			}
-		//	events.Repeat(2s);
+			events.Repeat(2s);
 			break;
 
 		case EVENT_DEATH_LENS:
-			if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 50.0f, true))
+			if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50.0f, true))
 			{
 				DoCast(target, DEATH_LENS);
 				DoCast(target, DEATH_LENS_PERIODIC);
 			}
-			//events.Repeat(20s);
+			events.Repeat(20s);
 			break;
 		}
 	}

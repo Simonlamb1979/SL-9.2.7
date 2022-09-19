@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -57,9 +57,9 @@ struct boss_hadal_darkfathom : public BossAI
 		me->SetPower(POWER_MAELSTROM, 0);
 	}
 
-	void JustEngagedWith(Unit* u) override
+	void EnterCombat(Unit* u) override
 	{
-		_JustEngagedWith();
+		_EnterCombat();
 		Talk(SAY_AGGRO);
 		events.ScheduleEvent(EVENT_BREAK_WATER, 5s);
 	}
@@ -77,10 +77,10 @@ struct boss_hadal_darkfathom : public BossAI
 		case EVENT_BREAK_WATER:
 		{
 			DoCast(BREAK_WATER_SS);
-		//	UnitList tarlist;
-		//	SelectTargetList(tarlist, 5, SELECT_TARGET_RANDOM, 100.0f, true);
-		//	for (Unit* tar : tarlist)
-			//DoCast(tar, BREAK_WATER_MISSILE, true);
+			UnitList tarlist;
+			SelectTargetList(tarlist, 5, SELECT_TARGET_RANDOM, 100.0f, true);
+			for (Unit* tar : tarlist)
+			DoCast(tar, BREAK_WATER_MISSILE, true);
 			events.Repeat(15s);
 			break;
 		}

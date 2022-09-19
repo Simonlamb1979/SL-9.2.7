@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -93,10 +93,10 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
                 }
             }
 
-            bool GossipSelect(Player* player, uint32 sender, uint32 action) override
+            void sGossipSelect(Player* player, uint32 /*p_Sender*/, uint32 /*action*/) override
             {
                 if (m_Instance == nullptr)
-                    return true;
+                    return;
 
                 /// Teleport player
                 //if (m_Instance->GetData(eHighmaulDatas::ElevatorActivated))
@@ -108,8 +108,6 @@ class npc_highmaul_gharg_arena_master : public CreatureScript
                 //}
 
                 CloseGossipMenuFor(player);
-
-                return true;
             }
 
             void MovementInform(uint32 type, uint32 id) override

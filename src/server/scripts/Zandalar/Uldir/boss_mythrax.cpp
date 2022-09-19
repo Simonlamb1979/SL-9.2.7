@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore
+ * Copyright 2021 BfaCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -120,9 +120,9 @@ private:
         me->SetReactState(REACT_DEFENSIVE);
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {        
-     //   _EnterCombat();
+        _EnterCombat();
         Talk(SAY_AGGRO);
         Talk(SAY_AGGRO_WHISPER);
         this->phase = 1;
@@ -167,10 +167,10 @@ private:
 
     void CleanEncounter(InstanceScript* instance, Creature* mythrax)
     {
-    /*    me->DespawnCreaturesInArea(NPC_OBLIVION_SPHERE, 125.0f);
+        me->DespawnCreaturesInArea(NPC_OBLIVION_SPHERE, 125.0f);
         me->DespawnCreaturesInArea(NPC_VISION_OF_MADNESS, 125.0f);
         me->DespawnCreaturesInArea(NPC_NRAQI_DESTROYER, 125.0f);
-        me->DespawnCreaturesInArea(NPC_XALZAIX, 125.0f);*/
+        me->DespawnCreaturesInArea(NPC_XALZAIX, 125.0f);
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -196,7 +196,7 @@ private:
             me->CastSpell(nullptr, SPELL_XALZAIX_MAIN, false);
             AddTimedDelayedOperation(8000, [this]() -> void
             {
-                me->AddAura(SPELL_OBLIVION_VEIL_AURA, me);
+                me->AddAura(SPELL_OBLIVION_VEIL_AURA);
                 me->CastSpell(nullptr, SPELL_XALZAIX_CREATE_AT_VISUAL);
                 me->CastSpell(me->GetVictim(), SPELL_XALZAIX_DAMAGE, true);
                 events.ScheduleEvent(EVENT_VISION_OF_MADNESS, 5s);
@@ -226,7 +226,7 @@ private:
         {
         case EVENT_ESSENCE_SHEAR:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.0f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
                 me->SetFacingToObject(target);
                 DoCast(SPELL_ESSENCE_SHEAR);
@@ -237,7 +237,7 @@ private:
         case EVENT_IMMINENT_RUIN:
         {             
             UnitList u_li;
-          //  SelectTargetList(u_li, 4, SELECT_TARGET_RANDOM, 150.0f, true);
+            SelectTargetList(u_li, 4, SELECT_TARGET_RANDOM, 150.0f, true);
             for (Unit* targets : u_li)
             {
                 me->CastSpell(targets, SPELL_IMMINENT_RUIN_AURA, true);
@@ -263,7 +263,7 @@ private:
             Talk(SAY_OBLIVION_SPHERE);
             Talk(SAY_OBLIVION_SPHERE_WHISPER);
             UnitList u_li;
-           // SelectTargetList(u_li, 3, SELECT_TARGET_RANDOM, 100.0f, true);
+            SelectTargetList(u_li, 3, SELECT_TARGET_RANDOM, 100.0f, true);
             for (Unit* targets : u_li)
             {
                 me->CastSpell(targets->GetRandomNearPosition(10.0f), SPELL_OBLIVION_SPHERE_SUMMON, true);
@@ -274,7 +274,7 @@ private:
         case EVENT_VISION_OF_MADNESS:
         {
             UnitList u_li;
-           // SelectTargetList(u_li, 5, SELECT_TARGET_RANDOM, 100.0f, true);
+            SelectTargetList(u_li, 5, SELECT_TARGET_RANDOM, 100.0f, true);
             for (Unit* targets : u_li)
             {
                 me->CastSpell(targets->GetPosition(), SPELL_VISION_OF_MADNESS_SUMMON, true);
@@ -435,12 +435,12 @@ private:
         }
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_VOID_ECHOES, 10s);
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         if (Creature* mythrax = me->FindNearestCreature(NPC_MYTHRAX, 150.0f, true))
         {
@@ -455,9 +455,6 @@ private:
             break;
         }
     }
-private:
-    InstanceScript* instance;
-    EventMap events;
 };
 
 void AddSC_boss_mythrax()

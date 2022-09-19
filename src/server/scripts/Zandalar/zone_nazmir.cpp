@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -42,13 +42,13 @@ struct npc_princess_talanji_146921 : public ScriptedAI
 {
     npc_princess_talanji_146921(Creature* c) : ScriptedAI(c) { }
 
-    void QuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->GetQuestId() == QUEST_WE_HAVE_THEM_CONCERNED)
+        if (quest->ID == QUEST_WE_HAVE_THEM_CONCERNED)
             player->SummonCreature(NPC_RIDING_RAPTOR_VEHICLE, me->GetPosition());
     }
 
-    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
         if (!player->GetQuestObjectiveData(QUEST_ITS_ALIVE, 0))
         {
@@ -67,8 +67,6 @@ struct npc_princess_talanji_146921 : public ScriptedAI
                 player->GetSceneMgr().PlaySceneByPackageId(SCENE_ZULDAZAR_ATTACK);
             });
         }
-
-        return true;
     } 
 };
 
@@ -116,9 +114,9 @@ struct npc_rokhan_147233 : public ScriptedAI
 {
     npc_rokhan_147233(Creature* c) : ScriptedAI(c) { }
 
-    void QuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->GetQuestId() == QUEST_PARTING_MISTS)
+        if (quest->ID == QUEST_PARTING_MISTS)
         {
             player->KilledMonsterCredit(147669);
             player->NearTeleportTo(1884.685f, 1775.752f, -0.199f, false);
@@ -135,9 +133,9 @@ struct npc_general_rakera_147075 : public ScriptedAI
 {
     npc_general_rakera_147075(Creature* c) : ScriptedAI(c) { }
 
-    void QuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->GetQuestId() == QUEST_FLY_OUT_TO_MEET_THEM)
+        if (quest->ID == QUEST_FLY_OUT_TO_MEET_THEM)
             player->SummonCreature(NPC_PTERRODAX_VEHICLE, me->GetPosition());
     }
 };

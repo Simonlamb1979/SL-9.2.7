@@ -182,7 +182,7 @@ public:
                 switch (AdderisAndAspix(instance, me))
                 {
                 case 1:
-                    me->SetLootRecipient(nullptr);
+                    me->AddLootRecipient(nullptr);
                     break;
                 case 0:
                     if (Creature* aspix = GetAspixDead())
@@ -204,12 +204,12 @@ public:
                 damage = 0;
         }
 
-        void EnterCombat(Unit*) //override
+        void EnterCombat(Unit*) override
         {
             if (Creature* aspix = GetAspix())
                 aspix->SetInCombatWithZone();
             me->SetPower(POWER_ENERGY, 0);
-           // _EnterCombat();
+            _EnterCombat();
 
             events.ScheduleEvent(EVENT_CHECK_ENERGY, TIMER_CHECK_ENERGY);
             events.ScheduleEvent(EVENT_GUST, TIMER_GUST);
@@ -437,7 +437,7 @@ public:
                 switch (AdderisAndAspix(instance, me))
                 {
                 case 1:
-                    me->SetLootRecipient(nullptr);
+                    me->AddLootRecipient(nullptr);
                     break;
                 case 0:
                     if (Creature* adderis = GetAdderisDead())
@@ -459,7 +459,7 @@ public:
                 damage = 0;
         }
 
-        void EnterCombat(Unit*) //override
+        void EnterCombat(Unit*) override
         {
             SelectSoundAndText(me, 3);
             if (Creature* adderis = GetAdderis())
@@ -467,7 +467,7 @@ public:
 
             me->CastSpell(me, SPELL_LIGHTNING_SHIELD_AURA, true);
             me->SetPower(POWER_ENERGY, 0);
-         //   _EnterCombat();
+            _EnterCombat();
 
             events.ScheduleEvent(EVENT_CHECK_ENERGY, TIMER_CHECK_ENERGY);
             events.ScheduleEvent(EVENT_CYCLONE_STRIKE, TIMER_CYCLONE_STRIKE);

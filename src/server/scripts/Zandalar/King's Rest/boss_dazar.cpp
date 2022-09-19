@@ -32,10 +32,10 @@ struct boss_dazar : public BossAI
         hp60 = false;
     }
 
-  /*  void EnterCombat(Unit* u) override
+    void EnterCombat(Unit* u) override
     {
         _EnterCombat();
-    };*/
+    };
 
     void ExecuteEvent(uint32 eventId) override
     {
@@ -47,7 +47,7 @@ struct boss_dazar : public BossAI
              break;
 
         case EVENT_QUAKING_LEAP:
-             if (Unit* tar = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 100.0f, true))
+             if (Unit* tar = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
              {
                  DoCast(tar, SPELL_QUAKING_LEAP);
              }
@@ -131,7 +131,7 @@ struct npc_dazar_minions : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* u)// override
+    void EnterCombat(Unit* u) override
     {
         switch (me->GetEntry())
         {
@@ -145,7 +145,7 @@ struct npc_dazar_minions : public ScriptedAI
         }
     };
 
-    void ExecuteEvent(uint32 eventId)// override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -160,8 +160,6 @@ struct npc_dazar_minions : public ScriptedAI
              break;
         }
     }
-private:
-    EventMap events;
 };
 
 void AddSC_boss_dazar_the_first_king()

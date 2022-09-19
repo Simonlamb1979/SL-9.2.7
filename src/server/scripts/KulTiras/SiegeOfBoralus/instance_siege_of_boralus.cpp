@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,7 +47,7 @@ public:
 
 	uint32 checkTimer = 3000;
 
-	void OnUpdate(Player* player, uint32 diff) //override
+	void OnUpdate(Player* player, uint32 diff) override
 	{
         if (player->GetAreaId() != 9354)
         return;
@@ -59,10 +59,10 @@ public:
 				player->CastSpell(player, BLOOD_IN_THE_WATER_SCREEN_EFFECT);
 				if (player->HasAura(BLOOD_IN_THE_WATER_SCREEN_EFFECT) && player->IsAlive() && player->IsInWater())
 				{
-					//player->GetScheduler().Schedule(2s, [player](TaskContext context)
+					player->GetScheduler().Schedule(2s, [player](TaskContext context)
 					{
 						player->CastSpell(player, BLOOD_IN_THE_WATER_INSTAKILL);
-					}//);
+					});
 				}	
 			}
 			if (!player->IsInWater() && player->GetAreaId() == 9354)

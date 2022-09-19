@@ -1030,7 +1030,7 @@ class npc_iron_juggernaut_explosive_tar : public CreatureScript
 
             void DoDamageToNearestPlayers()
             {
-                SpellInfo const* explosiveTarDmg = sSpellMgr->GetSpellInfo(SPELL_EXPLOSIVE_TAR_DMG, DIFFICULTY_NONE);
+                SpellInfo const* explosiveTarDmg = sSpellMgr->GetSpellInfo(SPELL_EXPLOSIVE_TAR_DMG);
 
                 std::list<Player*> players;
                 me->GetPlayerListInGrid(players, EXPLOSIVE_TAR_RADIUS);
@@ -1924,7 +1924,7 @@ struct spell_area_iron_juggernaut_borer_drill : AreaTriggerAI
         if (!unit->IsPlayer())
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BORER_DRLL_DMG, DIFFICULTY_NONE);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_BORER_DRLL_DMG);
 
         caster->AddAura(spellInfo, MAX_EFFECT_MASK, unit);
     }

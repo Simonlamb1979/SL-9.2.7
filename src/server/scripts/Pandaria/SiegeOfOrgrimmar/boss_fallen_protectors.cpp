@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 FuzionCore Project
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -1601,7 +1601,7 @@ class spell_sun_tenderheart_calamity : public SpellScriptLoader
 
                 if (int32 dmg = GetCalamityDmg(GetCaster()))
                 {
-                    GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_CALAMITY_DMG, &dmg, nullptr, true);
+                    GetCaster()->CastCustomSpell(GetHitUnit(), SPELL_CALAMITY_DMG, &dmg, NULL, NULL, true);
                 }
             }
 
@@ -1942,7 +1942,7 @@ class spell_he_softfoot_mark_of_anguish_aoe : public SpellScriptLoader
                 if (!GetCaster() || !GetHitUnit())
                     return;
 
-                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(Spells::SPELL_DEBILITATION, DIFFICULTY_NONE))
+                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(Spells::SPELL_DEBILITATION))
                     GetCaster()->AddAura(l_SpellInfo, MAX_EFFECT_MASK, GetHitUnit());
 
                 if (Creature* pCreature = GetCaster()->ToCreature())
@@ -1974,7 +1974,7 @@ class spell_he_softfoot_mark_of_anguish_dummy : public SpellScript
         {
             if (auto l_Aura = GetCaster()->GetAura(Spells::SPELL_MARK_OF_ANGUISH_AURA_2))
             {
-                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(Spells::SPELL_DEBILITATION, DIFFICULTY_NONE))
+                if (SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(Spells::SPELL_DEBILITATION))
                     GetCaster()->AddAura(l_SpellInfo, MAX_EFFECT_MASK, l_Target);
 
                 if (auto l_AuraCaster = l_Aura->GetCaster()) ///< Anguish
@@ -2115,39 +2115,26 @@ class spell_he_softfoot_noxious_poison : public SpellScriptLoader
 };
 
 /// Mark of Anguish - 144365
-class spell_he_softfoot_mark_of_anguish_dmg : public SpellScriptLoader
+class spell_he_softfoot_mark_of_anguish_dmg : public SpellScript
 {
-public:
-    spell_he_softfoot_mark_of_anguish_dmg() : SpellScriptLoader("spell_he_softfoot_mark_of_anguish_dmg") { }
+    PrepareSpellScript(spell_he_softfoot_mark_of_anguish_dmg);
 
-    class spell_he_softfoot_mark_of_anguish_dmg_SpellScript : public SpellScript
+    void HandleDamage(SpellEffIndex /*p_EffIndex*/)
     {
-        PrepareSpellScript(spell_he_softfoot_mark_of_anguish_dmg_SpellScript);
+        // This spell has SPELL_ATTR3_NO_DONE_BONUS and SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS.
+        // So calclate damage manually.
+        auto l_Damage = GetHitDamage();
 
-        void HandleDamage()
-        {
-            // This spell has SPELL_ATTR3_NO_DONE_BONUS and SPELL_ATTR6_NO_DONE_PCT_DAMAGE_MODS.
-            // So calclate damage manually.
-            auto l_Damage = GetHitDamage();
+        if (auto l_Target = GetHitUnit())
+            if (auto l_Aura = l_Target->GetAura(Spells::SPELL_SHADOW_WEAKNESS_DEBUFF))
+                SetHitDamage(AddPct(l_Damage, l_Aura->GetEffect(SpellEffIndex::EFFECT_0)->GetAmount()));
+    }
 
-            if (auto l_Target = GetHitUnit())
-                if (auto l_Aura = l_Target->GetAura(Spells::SPELL_SHADOW_WEAKNESS_DEBUFF))
-                    SetHitDamage(AddPct(l_Damage, l_Aura->GetEffect(SpellEffIndex::EFFECT_0)->GetAmount()));
-        }
-
-        void Register()
-        {
-            AfterCast += SpellCastFn(spell_he_softfoot_mark_of_anguish_dmg_SpellScript::HandleDamage);
-        }
-
-    };
-
-    SpellScript* GetSpellScript() const
+    void Register() override
     {
-        return new spell_he_softfoot_mark_of_anguish_dmg_SpellScript();
+        OnEffectHitTarget += SpellEffectFn(spell_he_softfoot_mark_of_anguish_dmg::HandleDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
     }
 };
-
 
 /// Called by Shadow Weakness - 144079
 class spell_he_softfoot_shadow_weakness : public SpellScriptLoader
@@ -2381,7 +2368,7 @@ void AddSC_boss_fallen_protectors()
     RegisterAuraScript(spell_he_softfoot_mark_of_anguish_aura_2);            // 143840
     new spell_he_softfoot_instant_poison();                 // 143210
     new spell_he_softfoot_noxious_poison();                 // 143225
-    new spell_he_softfoot_mark_of_anguish_dmg();              // 144365
+    RegisterSpellScript(spell_he_softfoot_mark_of_anguish_dmg);              // 144365
     new spell_he_softfoot_shadow_weakness();                // 144079
 
     RegisterAreaTriggerAI(spell_area_sun_tenderheart_dark_meditation);       // 143546

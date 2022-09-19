@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -52,7 +52,8 @@ enum RangerLilatha
     GO_CAGE                             = 181152,
     NPC_CAPTAIN_HELIOS                  = 16220,
     NPC_MUMMIFIED_HEADHUNTER            = 16342,
-    NPC_SHADOWPINE_ORACLE               = 16343
+    NPC_SHADOWPINE_ORACLE               = 16343,
+    FACTION_QUEST_ESCAPE                = 113
 };
 
 class npc_ranger_lilatha : public CreatureScript
@@ -60,11 +61,11 @@ class npc_ranger_lilatha : public CreatureScript
 public:
     npc_ranger_lilatha() : CreatureScript("npc_ranger_lilatha") { }
 
-    struct npc_ranger_lilathaAI : public EscortAI
+    struct npc_ranger_lilathaAI : public npc_escortAI
     {
-        npc_ranger_lilathaAI(Creature* creature) : EscortAI(creature) { }
+        npc_ranger_lilathaAI(Creature* creature) : npc_escortAI(creature) { }
 
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+        void WaypointReached(uint32 waypointId) override
         {
             Player* player = GetPlayerForEscort();
             if (!player)
@@ -126,16 +127,19 @@ public:
             if (GameObject* Cage = me->FindNearestGameObject(GO_CAGE, 20))
                 Cage->SetGoState(GO_STATE_READY);
         }
-
-        void QuestAccept(Player* player, Quest const* quest) override
-        {
-            if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
-            {
-                me->SetFaction(FACTION_ESCORTEE_N_NEUTRAL_PASSIVE);
-                Start(true, false, player->GetGUID());
-            }
-        }
     };
+
+    bool OnQuestAccept(Player* player, Creature* creature, Quest const* quest) override
+    {
+        if (quest->GetQuestId() == QUEST_ESCAPE_FROM_THE_CATACOMBS)
+        {
+            creature->SetFaction(FACTION_QUEST_ESCAPE);
+
+            if (npc_escortAI* pEscortAI = CAST_AI(npc_ranger_lilatha::npc_ranger_lilathaAI, creature->AI()))
+                pEscortAI->Start(true, false, player->GetGUID());
+        }
+        return true;
+    }
 
     CreatureAI* GetAI(Creature* creature) const override
     {
@@ -144,7 +148,42 @@ public:
 
 };
 
+/*######
+## npc_rathis_tomber
+######*/
+
+class npc_rathis_tomber : public CreatureScript
+{
+public:
+    npc_rathis_tomber() : CreatureScript("npc_rathis_tomber") {}
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (action == GOSSIP_ACTION_TRADE)
+            player->GetSession()->SendListInventory(creature->GetGUID());
+        return true;
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature) override
+    {
+        if (creature->IsQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
+
+        if (creature->IsVendor() && player->GetQuestRewardStatus(9152))
+        {
+            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+        }
+        else
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+
+        return true;
+    }
+};
+
 void AddSC_ghostlands()
 {
+    new npc_rathis_tomber();
     new npc_ranger_lilatha();
 }

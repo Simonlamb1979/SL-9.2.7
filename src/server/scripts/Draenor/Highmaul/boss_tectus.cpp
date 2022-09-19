@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -363,8 +363,8 @@ class boss_tectus : public CreatureScript
                                 if (Player* player = me->GetMap()->GetPlayers().begin()->GetSource())
                                 {
                                     player->CastSpell(me, eSpells::SuicideNoBloodNoLogging, true);
-                                    if(!me->hasLootRecipient())
-                                        me->SetLootRecipient(player);
+                                    if(!me->HasLootRecipients())
+                                        me->AddLootRecipient(player);
                                 }
                             });
                         }

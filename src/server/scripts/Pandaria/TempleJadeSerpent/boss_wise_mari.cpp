@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -339,7 +338,7 @@ class boss_wase_mari : public CreatureScript
                                 break;
 
                             Talk(TEXT_PHASE_SWITCH);
-                            me->GetThreatManager().clearReferences();
+                            me->getThreatManager().clearReferences();
                             me->GetMotionMaster()->MovePoint(1, me->GetHomePosition());
 
                             me->RemoveAurasDueToSpell(SPELL_WATER_BUBBLE);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore
+ * Copyright 2021 BfaCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -158,7 +158,7 @@ private:
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);        
         me->SetMaxPower(POWER_ENERGY, 100);
-     //   me->AddAura(AURA_OVERRIDE_POWER_COLOR_ENTROPIC);        
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_ENTROPIC);        
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -172,16 +172,16 @@ private:
         me->RemoveAllAreaTriggers();
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
-      //  _EnterCombat();
+        _EnterCombat();
         Talk(SAY_AGGRO);
         Talk(SAY_AGGRO_WHISPER);
         sixtyfivePercent = false;
         thirtyPercent = false;
         this->phase = 1;       
-        me->AddAura(SPELL_SURGING_DARKNESS_ENERGY_BAR, me);
-        me->AddAura(SPELL_SURGING_DARKNESS_ENERGIZE, me);
+        me->AddAura(SPELL_SURGING_DARKNESS_ENERGY_BAR);
+        me->AddAura(SPELL_SURGING_DARKNESS_ENERGIZE);
         events.ScheduleEvent(EVENT_MIGHT_OF_THE_VOID, 6s);
         events.ScheduleEvent(EVENT_TITAN_SPARK, 9s);
         events.ScheduleEvent(EVENT_SURGING_DARKNESS, 25s);
@@ -241,12 +241,12 @@ private:
 
     void CleanEncounter(InstanceScript* instance, Creature* zekvoz)
     {
-       // me->DespawnCreaturesInArea(NPC_SILITHID_WARRIOR, 125.0f);
-       // me->DespawnCreaturesInArea(NPC_NERUBIAN_VOIDWEAVER, 125.0f);
-       // me->DespawnCreaturesInArea(NPC_OMINOUS_CLOUD_STALKER, 125.0f);
-       // me->DespawnCreaturesInArea(NPC_ORB_OF_CORRUPTION, 125.0f);
-       // me->DespawnCreaturesInArea(NPC_ORB_OF_CORRUPTION_VISUAL_SOAK, 125.0f);
-       // me->DespawnCreaturesInArea(NPC_GUARDIAN_OF_YOGG_SARON, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SILITHID_WARRIOR, 125.0f);
+        me->DespawnCreaturesInArea(NPC_NERUBIAN_VOIDWEAVER, 125.0f);
+        me->DespawnCreaturesInArea(NPC_OMINOUS_CLOUD_STALKER, 125.0f);
+        me->DespawnCreaturesInArea(NPC_ORB_OF_CORRUPTION, 125.0f);
+        me->DespawnCreaturesInArea(NPC_ORB_OF_CORRUPTION_VISUAL_SOAK, 125.0f);
+        me->DespawnCreaturesInArea(NPC_GUARDIAN_OF_YOGG_SARON, 125.0f);
     }
 
     void ExecuteEvent(uint32 eventId) override
@@ -270,7 +270,7 @@ private:
                     titanBunny->GetScheduler().Schedule(100ms, [this](TaskContext context)
                     {
                         UnitList u_li;
-                     //   SelectTargetList(u_li, 10, SELECT_TARGET_RANDOM, 150.0f, true);
+                        SelectTargetList(u_li, 10, SELECT_TARGET_RANDOM, 150.0f, true);
                         for (Unit* targets : u_li)
                         {
                             me->CastSpell(targets, SPELL_TITAN_SPARK_DAMAGE, true);
@@ -289,7 +289,7 @@ private:
             }
             case EVENT_MIGHT_OF_THE_VOID:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 30.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 30.0f, true))
                 {
                     DoCast(target, SPELL_MIGHT_OF_THE_VOID, false);
                     me->GetScheduler().Schedule(3500ms, [this, target](TaskContext context)
@@ -310,7 +310,7 @@ private:
             case EVENT_EYE_BEAM:
             {
                 if (Creature* yoggProjection = me->FindNearestCreature(NPC_PROJECTION_OF_CTHUN, 150.0f, true))
-                    yoggProjection->AddAura(SPELL_EYE_BEAM_TRANSFORM, yoggProjection);
+                    yoggProjection->AddAura(SPELL_EYE_BEAM_TRANSFORM);
 
                 DoCast(SPELL_EYE_BEAM_TARGET_SELECTOR);
                 events.Repeat(27s);
@@ -334,10 +334,10 @@ private:
             case EVENT_ROILING_DECEIT:
             {
                 if (Creature* yoggProjection = me->FindNearestCreature(NPC_PROJECTION_OF_YOGG_SARON, 150.0f, true))
-                    yoggProjection->AddAura(SPELL_ROILING_DECEIT_TRANSFORM, yoggProjection);
+                    yoggProjection->AddAura(SPELL_ROILING_DECEIT_TRANSFORM);
 
                 UnitList u_li;
-               // SelectTargetList(u_li, 3, SELECT_TARGET_RANDOM, 150.0f, true);
+                SelectTargetList(u_li, 3, SELECT_TARGET_RANDOM, 150.0f, true);
                 for (Unit* targets : u_li)
                 {
                     me->CastSpell(targets, SPELL_ROILING_DECEIT_AURA, true);
@@ -409,10 +409,10 @@ struct npc_silithid_warrior : public ScriptedAI
     void Reset() override
     {
         ScriptedAI::Reset();
-        me->AddAura(SPELL_JAGGED_MANDIBLE_PROC_TRIGGER, me);
+        me->AddAura(SPELL_JAGGED_MANDIBLE_PROC_TRIGGER);
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_JAGGED_MANDIBLE, 2s);
     }
@@ -422,12 +422,12 @@ struct npc_silithid_warrior : public ScriptedAI
         me->AI()->DoZoneInCombat(nullptr);
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
         case EVENT_JAGGED_MANDIBLE:
-            if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 10.0f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 10.0f, true))
             {
                 me->AddAura(SPELL_JAGGED_MANDIBLE_AURA, target);
             }
@@ -441,9 +441,6 @@ struct npc_silithid_warrior : public ScriptedAI
         ScriptedAI::InitializeAI();
         me->CastSpell(me, SPELL_SKITTERING_SWARM);
     }
-private:
-    InstanceScript* instance;
-    EventMap events;
 };
 
 //135183
@@ -541,10 +538,7 @@ private:
             }
             }
         }
-    }
-private:
-    InstanceScript* instance;
-    EventMap events;
+    }    
 };
 
 //264383
@@ -819,19 +813,19 @@ struct npc_nerubian_voidweaver : public ScriptedAI
         if (IsHeroic() || IsMythic())
         {
             me->AddUnitState(UNIT_STATE_ROOT);
-            me->AddAura(SPELL_SHADOWBIND_VISUAL, me);
+            me->AddAura(SPELL_SHADOWBIND_VISUAL);
         }
 
         if (instance)
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
     }
 
-    void EnterCombat(Unit* /*killer*/) //override
+    void EnterCombat(Unit* /*killer*/) override
     {
         events.ScheduleEvent(EVENT_VOID_BOLT, 3s);
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -850,9 +844,6 @@ struct npc_nerubian_voidweaver : public ScriptedAI
         if (instance)
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
-private:
-    InstanceScript* instance;
-    EventMap events;
 };
 
 //159150
@@ -891,7 +882,7 @@ private:
         me->GetMotionMaster()->MovePoint(1, x, y, z, false);
         me->GetScheduler().Schedule(17s, [this](TaskContext context)
         {            
-            if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 25.0f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 25.0f, true))
             {
                 if (Creature* zekvoz = me->FindNearestCreature(NPC_ZEKVOZ, 150.0f, true))
                 {

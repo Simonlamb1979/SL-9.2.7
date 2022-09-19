@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -129,14 +129,14 @@ struct boss_skycap_kragg : public BossAI
             instance->SetBossState(FreeholdData::DataSkycapKragg, NOT_STARTED);
         }
 
-        if (!me->IsOnVehicle(me))
+        if (!me->IsOnVehicle())
         {
             if (Creature* mount = me->SummonCreature(FreeholdCreature::NpcSharkBaitBoss, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN))
             {
                 mountGUID = mount->GetGUID();
                 me->EnterVehicle(mount);
                 mount->AI()->SetData(KraggDatas::DataMountInCombat, false);
-            //    mount->DeleteThreatList();
+                mount->DeleteThreatList();
             }
         }
     }
@@ -148,7 +148,7 @@ struct boss_skycap_kragg : public BossAI
             fightStarted = false;
             me->InterruptNonMeleeSpells(true);
             me->SetReactState(ReactStates::REACT_PASSIVE);
-          //  me->DeleteThreatList();
+            me->DeleteThreatList();
             me->CombatStop();
             me->CastStop();
             me->GetMotionMaster()->Clear();
@@ -163,7 +163,7 @@ struct boss_skycap_kragg : public BossAI
         Reset();
     }
 
-    void JustEngagedWith(Unit* /*who*/) override
+    void EnterCombat(Unit* /*who*/) override
     {
         if (instance)
         {
@@ -213,7 +213,7 @@ struct boss_skycap_kragg : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage) override
     {
-     //   if (me->HealthWillBeBelowPctDamaged(75, damage) && phase == PhaseMount)
+        if (me->HealthWillBeBelowPctDamaged(75, damage) && phase == PhaseMount)
         {
             phase = PhaseUnmount;
             Talk(KraggTalk::TalkUnmount);
@@ -381,11 +381,11 @@ struct npc_sharkbait : public ScriptedAI
             if (!me->IsInCombat())
                 me->SetInCombatWithZone();
 
-           // events.Reset();
-          ////  events.ScheduleEvent(KraggEvents::EventVileBombadment, 5000);
-           // if (IsHeroic())
-            //    events.ScheduleEvent(KraggEvents::EventDiveBombs, 17000);
-           // break;
+            events.Reset();
+            events.ScheduleEvent(KraggEvents::EventVileBombadment, 5000);
+            if (IsHeroic())
+                events.ScheduleEvent(KraggEvents::EventDiveBombs, 17000);
+            break;
         }
         case KraggMovementPoint::MovementPointDiveBomb:
         {
@@ -395,7 +395,7 @@ struct npc_sharkbait : public ScriptedAI
         }
         case KraggMovementPoint::MovementPointDiveBombCasted:
         {
-            //events.Reset();
+            events.Reset();
             DiveBomb = false;
             me->GetMotionMaster()->MovePoint(KraggMovementPoint::MovementPointMiddle, MiddlePos);
             break;
@@ -412,17 +412,17 @@ struct npc_sharkbait : public ScriptedAI
         if ((!UpdateVictim() && InCombat) || DiveBomb)
             return;
 
-      //  events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-      //  while (uint32 eventId = events.ExecuteEvent())
-     //   {
-        //    switch (eventId)
-          //  {
-           // case KraggEvents::EventVileBombadment:
-          /*  {
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case KraggEvents::EventVileBombadment:
+            {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
                     me->CastSpell(target, KraggSpells::VileBombadment, false);
 
@@ -438,8 +438,8 @@ struct npc_sharkbait : public ScriptedAI
                     me->GetMotionMaster()->MovePoint(KraggMovementPoint::MovementPointDiveBomb, GetRandomPositionAround(target, 10.0f, 15.0f));
                 break;
             }
-            }*/
-      //  }
+            }
+        }
     }
 
 private:
@@ -492,7 +492,7 @@ class spell_dive_bomb : public SpellScript
                 if (Unit* target = caster->ToCreature()->AI()->SelectTarget(SELECT_TARGET_RANDOM, 0.0, 0.0, true))
                 {
                     Position ChargePosition;
-                    //GetPositionWithDistInOrientation(target, 10.0f, caster->GetAngle(target), ChargePosition);
+                    GetPositionWithDistInOrientation(target, 10.0f, caster->GetAngle(target), ChargePosition);
                     caster->GetMotionMaster()->MoveCharge(ChargePosition.GetPositionX(), ChargePosition.GetPositionY(), ChargePosition.GetPositionZ(), 20.0f, KraggMovementPoint::MovementPointDiveBombCasted);
                 }
             }

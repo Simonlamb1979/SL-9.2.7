@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -32,7 +32,7 @@
 // {
     // npc_king_rastakhan_135890(Creature* creature) : ScriptedAI(creature) {  }
 
-    // bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    // void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/)
     // {
         // player->TeleportTo(1906, Position(61.2f, 627.71f, 119.63f, 6.28179f));
         // CloseGossipMenuFor(player);
@@ -50,7 +50,7 @@
         // if (Player* player = clicker->ToPlayer())
         // {
             // player->CompletedCriteriaTreeId(CRITERIA_TREE_GATHER_YOUR_FORCES_AND_MOUNT_OLD_K_ZLOTEC);
-            // me->setFaction(player->GetFaction()); 
+            // me->setFaction(player->getFaction()); 
             // me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
         // }
     // }
@@ -162,7 +162,7 @@
     // {
     // }
 
-    // bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    // void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/)
     // {
         // CloseGossipMenuFor(player);
         // if (!isResued)

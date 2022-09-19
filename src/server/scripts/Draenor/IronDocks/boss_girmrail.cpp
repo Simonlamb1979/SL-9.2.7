@@ -117,7 +117,7 @@ static void GrimailEnforcersWiningCondition(InstanceScript* p_Instance, Creature
                     {
                         l_Player->Kill(l_Makogg);
                         l_Duguru->RemoveAllAuras();
-                        l_Duguru->SetLootRecipient(l_Player);
+                        l_Duguru->AddLootRecipient(l_Player);
                         DespawnCreaturesInArea(eCreatures::CreatureOgreTrap, p_Me);
                         DespawnCreaturesInArea(eCreatures::CreatureBombsquad, p_Me);
                         l_Duguru->RemoveUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL | UNIT_FLAG_NOT_SELECTABLE));
@@ -574,7 +574,7 @@ class boss_grimrail_makogg : public CreatureScript
             {
                 _JustDied();
                 Talk(eTalks::TalkMakoggDeath);
-                me->SetLootRecipient(nullptr);
+                me->AddLootRecipient(NULL);
                 if (m_Instance != nullptr)
                     GrimailEnforcersWiningCondition(m_Instance, me, p_Killer->GetGUID());
             }
@@ -780,7 +780,7 @@ class boss_grimrail_noxx : public CreatureScript
             {
                 _JustDied();
                 Talk(eTalks::TalkNoxxDeath);
-                me->SetLootRecipient(nullptr);
+                me->AddLootRecipient(NULL);
                 if (m_Instance != nullptr)
                     GrimailEnforcersWiningCondition(m_Instance, me, p_Killer->GetGUID());
             }

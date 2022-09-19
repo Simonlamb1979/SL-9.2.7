@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -490,7 +489,7 @@ class mob_haunting_sha : public CreatureScript
                     if (!zao)
                         return;
 
-                    me->GetThreatManager().addThreat(zao, 1000000.0f);
+                    me->getThreatManager().addThreat(zao, 1000000.0f);
                     me->AI()->AttackStart(zao);
                 }
             }
@@ -508,7 +507,7 @@ class mob_haunting_sha : public CreatureScript
                             Player* plr = i->GetSource();
                             if (!plr)
                                 continue;
-                            me->GetThreatManager().addThreat(plr, 1.0f);
+                            me->getThreatManager().addThreat(plr, 1.0f);
                         }
                     }
                     me->AI()->AttackStart(SelectTarget(SELECT_TARGET_RANDOM));

@@ -114,8 +114,8 @@ struct boss_jadefire_masters : public BossAI
        me->SetPowerType(POWER_ENERGY);
        me->RemoveAura(PERIODIC_ENERGY_GAIN);
        me->SetPower(POWER_ENERGY, 0);      
-      //me->DespawnCreaturesInArea(NPC_MAGMA_TRAP_BOD, 125.0f);
-      //me->DespawnCreaturesInArea(NPC_SPIRIT_OF_XUEN, 125.0f);
+       me->DespawnCreaturesInArea(NPC_MAGMA_TRAP_BOD, 125.0f);
+       me->DespawnCreaturesInArea(NPC_SPIRIT_OF_XUEN, 125.0f);
        instance->DoRemoveAurasDueToSpellOnPlayers(284374);
        instance->DoRemoveAurasDueToSpellOnPlayers(285632);
        me->NearTeleportTo(me->GetHomePosition());
@@ -153,12 +153,12 @@ struct boss_jadefire_masters : public BossAI
        }
    }
    
-   void EnterCombat(Unit* /*unit*/)// override
+   void EnterCombat(Unit* /*unit*/) override
    {
        switch (me->GetEntry())
        {
        case NPC_MESTRAH:
-          //  _EnterCombat();
+            _EnterCombat();
             Talk(SAY_MESTRAH_AGGRO);
             DoCast(PERIODIC_ENERGY_GAIN);
             events.ScheduleEvent(EVENT_WHIRLING_JADE_STORM, 3s);
@@ -179,7 +179,7 @@ struct boss_jadefire_masters : public BossAI
             break;
 
        case NPC_MANCEROY_FLAMEFIST:            
-         //   _EnterCombat(); 
+            _EnterCombat(); 
             me->GetScheduler().Schedule(4s, [this] (TaskContext context)
             {
                 Talk(SAY_MANCEROY_AGGRO);
@@ -202,7 +202,7 @@ struct boss_jadefire_masters : public BossAI
        }
    }
 
-   void OnSpellFinished(SpellInfo const* spellInfo) //override
+   void OnSpellFinished(SpellInfo const* spellInfo) override
    {
        if (spellInfo->Id == BLAZING_PHOENIX_TRANSFORM)
        {
@@ -253,11 +253,11 @@ struct boss_jadefire_masters : public BossAI
             break;
 
        case NPC_SPIRIT_OF_XUEN:            
-            if (Unit* tar = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 500.0f, true))
+            if (Unit* tar = SelectTarget(SELECT_TARGET_FARTHEST, 0, 500.0f, true))
             {
                  summon->GetMotionMaster()->MoveChase(tar, 500.0f, PET_FOLLOW_ANGLE);
                  summon->AI()->AttackStart(tar);
-               //  summon->AddThreat(tar, 1000.0f, SpellSchoolMask::SPELL_SCHOOL_MASK_NORMAL);
+                 summon->AddThreat(tar, 1000.0f, SpellSchoolMask::SPELL_SCHOOL_MASK_NORMAL);
                  if (tar->HasAura(285632))
                  {
                      return;
@@ -316,7 +316,7 @@ struct boss_jadefire_masters : public BossAI
        }
        case EVENT_PYROBLAST:
        {
-           me->AddAura(FIRE_SHIELD, me);
+           me->AddAura(FIRE_SHIELD);
            DoCastRandom(PYROBLAST, 300.0f);
            events.Repeat(20s);
            break;
@@ -327,7 +327,7 @@ struct boss_jadefire_masters : public BossAI
            {
                Talk(SAY_MANCEROY_SEARING_EMBERS);
                UnitList tarlist;
-               //SelectTargetList(tarlist, 5, SELECT_TARGET_RANDOM, 100.0f, true);
+               SelectTargetList(tarlist, 5, SELECT_TARGET_RANDOM, 100.0f, true);
                for (Unit* tar : tarlist)
                DoCast(tar, SEARING_EMBERS);
            }      
@@ -364,7 +364,7 @@ struct boss_jadefire_masters : public BossAI
                 break;
 
            case NPC_MESTRAH:
-                me->AddAura(RING_OF_HOSTILITY_MESTRAH_PERIODIC_DUMMY, me);
+                me->AddAura(RING_OF_HOSTILITY_MESTRAH_PERIODIC_DUMMY);
                 break;
            }
        }
@@ -396,7 +396,7 @@ struct boss_jadefire_masters : public BossAI
                    Talk(SAY_MANCEROY_TRANSFORM);
                    //DoCast(BLAZING_PHOENIX_TRANSFORM);
                    me->SetDisplayId(89730);                   
-                   me->AddAura(282040, me);
+                   me->AddAura(282040);
                    me->SetObjectScale(2.0f);
                    events.ScheduleEvent(EVENT_RISING_FLAMES, 3s);
                    events.ScheduleEvent(EVENT_MAGMA_TRAPS, 8s);
@@ -540,7 +540,7 @@ struct npc_living_bomb_bod : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void OnSpellFinished(SpellInfo const* spellInfo) //override
+    void OnSpellFinished(SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == EXPLOSION)
             me->DespawnOrUnsummon();
@@ -575,7 +575,7 @@ struct npc_magma_trap_bod : public ScriptedAI
             me->CastSpell(u, MAGMA_TRAP_KNOCK);
     }
 
-    void OnSpellFinished(SpellInfo const* spellInfo)// override
+    void OnSpellFinished(SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == MAGMA_TRAP_KNOCK)
             me->DespawnOrUnsummon();
@@ -592,7 +592,7 @@ struct npc_spirit_of_xuen : public ScriptedAI
         ScriptedAI::Reset();
     }
 
-    void EnterCombat(Unit* u) //override
+    void EnterCombat(Unit* u) override
     {
         me->GetScheduler().Schedule(3s, [this] (TaskContext context)
         {
@@ -692,7 +692,6 @@ struct npc_super_meter : public ScriptedAI
 
 private:
     TaskScheduler scheduler;
-    InstanceScript* instance;
     bool call_masters;
 };
 

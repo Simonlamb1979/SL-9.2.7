@@ -1041,7 +1041,7 @@ public:
 
             me->SetMaxHealth(summoner->GetMaxHealth());
             me->SetHealth(summoner->GetHealth());
-            me->SetFaction(summoner->GetFaction());
+            me->SetFaction(summoner->getFaction());
 
             if (summoner->ToCreature())
                 summoner->ToCreature()->DespawnOrUnsummon();
@@ -1256,7 +1256,7 @@ public:
                 break;
             }
 
-            me->SetFaction(summoner->GetFaction());
+            me->SetFaction(summoner->getFaction());
         }
 
         void OnSpellClick(Unit* clicker, bool& result)
@@ -1929,7 +1929,7 @@ public:
 
         void Register()
         {
-            OnEffectProc += AuraEffectProcFn(bfa_spell_screech_slow_AuraScript::OnProc, EFFECT_0, SPELL_AURA_MOD_CASTING_SPEED); // dbc fix
+            OnEffectProc += AuraEffectProcFn(bfa_spell_screech_slow_AuraScript::OnProc, EFFECT_0, SPELL_AURA_MOD_CASTING_SPEED_NOT_STACK); // dbc fix
         }
     };
 

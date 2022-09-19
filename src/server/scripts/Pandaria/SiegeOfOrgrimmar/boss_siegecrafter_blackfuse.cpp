@@ -3367,7 +3367,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush : AreaTriggerAI
         if (!l_Caster)
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CRUSH_DMG, DIFFICULTY_NONE);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CRUSH_DMG);
 
         /*l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
         {
@@ -3418,7 +3418,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush_pull : AreaTriggerAI
         if (!l_Caster)
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CRUSH_DMG, DIFFICULTY_NONE);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CRUSH_DMG);
 
         /*l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
         {
@@ -3469,7 +3469,7 @@ struct spell_area_siegecrafter_blackfuse_magnetic_crush_push : AreaTriggerAI
         if (!l_Caster)
             return;
 
-        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CRUSH_DMG, DIFFICULTY_NONE);
+        SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_MAGNETIC_CRUSH_DMG);
 
         /*l_Caster->GetMap()->ForEachPlayer([&](Player* p_Player) -> void
         {

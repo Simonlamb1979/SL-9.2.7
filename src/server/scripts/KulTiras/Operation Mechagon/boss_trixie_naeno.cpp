@@ -73,7 +73,7 @@ struct boss_trixie_naeno : public BossAI
 {
     boss_trixie_naeno(Creature* creature) : BossAI(creature, DATA_TRIXIE_NAENO) { }
 
-    void Reset()
+    void Reset() override
     {
         switch (me->GetEntry())
         {
@@ -96,12 +96,12 @@ struct boss_trixie_naeno : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
         switch (me->GetEntry())
         {
         case NPC_TRIXIE:
-            _JustEngagedWith();
+            _EnterCombat();
             events.ScheduleEvent(EVENT_TAZE, 3s);
             events.ScheduleEvent(EVENT_ELECTRIC_SLIDE, 10s);
             events.ScheduleEvent(EVENT_MEGA_TAZE, 15s);
@@ -114,7 +114,7 @@ struct boss_trixie_naeno : public BossAI
             break;
 
         case NPC_NAENO:            
-            _JustEngagedWith();
+            _EnterCombat();
             Talk(SAY_NAENO_AGGRO);
             if (Creature* mechacycle = me->FindNearestCreature(NPC_MECHACYCLE, 100.f, true))
             {                 
@@ -128,13 +128,13 @@ struct boss_trixie_naeno : public BossAI
             break;
 
         case NPC_MECHACYCLE:
-            _JustEngagedWith();
+            _EnterCombat();
             events.ScheduleEvent(EVENT_RANDOM_MOVE, 3s);
             break;
         }
     }    
 
-    void EnterEvadeMode(EvadeReason /*why*/)
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         std::list<Creature*> gnomes_list;
         gnomes_list.clear();
@@ -152,7 +152,7 @@ struct boss_trixie_naeno : public BossAI
         }
     }
 
-    void ExecuteEvent(uint32 eventid)
+    void ExecuteEvent(uint32 eventid) override
     {
         switch (eventid)
         {
@@ -165,12 +165,12 @@ struct boss_trixie_naeno : public BossAI
             Talk(SAY_TRIXIE_ELECTRIC_SLIDE);
             if (Creature* stalker = me->FindNearestCreature(NPC_JUMP_POINT_STALKER, 25.0f, true))
             {                
-                me->CastSpell(stalker->GetPosition(), SPELL_ELECTRIC_SLIDE, false);
+                //me->CastSpell(stalker->GetPosition(), SPELL_ELECTRIC_SLIDE, false);
                 me->GetMotionMaster()->MoveJump(stalker->GetPosition(), 0.8F, 30.0f, 30.0f, true);
                 me->GetScheduler().Schedule(3s, [this] (TaskContext context)
                 {
                     me->RemoveAura(SPELL_ELECTRIC_SLIDE);
-                };
+                });
             }
             events.Repeat(20s);
             break;
@@ -188,13 +188,13 @@ struct boss_trixie_naeno : public BossAI
                         me->CastSpell(target, SPELL_MEGA_TAZE_VISUAL_MISSILE, true);
                         me->CastSpell(target, SPELL_MEGA_TAZE_DAMAGE, true);
                     }
-                };
+                });
             }
             events.Repeat(30s);
             break;
 
         case EVENT_BOLT_BUSTER:
-            if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.0f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
                 me->SetFacingToObject(target);
                 me->CastSpell(target, SPELL_BOLT_BUSTER, false);
@@ -204,7 +204,7 @@ struct boss_trixie_naeno : public BossAI
 
         case EVENT_ROADKILL:
             Talk(SAY_ROADKILL);
-            if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))            
+            if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))            
                 me->CastSpell(target, SPELL_ROADKILL_CHARGE, true);
             events.Repeat(20s);
             break;
@@ -240,7 +240,7 @@ struct boss_trixie_naeno : public BossAI
             if (Creature* mechacycle = me->FindNearestCreature(NPC_MECHACYCLE, 10.0f, true))
             {
                 mechacycle->StopMoving();
-                if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
                 {                    
                     mechacycle->SetFacingToObject(target, true);                    
                     mechacycle->CastSpell(target->GetPosition(), SPELL_PEDAL_TO_THE_METAL, false);
@@ -268,7 +268,7 @@ struct boss_trixie_naeno : public BossAI
         }
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* killer) override
     {
         switch (me->GetEntry())
         {
@@ -307,7 +307,7 @@ struct npc_smoke_cloud_stalker : public ScriptedAI
 {
     npc_smoke_cloud_stalker(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset()
+    void Reset() override
     {
         ScriptedAI::Reset();
         me->CastSpell(nullptr, SPELL_SMOKE_CLOUD_CREATE_AT, true);

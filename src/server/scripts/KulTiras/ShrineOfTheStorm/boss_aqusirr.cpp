@@ -1,19 +1,3 @@
-/*
- * Copyright 2021 ShadowCore
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "ScriptedCreature.h"
@@ -143,13 +127,13 @@ public:
             me->SetHealth(me->CountPctFromMaxHealth(15));
         }
 
-        void JustDied(Unit*) override
+        void JustDied(Unit*)
         {
             summons.DespawnAll();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         }
         
-        void JustSummoned(Creature* summon) override
+        void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
 
@@ -162,7 +146,7 @@ public:
             }
         }
 
-        void DamageTaken(Unit* attacker, uint32& damage) override
+        void DamageTaken(Unit* attacker, uint32& damage)
         {
             if (me->HealthBelowPct(50) && !splitPhase2)
             {
@@ -176,7 +160,7 @@ public:
             }
         }
 
-        void JustEngagedWith(Unit*) override
+        void EnterCombat(Unit*)
         {
             ROOT;
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -191,20 +175,44 @@ public:
             events.ScheduleEvent(EVENT_CHOKING_BRINE, TIMER_CHOKING_BRINE);
             events.ScheduleEvent(EVENT_SURGING_RUSH, TIMER_SURGING_RUSH);
 
-            if (me->GetMap()->IsHeroic()/* && me->GetMap()->IsMythic()*/)
+            if (me->GetMap()->IsHeroic() && me->GetMap()->IsMythic())
                 events.ScheduleEvent(EVENT_GRASPING_TENTACLES, TIMER_GRASPING_TENTACLES);
         }
 
-        void OnSpellFinished(SpellInfo const* spellInfo)// override
+        bool CheckCheaters()
+        {
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+                if (Player* player = i->GetSource())
+                {
+                    if (!player->IsGameMaster()) //gm check
+                    {
+                        if (player->GetDistance(centerPlatform.GetPositionX(), centerPlatform.GetPositionY(), centerPlatform.GetPositionZ()) >= 30.0f ||
+                            me->GetDistance(centerPlatform.GetPositionX(), centerPlatform.GetPositionY(), centerPlatform.GetPositionZ()) >= 30.0f) // all posibility
+                        {
+                            me->Kill(player, false);
+                            std::ostringstream str;
+                            str << "CHEATERS!";
+                            me->TextEmote(str.str().c_str(), 0, true);
+                            return false;
+                        }
+                    }
+
+                }
+
+            return true;
+        }
+
+        void OnSpellFinished(SpellInfo const* spellInfo) override
         {
             switch (spellInfo->Id)
             {
             case SPELL_SURGING_RUSH:
             {
-             //   me->GetScheduler().Schedule(1s, [this](TaskContext /*context*/)
+                me->GetScheduler().Schedule(1s, [this](TaskContext /*context*/)
                     {
                         me->RestoreDisplayId();
-                    }//);
+                    });
                 break;
             }
             }
@@ -216,7 +224,7 @@ public:
 
             me->CastSpell(me, SPELL_SURGING_RUSH);
 
-          //  me->GetScheduler().Schedule(4s, [this](TaskContext /*context*/)
+            me->GetScheduler().Schedule(4s, [this](TaskContext /*context*/)
                 {
                     float x;
                     float y;
@@ -250,11 +258,11 @@ public:
                     me->GetMotionMaster()->MoveCharge(x, y, me->GetPositionZ());
                     //me->CastSpell(me, SPELL_EMERGE_VISUAL, true);
                     ROOT;
-                }//);
+                });
 
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -263,6 +271,9 @@ public:
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
+
+            if (me->IsInCombat())
+                CheckCheaters();
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -321,22 +332,22 @@ public:
         bfa_npc_aqualing_AI(Creature* creature) : ScriptedAI(creature)
         {
             ROOT;
-            me->AddAura(SPELL_DIMINISH, me);
+            me->AddAura(SPELL_DIMINISH);
         }
 
         EventMap events;
 
-        void Reset() override
+        void Reset()
         {
             events.Reset();
         }
 
-        void JustEngagedWith(Unit*) override
+        void EnterCombat(Unit*)
         {
             events.ScheduleEvent(EVENT_SEA_BLAST_CAST, TIMER_SEA_BLAST_CAST);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -382,7 +393,7 @@ public:
             ROOT;
         }
 
-        void JustDied(Unit*) override
+        void JustDied(Unit*)
         {
             Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
             for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)

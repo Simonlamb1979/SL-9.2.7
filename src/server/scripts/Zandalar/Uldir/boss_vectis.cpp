@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore
+ * Copyright 2021 BfaCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -138,7 +138,7 @@ private:
         me->SetPower(POWER_ENERGY, 0);
         me->SetMaxPower(POWER_ENERGY, 100);
         me->RemoveAura(SPELL_LIQUEFY_CHANGE_MODEL);
-   //     me->AddAura(AURA_OVERRIDE_POWER_COLOR_RAGE);        
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_RAGE);        
     }
 
     void CleanEncounter(InstanceScript* instance, Creature* vectis)
@@ -165,9 +165,9 @@ private:
         CleanEncounter(instance, me);
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
-     //   _EnterCombat();
+        _EnterCombat();
         Talk(SAY_AGGRO);
         this->phase = 1;
         events.ScheduleEvent(EVENT_GESTATE, 9s);
@@ -184,8 +184,8 @@ private:
         {
             if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
             {
-                summon->GetThreatManager().resetAllAggro();
-                summon->GetThreatManager().addThreat(target, 1000000.0f);
+                summon->getThreatManager().resetAllAggro();
+                summon->getThreatManager().addThreat(target, 1000000.0f);
                 summon->GetMotionMaster()->MoveChase(target);
             }
         }
@@ -219,7 +219,7 @@ private:
             }
             case EVENT_EVOLVING_AFFLICTION:
             {
-                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                     me->CastSpell(target, SPELL_EVOLVING_AFFLICTION, true);
                 events.Repeat(9500);
                 break;
@@ -288,12 +288,12 @@ struct npc_plague_amalgam : public ScriptedAI
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_IMMUNOSUPPRESSION, 5s);
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -311,9 +311,6 @@ struct npc_plague_amalgam : public ScriptedAI
         if (instance)
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
-private:
-    InstanceScript* instance;
-    EventMap events;
 };
 
 //265208
@@ -590,7 +587,7 @@ void MoveForward(float distance, AreaTrigger* at)
     float z = at->GetPositionZ();
     at->GetNearPoint2D(x, y, distance, ori);
     movePos = { x, y, z, ori };
-   // at->SetDestination(movePos, 3500);    
+    at->SetDestination(movePos, 3500);    
 }
 
 //19185
@@ -694,11 +691,11 @@ class aura_burning_lesions : public AuraScript
         if (Unit* caster = GetCaster())
         {
             std::list<Player*> playersList;
-            /*for (auto player : caster->SelectNearestPlayers(5.0f, true))
+            for (auto player : caster->SelectNearestPlayers(5.0f, true))
             {
                 if (Creature* vectis = player->FindNearestCreature(NPC_VECTIS, 500.0f))
                     vectis->CastSpell(player, SPELL_LINGERING_INFECTION);
-            }*/
+            }
         }
     }
 
@@ -754,7 +751,7 @@ struct npc_engorged_parasite : public ScriptedAI
         ScriptedAI::Reset();
     }
 
-    void EnterCombat(Unit* /*who*/)// override
+    void EnterCombat(Unit* /*who*/) override
     {
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
@@ -762,7 +759,7 @@ struct npc_engorged_parasite : public ScriptedAI
         events.ScheduleEvent(EVENT_CAUSTIC_BITE, 3s);
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -784,8 +781,6 @@ struct npc_engorged_parasite : public ScriptedAI
     {
         events.ScheduleEvent(EVENT_PARASITIC_DISCHARGE, 100ms);
     }
-private:
-    EventMap events;
 };
 
 //135687

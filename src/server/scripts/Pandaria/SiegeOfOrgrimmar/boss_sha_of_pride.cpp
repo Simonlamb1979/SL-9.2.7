@@ -2386,7 +2386,7 @@ class npc_sha_of_pride_portal_to_orgrimmar : public CreatureScript
 
             }
 
-            bool GossipHello(Player* player) override
+            void sGossipHello(Player* player) override
             {
                 if (IsAllianceInstance())
                 {
@@ -2398,8 +2398,6 @@ class npc_sha_of_pride_portal_to_orgrimmar : public CreatureScript
                 }
 
                 SendPlayerTeleported();
-
-                return true;
             }
 
         private:

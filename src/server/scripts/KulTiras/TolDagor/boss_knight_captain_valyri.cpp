@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -61,12 +61,12 @@ struct boss_knight_captain_valyri : public BossAI
 {
     boss_knight_captain_valyri(Creature* creature) : BossAI(creature, DATA_KNIGHT_CAPTAIN_VALYRI) { }
 
-    void JustEngagedWith(Unit* who) override
+    void EnterCombat(Unit* who) override
     {
         events.ScheduleEvent(EVENTS_IGNITION, 6100);
         events.ScheduleEvent(EVENTS_FUSELIGHTER, 14200);
         events.ScheduleEvent(EVENTS_CINDER_FLAME, 18200);
-        BossAI::JustEngagedWith(who);
+        BossAI::EnterCombat(who);
     }
 
     void SpellHitTarget(Unit* target, SpellInfo const* spell) override
@@ -146,7 +146,7 @@ struct npc_tol_dagor_ashavane_quartermaster : public ScriptedAI
                 //if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true)) fix add correct target
                 //if (Unit* target = me->FindNearestCreature(NPC_KNIGHT_CAPTAIN_VALYRI, 50.0f, true))
                     //me->CastSpell(target, SPELL_ARMAMENT);
-           //     me->CastSpell(BarrelPositions[urand(0, 3)], SPELL_ARMAMENT);
+                me->CastSpell(BarrelPositions[urand(0, 3)], SPELL_ARMAMENT);
                 break;
             default:
                 break;
@@ -161,7 +161,7 @@ struct npc_tol_dagor_munitions_barrel : public ScriptedAI
 
     void Reset() override
     {
-     //   events.Reset();
+        events.Reset();
     }
 
     void SpellHit(Unit* caster, SpellInfo const* spell) override
@@ -171,7 +171,7 @@ struct npc_tol_dagor_munitions_barrel : public ScriptedAI
             if (hit == false)
             {
                 me->CastSpell(me, SPELL_BURNING_ARSENAL);
-            //    events.ScheduleEvent(EVENT_DESPAWN, 6000);
+                events.ScheduleEvent(EVENT_DESPAWN, 6000);
                 hit = true;
             }
         }
@@ -206,18 +206,18 @@ struct npc_tol_dagor_munitions_barrel : public ScriptedAI
     }
 
     void UpdateAI(uint32 diff) override
-    //{
-      //  events.Update(diff);
-     //   while (uint32 eventId = events.ExecuteEvent())
-      //  {
-          //  switch (eventId)
+    {
+        events.Update(diff);
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
             {
-          //  case EVENT_DESPAWN:
+            case EVENT_DESPAWN:
                 me->KillSelf();
                 me->ForcedDespawn();
             }
-      //  }
- //   }
+        }
+    }
 private:
     bool hit = false;
 };
@@ -244,9 +244,9 @@ class spell_ignition : public SpellScript
 };
 
 //257028 todo fix
-class spell_fuselighter : public AuraScript
+class bfa_spell_fuselighter : public AuraScript
 {
-    PrepareAuraScript(spell_fuselighter);
+    PrepareAuraScript(bfa_spell_fuselighter);
 
     void AfterApply(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
     {
@@ -260,7 +260,7 @@ class spell_fuselighter : public AuraScript
 
     void Register() override
     {
-        AfterEffectApply += AuraEffectApplyFn(spell_fuselighter::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectApply += AuraEffectApplyFn(bfa_spell_fuselighter::AfterApply, EFFECT_0, SPELL_AURA_PERIODIC_TRIGGER_SPELL, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
@@ -270,5 +270,5 @@ void AddSC_boss_knight_captain_valyri()
     RegisterCreatureAI(npc_tol_dagor_ashavane_quartermaster);
     RegisterCreatureAI(npc_tol_dagor_munitions_barrel);
     RegisterSpellScript(spell_ignition);
-    RegisterAuraScript(spell_fuselighter);
+    RegisterAuraScript(bfa_spell_fuselighter);
 }

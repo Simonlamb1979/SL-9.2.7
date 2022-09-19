@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,19 +51,19 @@ struct npc_rexxar : public ScriptedAI
     {
         if (Player* player = unit->ToPlayer())
         {
-          //  if (player->GetDistance(me) < 8.0f && instance && !instance->GetData(DATA_INSTANCE_ENTER))
+            if (player->GetDistance(me) < 8.0f && instance && !instance->GetData(DATA_INSTANCE_ENTER))
             {
-              //  instance->SetData(DATA_INSTANCE_ENTER, 1);
+                instance->SetData(DATA_INSTANCE_ENTER, 1);
                 Talk(TALK_REXXAR_TALK_01);
-               // me->GetScheduler().Schedule(7s, [this](TaskContext context) { GetContextCreature()->AI()->Talk(TALK_REXXAR_TALK_02); });
-               // me->GetScheduler().Schedule(14s, [this](TaskContext context) { GetContextCreature()->AI()->Talk(TALK_REXXAR_TALK_03); });
+                me->GetScheduler().Schedule(7s, [this](TaskContext context) { GetContextCreature()->AI()->Talk(TALK_REXXAR_TALK_02); });
+                me->GetScheduler().Schedule(14s, [this](TaskContext context) { GetContextCreature()->AI()->Talk(TALK_REXXAR_TALK_03); });
             }
         }
     }
 
     void UpdateAI(uint32 diff) override
     {
-        //events.Update(diff);
+        events.Update(diff);
     }
 };
 
@@ -76,9 +76,9 @@ struct npc_brother_pike : public ScriptedAI
     {
         if (Player* player = unit->ToPlayer())
         {
-           // if (player->GetDistance(me) < 8.0f && instance && !instance->GetData(DATA_INSTANCE_ENTER))
+            if (player->GetDistance(me) < 8.0f && instance && !instance->GetData(DATA_INSTANCE_ENTER))
             {
-             //   instance->SetData(DATA_INSTANCE_ENTER, 1);
+                instance->SetData(DATA_INSTANCE_ENTER, 1);
                 Talk(TALK_BROTHER_PIKE_TALK_01);
             }
         }
@@ -86,7 +86,7 @@ struct npc_brother_pike : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        //events.Update(diff);
+        events.Update(diff);
     }
 };
 
@@ -138,40 +138,40 @@ struct npc_lord_stormsong : public ScriptedAI
     {
         if (Player* player = unit->ToPlayer())
         {
-           // if (!introDone && player->GetDistance(me) < 40.0f && instance)
+            if (!introDone && player->GetDistance(me) < 40.0f && instance)
             {
                 introDone = true;
                 me->RemoveAurasDueToSpell(SPELL_WATER_RITUAL);
                 me->SetFacingTo(0.1939797f);
                 Talk(YELL_STORMSONG_01);
-              //  me->GetScheduler().Schedule(6s, [this](TaskContext context) { GetContextCreature()->AI()->Talk(YELL_STORMSONG_02); });
-               // me->GetScheduler().Schedule(13s, [this](TaskContext context)
-              //  {
-                   // GetContextCreature()->AI()->DoCast(SPELL_WATER_RITUAL);
-                   // GetContextCreature()->AI()->DoCast(SPELL_REQUIEM_OF_THE_ABYSS);
-                }//);
-              //  me->GetScheduler().Schedule(18s, [this](TaskContext context)
-              //  {
-                   // if (Creature* aqusirr = GetContextCreature()->FindNearestCreature(NPC_AQUSIRR, 100.0f))
-                 //   {
-                       // aqusirr->SetReactState(REACT_AGGRESSIVE);
-                      //  aqusirr->SetVisible(true);
-                     //   aqusirr->AI()->DoCast(SPELL_EMERGE_VISUAL);
-                //    }
-             //   }//);
+                me->GetScheduler().Schedule(6s, [this](TaskContext context) { GetContextCreature()->AI()->Talk(YELL_STORMSONG_02); });
+                me->GetScheduler().Schedule(13s, [this](TaskContext context)
+                {
+                    GetContextCreature()->AI()->DoCast(SPELL_WATER_RITUAL);
+                    GetContextCreature()->AI()->DoCast(SPELL_REQUIEM_OF_THE_ABYSS);
+                });
+                me->GetScheduler().Schedule(18s, [this](TaskContext context)
+                {
+                    if (Creature* aqusirr = GetContextCreature()->FindNearestCreature(NPC_AQUSIRR, 100.0f))
+                    {
+                        aqusirr->SetReactState(REACT_AGGRESSIVE);
+                        aqusirr->SetVisible(true);
+                        aqusirr->AI()->DoCast(SPELL_EMERGE_VISUAL);
+                    }
+                });
 
-              //  me->GetScheduler().Schedule(20s, [this](TaskContext context)
-             //   {
-                 //   GetContextCreature()->AI()->DoCast(SPELL_SPLASHING_WATER);
-                  //  GetContextCreature()->DespawnOrUnsummon(2500);
-              //  });
-           // }
+                me->GetScheduler().Schedule(20s, [this](TaskContext context)
+                {
+                    GetContextCreature()->AI()->DoCast(SPELL_SPLASHING_WATER);
+                    GetContextCreature()->DespawnOrUnsummon(2500);
+                });
+            }
         }
     }
 
     void UpdateAI(uint32 diff) override
     {
-     //   events.Update(diff);
+        events.Update(diff);
     }
 };
 
@@ -183,10 +183,10 @@ struct at_slicing_hurricane : AreaTriggerAI
 
     void OnInitialize() override
     {
-      //  at->SetPeriodicProcTimer(2000);
+        at->SetPeriodicProcTimer(2000);
     }
 
-    void OnPeriodicProc() //override
+    void OnPeriodicProc() override
     {
         if (Unit* caster = at->GetCaster())
             for (ObjectGuid guid : at->GetInsideUnits())

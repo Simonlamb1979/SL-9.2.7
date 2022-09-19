@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
+ * 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -550,7 +550,7 @@ public:
             if (sum)
             {
                 pet_guid = sum->GetGUID();
-                sum->SetFaction(me->GetFaction());
+                sum->SetFaction(me->getFaction());
             }
         }
 
@@ -596,7 +596,7 @@ public:
         void DamageTaken(Unit* /*killer*/, uint32 &damage) override
         {
             //We need to retire Ming and let the next boss enter combat.
-            if (int(me->GetHealth()) - int(damage) <= 0)
+           // if (int(me->GetHealth()) - int(damage) <= 0)
             {
                 Talk(TALK_DEFEATED);
                 damage = 0;

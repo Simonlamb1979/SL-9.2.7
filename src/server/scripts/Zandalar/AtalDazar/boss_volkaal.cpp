@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -134,7 +134,7 @@ struct boss_ataldazar_volkaal : public BossAI
 
     void InitializeAI() override
     {
-       // totemsDead = 0;
+        totemsDead = 0;
         BossAI::InitializeAI();
     }
 
@@ -143,7 +143,7 @@ struct boss_ataldazar_volkaal : public BossAI
         if (spell->Id == SPELL_TOXIC_LEAP_DUMMY)
             me->CastSpell(target, SPELL_TOXIC_LEAP);
         if (spell->Id == SPELL_NOXIOUS_STENCH_DMG)
-            me->CastSpell(target, SPELL_LINGERING_NAUSEA);
+            me->CastSpell(target, SPELL_LINGERING_NAUSEA, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
     }
 
     void Reset() override
@@ -153,7 +153,7 @@ struct boss_ataldazar_volkaal : public BossAI
         events.Reset();
         summons.DespawnAll();
         OpenBossGate(instance);
-       // totemsDead = 0;
+        totemsDead = 0;
 
         if (me->HasAura(SPELL_BAD_VODOO))
             me->RemoveAura(SPELL_BAD_VODOO);
@@ -161,18 +161,18 @@ struct boss_ataldazar_volkaal : public BossAI
         for (Position point : totemSpawns)
             me->SummonCreature(NPC_REANIMATION_TOTEM, point, TEMPSUMMON_MANUAL_DESPAWN);
 
-     //   AreaTriggerList triggers;
-       // me->GetAreatriggerListInRange(triggers, 50.0f);
-      //  for (AreaTrigger* trigger : triggers)
-      /*  {
+        AreaTriggerList triggers;
+        me->GetAreatriggerListInRange(triggers, 50.0f);
+        for (AreaTrigger* trigger : triggers)
+        {
             if (trigger->GetEntry() == AREATRIGGER_TOXIC_POOL)
             {
                 trigger->Remove();
-            }*/
-      //  }
+            }
+        }
     }
 
-    void EnterCombat() //override
+    void EnterCombat(Unit* who) override
     {
         Talk(TALK_AGGRO);
         // Events
@@ -180,7 +180,7 @@ struct boss_ataldazar_volkaal : public BossAI
         events.ScheduleEvent(EVENT_TOXIC_LEAP, 2000);
         events.ScheduleEvent(EVENT_NOXIOUS_STENCH, 6000);
 
-      //  BossAI::EnterCombat(who);
+        BossAI::EnterCombat(who);
     }
 
     void UpdateAI(uint32 diff) override
@@ -208,7 +208,7 @@ struct boss_ataldazar_volkaal : public BossAI
                 //Noxious Stench adds a delay on toxic leap
                 if (phase == 1)
                 {
-                    //events.DelayEvent(EVENT_TOXIC_LEAP, 2000);
+                    events.DelayEvent(EVENT_TOXIC_LEAP, 2000);
                     events.ScheduleEvent(EVENT_NOXIOUS_STENCH, 18200);
                 }
                 if (phase == 2)
@@ -227,8 +227,8 @@ struct boss_ataldazar_volkaal : public BossAI
             case EVENT_TOXIC_POOL:
             {
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 50.0f, true))
-                    me->CastSpell(target, SPELL_RAPID_DECAY_AREATRIGGER_MISSLE2);
-                me->CastSpell(me, SPELL_RAPID_DECAY_AREATRIGGER_MISSLE);
+                    me->CastSpell(target, SPELL_RAPID_DECAY_AREATRIGGER_MISSLE2, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+                me->CastSpell(me, SPELL_RAPID_DECAY_AREATRIGGER_MISSLE, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
                 events.ScheduleEvent(EVENT_TOXIC_POOL, 1000);
                 break;
             }
@@ -261,7 +261,7 @@ struct boss_ataldazar_volkaal : public BossAI
 
                 phase = 2;
 
-                me->AddAura(SPELL_RAPID_DECAY_BOSS_AURA, me);
+                me->AddAura(SPELL_RAPID_DECAY_BOSS_AURA);
 
                 if (me->HasUnitState(UNIT_STATE_CASTING))
                     me->InterruptNonMeleeSpells(0);
@@ -289,6 +289,7 @@ struct boss_ataldazar_volkaal : public BossAI
         Talk(TALK_DEATH);
         _JustDied();
         instance->SetBossState(DATA_VOLKAAL, DONE);
+        OpenBossGate(instance);
         std::list<Player*> playerList;
         me->GetPlayerListInGrid(playerList, 100.0f);
         for (auto player : playerList)
@@ -314,11 +315,11 @@ struct npc_ataldazar_reanimation_totem : public ScriptedAI
 
     void Reset() override
     {
-      //  events.Reset();
+        events.Reset();
         me->setActive(false);
 
         if (Creature* volkaal = me->FindNearestCreature(NPC_VOLKAAL, 100))
-            volkaal->AddAura(SPELL_BAD_VODOO, volkaal);
+            volkaal->AddAura(SPELL_BAD_VODOO);
     }
 
     void InitializeAI() override
@@ -354,10 +355,10 @@ struct npc_ataldazar_reanimation_totem : public ScriptedAI
     void SpellHitTarget(Unit* /*target*/, SpellInfo const* /*spell*/) override
     {
         if (Creature* boss = me->FindNearestCreature(NPC_VOLKAAL, 100.f))
-                boss->AI()->DoAction(ACTION_TOTEM_HEALED);
+            boss->AI()->DoAction(ACTION_TOTEM_HEALED);
     }
 
-    void EnterCombat(Unit* attacker)// override
+    void EnterCombat(Unit* attacker) override
     {
         if (Unit* boss = me->FindNearestCreature(NPC_VOLKAAL, 50, true))
         {
@@ -366,7 +367,7 @@ struct npc_ataldazar_reanimation_totem : public ScriptedAI
                 me->CallAssistance();
                 boss->SetInCombatWith(attacker);
                 attacker->SetInCombatWith(boss);
-             //   boss->AddThreat(attacker, 0.1f);
+                boss->AddThreat(attacker, 0.1f);
                 boss->Attack(attacker, true);
             }
         }

@@ -121,13 +121,13 @@ private:
         }
     }
 
-    void EnterCombat(Unit* /*unit*/) //override
+    void EnterCombat(Unit* /*unit*/) override
     {        
-      //  _EnterCombat();
+        _EnterCombat();
         Talk(SAY_AGGRO);
         DoCast(PERIODIC_ENERGY_GAIN);
         me->StopMoving();
-        me->AddAura(SEAL_OF_RETRIBUTION, me);
+        me->AddAura(SEAL_OF_RETRIBUTION);
         me->GetScheduler().Schedule(3s, [this] (TaskContext context)
         {
             Talk(SAY_RETRIBUTION);
@@ -201,8 +201,8 @@ private:
        _JustDied();
        Talk(SAY_DEATH);
        me->RemoveAllAreaTriggers();
-  //     me->DespawnCreaturesInArea(NPC_DARKFORGED_CRUSADER, 125.0f);
-     //  me->DespawnCreaturesInArea(NPC_ANOINTED_DISCIPLE, 125.0f);
+       me->DespawnCreaturesInArea(NPC_DARKFORGED_CRUSADER, 125.0f);
+       me->DespawnCreaturesInArea(NPC_ANOINTED_DISCIPLE, 125.0f);
 
        if (auto* encounterDoor = me->FindNearestGameObject(GO_FRIDA_WALL_OF_SPEARS, 100.0f))
            encounterDoor->SetGoState(GO_STATE_ACTIVE);
@@ -256,7 +256,7 @@ private:
    void SpellHit(Unit* caster, SpellInfo const* spell) override 
    {
        if (me->HasAura(SEAL_OF_RECKONING))
-           me->AddAura(ZEALOTRY, me);
+           me->AddAura(ZEALOTRY);
    }
 
    void JudgmentRighteousnessTargets()
@@ -303,12 +303,12 @@ private:
             if (Creature* crusader = me->FindNearestCreature(NPC_DARKFORGED_CRUSADER, 100.0f, true))
             {
                 if (crusader->HealthBelowPct(99) && !crusader->HasAura(DIVINE_PROCTECTION_REDUCTION))
-                    crusader->AddAura(DIVINE_PROCTECTION_REDUCTION, crusader);
+                    crusader->AddAura(DIVINE_PROCTECTION_REDUCTION);
             }
             if (Creature* disciple = me->FindNearestCreature(NPC_ANOINTED_DISCIPLE, 100.0f, true))
             {
                 if (disciple->HealthBelowPct(99) && !disciple->HasAura(DIVINE_PROCTECTION_REDUCTION))
-                    disciple->AddAura(DIVINE_PROCTECTION_REDUCTION, disciple);
+                    disciple->AddAura(DIVINE_PROCTECTION_REDUCTION);
             }
             events.Repeat(15s);
             break;
@@ -316,7 +316,7 @@ private:
         case EVENT_WAVE_OF_LIGHT:
         {
              Talk(SAY_WAVE_OF_LIGHT);
-             if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 100.0f))     
+             if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f))     
              {
                  me->SetFacingToObject(target);
                  me->CastSpell(nullptr, WAVE_OF_LIGHT_CREATE_AT, false);
@@ -373,7 +373,7 @@ private:
                         me->RemoveAura(SEAL_OF_RETRIBUTION);
                         me->RemoveAura(PERIODIC_ENERGY_GAIN);                        
 
-                        me->AddAura(SEAL_OF_RECKONING, me);                        
+                        me->AddAura(SEAL_OF_RECKONING);                        
                     });
                 }
                 if (me->HasAura(SEAL_OF_RECKONING))
@@ -384,8 +384,8 @@ private:
                         me->RemoveAura(SEAL_OF_RECKONING);
                         me->RemoveAura(PERIODIC_ENERGY_GAIN);                        
 
-                        me->AddAura(SEAL_OF_RETRIBUTION, me);
-                        me->AddAura(PERIODIC_ENERGY_GAIN, me);
+                        me->AddAura(SEAL_OF_RETRIBUTION);
+                        me->AddAura(PERIODIC_ENERGY_GAIN);
                     });
                 }
             }
@@ -418,7 +418,7 @@ struct npc_darkforged_crusader_145903 : public ScriptedAI
         ScriptedAI::Reset();        
     }
 
-    void EnterCombat(Unit * u)// override
+    void EnterCombat(Unit * u) override
     {  
         events.ScheduleEvent(EVENT_CRUSADER_STRIKE, 3s);
         events.ScheduleEvent(EVENT_CONSECRATION, 8s);
@@ -435,7 +435,7 @@ struct npc_darkforged_crusader_145903 : public ScriptedAI
                 if (frida->HasAura(AURA_OF_RETRIBUTION))
                 {
                     if (!me->HasAura(AURA_OF_RETRIBUTION))
-                        me->AddAura(AURA_OF_RETRIBUTION, me);
+                        me->AddAura(AURA_OF_RETRIBUTION);
                 }
                 else
                 {
@@ -448,13 +448,12 @@ struct npc_darkforged_crusader_145903 : public ScriptedAI
 
     void JustDied(Unit* u) override
     {
-        InstanceScript* instance;
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         if (Creature* frida = me->FindNearestCreature(NPC_FRIDA_IRONBELLOWS, 100.0f, true))
-            frida->AddAura(ZEALOTRY, frida);
+            frida->AddAura(ZEALOTRY);
     }
 
-    void OnSpellFinished(SpellInfo const* spellInfo)// override
+    void OnSpellFinished(SpellInfo const* spellInfo) override
     { 
         if (spellInfo->Id == BLINDING_FAITH_DUMMY)
         {
@@ -462,7 +461,7 @@ struct npc_darkforged_crusader_145903 : public ScriptedAI
         }
     }
 
-    void ExecuteEvent(uint32 eventId)// override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -491,8 +490,6 @@ struct npc_darkforged_crusader_145903 : public ScriptedAI
              break;
         }
     }
-private:
-    EventMap events;
 };
 
 //145898
@@ -502,12 +499,11 @@ struct npc_antoined_disciple_145898 : public ScriptedAI
 
     void Reset() override
     {
-        InstanceScript* instance;
         ScriptedAI::Reset();
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void EnterCombat(Unit* u) //override
+    void EnterCombat(Unit* u) override
     {
         events.ScheduleEvent(EVENT_DIVINE_BURST, 3s);
         events.ScheduleEvent(EVENT_HEAL, 8s);
@@ -525,7 +521,7 @@ struct npc_antoined_disciple_145898 : public ScriptedAI
                 {
                     if (!me->HasAura(AURA_OF_RETRIBUTION))
                     {
-                        me->AddAura(AURA_OF_RETRIBUTION, me);
+                        me->AddAura(AURA_OF_RETRIBUTION);
                     }
                 }
                 else
@@ -541,13 +537,12 @@ struct npc_antoined_disciple_145898 : public ScriptedAI
 
     void JustDied(Unit* u) override
     {
-        InstanceScript* instance;
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         if (Creature* frida = me->FindNearestCreature(NPC_FRIDA_IRONBELLOWS, 100.0f, true))
-            frida->AddAura(ZEALOTRY, frida);
+            frida->AddAura(ZEALOTRY);
     }
 
-    void ExecuteEvent(uint32 eventId)// override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -582,8 +577,6 @@ struct npc_antoined_disciple_145898 : public ScriptedAI
              break;
         }
     }
-private:
-    EventMap events;
 };
 
 //19808
@@ -600,7 +593,7 @@ struct at_wave_of_light : public AreaTriggerAI
         Position pos = caster->GetPosition();
 
         at->MovePosition(pos, 30.0f, 0.0f);
-      //  at->SetDestination(pos, 8000);
+        at->SetDestination(pos, 8000);
     }
 
     void OnUnitEnter(Unit* unit) override

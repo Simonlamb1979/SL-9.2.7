@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -168,9 +168,9 @@ struct npc_captains_controller : public ScriptedAI
         }
     }
 
-    /*void UpdateAI(uint32 diff) override
+    void UpdateAI(uint32 diff) override
     {
-      //  if (instance)
+        if (instance)
         {
             if (captainsDeathCount > 2 && instance->GetBossState(FreeholdData::DataCounciloCaptains) != DONE)
             {
@@ -191,7 +191,7 @@ struct npc_captains_controller : public ScriptedAI
                 instance->SetBossState(FreeholdData::DataCounciloCaptains, DONE);
             }
         }
-    }*/
+    }
 };
 
 /// 126845 Captain Jolly, 126848 Captain Eudora, 126847 Captain Raoul
@@ -254,7 +254,7 @@ struct boss_council_captain : public BossAI
         me->SetReactState(REACT_DEFENSIVE);
         me->SetFaction(FreeHoldFaction::FactionEnemy);
 
-      //  AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+        AddTimedDelayedOperation(3 * TimeConstants::IN_MILLISECONDS, [this]() -> void
             {
                 if (captainRaoulActivated && me->GetEntry() == FreeholdCreature::NpcCaptainRaoul)
                 {
@@ -264,7 +264,7 @@ struct boss_council_captain : public BossAI
 
                 checkFaction();
                 me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
-            }//);
+            });
     }
 
     void EnterEvadeMode(EvadeReason /*why*/) override
@@ -279,7 +279,7 @@ struct boss_council_captain : public BossAI
         me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
         me->InterruptNonMeleeSpells(true);
         me->SetReactState(ReactStates::REACT_PASSIVE);
-      //  me->DeleteThreatList();
+        me->DeleteThreatList();
         me->GetMotionMaster()->Clear();
         me->GetMotionMaster()->MoveTargetedHome();
 
@@ -295,7 +295,7 @@ struct boss_council_captain : public BossAI
         Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void EnterCombat(Unit* who) override
     {
         if (instance)
         {
@@ -309,7 +309,7 @@ struct boss_council_captain : public BossAI
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me, 1);
         }
         me->setActive(true);
-        CaptainJustEngagedWith();
+        CaptainEnterCombat();
         reset = true;
 
         switch (me->GetEntry())
@@ -317,7 +317,7 @@ struct boss_council_captain : public BossAI
         case FreeholdCreature::NpcCaptainJolly:
         {
             Talk(TextJolly::TalkAggroJolly);
-            if (me->GetFaction() == FreeHoldFaction::FactionEnemy)
+            if (me->getFaction() == FreeHoldFaction::FactionEnemy)
             {
                 events.ScheduleEvent(CouncilCaptainEvents::EventCuttingSurge, urand(3000, 5000));
                 events.ScheduleEvent(CouncilCaptainEvents::EventWhirlpoolofBlades, 8000);
@@ -329,7 +329,7 @@ struct boss_council_captain : public BossAI
         case FreeholdCreature::NpcCaptainEudora:
         {
             Talk(TextEudora::TalkAggroEudora);
-            if (me->GetFaction() == FreeHoldFaction::FactionEnemy)
+            if (me->getFaction() == FreeHoldFaction::FactionEnemy)
             {
                 events.ScheduleEvent(CouncilCaptainEvents::EventPowderShot, urand(3000, 5000));
                 events.ScheduleEvent(CouncilCaptainEvents::EventGrapeshotJump, 8000);
@@ -341,7 +341,7 @@ struct boss_council_captain : public BossAI
         case FreeholdCreature::NpcCaptainRaoul:
         {
             Talk(TextRaoul::TalkAggroRaoul);
-            if (me->GetFaction() == FreeHoldFaction::FactionEnemy)
+            if (me->getFaction() == FreeHoldFaction::FactionEnemy)
             {
                 events.ScheduleEvent(CouncilCaptainEvents::EventBlackoutBarrel, urand(3000, 5000));
                 events.ScheduleEvent(CouncilCaptainEvents::EventBarrelSmash, 8000);
@@ -420,8 +420,8 @@ struct boss_council_captain : public BossAI
             me->RemoveUnitFlag(UNIT_FLAG_NOT_ATTACKABLE_1);
         }
 
-      //  UpdateOperations(diff);
-        if (!UpdateVictim() && me->GetFaction() == FreeHoldFaction::FactionEnemy)
+        UpdateOperations(diff);
+        if (!UpdateVictim() && me->getFaction() == FreeHoldFaction::FactionEnemy)
             return;
 
         events.Update(diff);
@@ -596,7 +596,7 @@ private:
             {
                 if (Creature* eudora = m_Instance->instance->GetCreature(m_Instance->GetGuidData(FreeholdCreature::NpcCaptainEudora)))
                 {
-                    if (jolly->GetFaction() == FreeHoldFaction::FactionEnemy && raoul->GetFaction() == FreeHoldFaction::FactionEnemy && eudora->GetFaction() == FreeHoldFaction::FactionEnemy)
+                    if (jolly->getFaction() == FreeHoldFaction::FactionEnemy && raoul->getFaction() == FreeHoldFaction::FactionEnemy && eudora->getFaction() == FreeHoldFaction::FactionEnemy)
                     {
                         me->CastSpell(me, CouncilCaptainSpells::UnderOneBanner, true);
                     }
@@ -611,7 +611,7 @@ private:
         }
     }
 
-    void CaptainJustEngagedWith()
+    void CaptainEnterCombat()
     {
         if (Creature* jolly = m_Instance->instance->GetCreature(m_Instance->GetGuidData(FreeholdCreature::NpcCaptainJolly)))
         {
@@ -630,21 +630,21 @@ private:
                     raoul->SetReactState(REACT_AGGRESSIVE);
                     eudora->SetReactState(REACT_AGGRESSIVE);
 
-                    if (raoul->GetFaction() == FreeHoldFaction::FactionFriendlyFake)
+                    if (raoul->getFaction() == FreeHoldFaction::FactionFriendlyFake)
                     {
                         if (urand(0, 1) == 1)
                             raoul->AI()->AttackStart(jolly);
                         else
                             raoul->AI()->AttackStart(eudora);
                     }
-                    else if (jolly->GetFaction() == FreeHoldFaction::FactionFriendlyFake)
+                    else if (jolly->getFaction() == FreeHoldFaction::FactionFriendlyFake)
                     {
                         if (urand(0, 1) == 1)
                             jolly->AI()->AttackStart(raoul);
                         else
                             jolly->AI()->AttackStart(eudora);
                     }
-                    else if (raoul->GetFaction() == FreeHoldFaction::FactionFriendlyFake)
+                    else if (raoul->getFaction() == FreeHoldFaction::FactionFriendlyFake)
                     {
                         captainRaoulActivated = true;
 
@@ -688,15 +688,15 @@ struct npc_rummy_mancomb : public ScriptedAI
         {
         case CouncilCaptainAction::ActionStartLaunchBrew:
         {
-           // events.ScheduleEvent(CouncilCaptainEvents::EventLaunchBrew, 8000);
+            events.ScheduleEvent(CouncilCaptainEvents::EventLaunchBrew, 8000);
             break;
         }
         case CouncilCaptainAction::ActionResetRummy:
         {
             me->SetReactState(REACT_PASSIVE);
             me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-        //    events.Reset();
-          //  me->DeleteThreatList();
+            events.Reset();
+            me->DeleteThreatList();
             break;
         }
         }
@@ -704,16 +704,16 @@ struct npc_rummy_mancomb : public ScriptedAI
 
     void UpdateAI(uint32 diff) override
     {
-        //events.Update(diff);
+        events.Update(diff);
 
         if (me->HasUnitState(UNIT_STATE_CASTING))
             return;
 
-       // while (uint32 eventId = events.ExecuteEvent())
-      //  {
-         //   switch (eventId)
-         //   {
-           // case CouncilCaptainEvents::EventLaunchBrew:
+        while (uint32 eventId = events.ExecuteEvent())
+        {
+            switch (eventId)
+            {
+            case CouncilCaptainEvents::EventLaunchBrew:
             {
                 std::list<Unit*> targetList;
                 Trinity::AnyUnitInObjectRangeCheck check(me, 50.0f);
@@ -737,12 +737,12 @@ struct npc_rummy_mancomb : public ScriptedAI
                 if (Unit* target = Trinity::Containers::SelectRandomContainerElement(targetList))
                     me->CastSpell(target, HeroicSpell[urand(0, 2)], true);
 
-              //  events.Repeat(5000);
-              //  break;
-          //  }
+                events.Repeat(5000);
+                break;
+            }
             }
         }
-  //  }
+    }
 };
 
 /// 130896 - Blackout Barrel
@@ -753,15 +753,15 @@ struct npc_blackout_barrel : public ScriptedAI
     void IsSummonedBy(Unit* summoner) override
     {
         me->SetReactState(REACT_PASSIVE);
-      //  AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
+        AddTimedDelayedOperation(1 * TimeConstants::IN_MILLISECONDS, [this]() -> void
             {
                 me->CastSpell(me, CouncilCaptainSpells::BlackoutBarrelVehicleAura, true);
-            }//);
+            });
     }
 
     void UpdateAI(uint32 const diff) override
     {
-        //UpdateOperations(diff);
+        UpdateOperations(diff);
     }
 };
 
@@ -778,8 +778,8 @@ class spell_blackout_vehicle : public SpellScript
                 if (!object->ToPlayer())
                     return true;
 
-             //   if (object->ToPlayer()->GetRoleForGroup() == Roles::ROLE_TANK)
-                //    return true;
+                if (object->ToPlayer()->GetRoleForGroup() == Roles::ROLE_TANK)
+                    return true;
 
                 return false;
             });
@@ -842,10 +842,10 @@ struct at_whirlpool_of_blades : AreaTriggerAI
 
     void OnInitialize() override
     {
-     //   at->SetPeriodicProcTimer(1000);
+        at->SetPeriodicProcTimer(1000);
     }
 
-    void OnPeriodicProc() //override
+    void OnPeriodicProc() override
     {
         if (Unit* caster = at->GetCaster())
         {

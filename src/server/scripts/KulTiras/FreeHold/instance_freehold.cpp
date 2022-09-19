@@ -1,5 +1,5 @@
 /*
- * Copyright 2021
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -49,10 +49,10 @@ struct instance_free_hold : public InstanceScript
 
     void OnCreatureCreate(Creature* creature) override
     {
-      //  if (instance->IsHeroic())
-       //     creature->SetBaseHealth(creature->GetMaxHealth() * 2.f);
-     //   if (instance->IsMythic())
-       //     creature->SetBaseHealth(creature->GetMaxHealth() * 1.33f);
+        if (instance->IsHeroic())
+            creature->SetBaseHealth(creature->GetMaxHealth() * 2.f);
+        if (instance->IsMythic())
+            creature->SetBaseHealth(creature->GetMaxHealth() * 1.33f);
 
         switch (creature->GetEntry())
         {

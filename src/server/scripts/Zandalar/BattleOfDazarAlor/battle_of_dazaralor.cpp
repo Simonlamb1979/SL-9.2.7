@@ -79,10 +79,10 @@ private:
 };
 
 //149039
-class npc_riding_pterrordax : public EscortAI
+class npc_riding_pterrordax : public npc_escortAI
 {
 public:
-    npc_riding_pterrordax(Creature* creature) : EscortAI(creature)
+    npc_riding_pterrordax(Creature* creature) : npc_escortAI(creature)
     {
         me->SetCanFly(true);
     }
@@ -109,7 +109,6 @@ struct npc_otoye : public ScriptedAI
 
     void MoveInLineOfSight(Unit* unit) override
     {
-        InstanceScript* instance;
         if (me->GetDistance2d(unit) < 15.0f && unit->IsPlayer() && !tell_story && instance->GetBossState(DATA_OPULENCE) == DONE)
         {
             tell_story = true;
@@ -125,7 +124,6 @@ struct npc_otoye : public ScriptedAI
 
         me->GetScheduler().Schedule(5s, [this](TaskContext context)
         {
-            InstanceScript* instance;
             instance->DoNearTeleportPlayers(tell_story_horde_pos, false);
         });
     }
@@ -149,7 +147,6 @@ struct npc_master_mathias_shaw_148629 : public ScriptedAI
 
     void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/)
     {
-        InstanceScript* instance;
         if (player->IsInCombat())
             return;
 

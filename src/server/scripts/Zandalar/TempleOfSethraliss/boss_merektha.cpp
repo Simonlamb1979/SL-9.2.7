@@ -10,320 +10,143 @@ enum Spells
     SPELL_BLINDING_SAND = 263914,
     SPELL_DUST_CLOUD_DUMMY = 256359,
     SPELL_DUST_CLOUD_MISSILE = 256336, // npc 134390, spawn spell 267047
-
+    // When she reach 60% -> burrow
     SPELL_BURROW_KNOCKBACK = 264206,
     SPELL_BURROW_CREAT_AT = 264194, // at 12779
-    SPELL_A_KNOT_OF_SNAKES = 263958,
-
-    SPELL_CYTOTOXIN = 267027,
+    //After burrow -> npc wave 135846
 };
 
 enum Events
 {
     EVENT_NOXIOUS_BREATH = 1,
-    EVENT_BURROW,
-    EVENT_EMERGE,
     EVENT_BLINDING_SAND,
-    EVENT_A_KNOT_OF_SNAKES,
-
-    EVENT_CYTOTOXIN,
+    EVENT_BURROW,
+    EVENT_UNBURROW,
+    EVENT_WAVE_1,
+    EVENT_WAVE_2
 };
 
-enum Timers
+enum Phases
 {
-    TIMER_EMERGE = 30 * IN_MILLISECONDS,
-    TIMER_NOXIOUS_BREATH = 15 * IN_MILLISECONDS,
-    TIMER_BLIDING_SAND = 28 * IN_MILLISECONDS,
-    TIMER_A_KNOT_OF_SNAKES = 35 * IN_MILLISECONDS,
-    TIMER_CYTOTOXIN = 10 * IN_MILLISECONDS,
+    PHASE_1 = 1,
+    PHASE_2,
+    PHASE_3,
 };
 
-enum Creatures
+const Position wave_1_pos = { 3550.0f, 3447.0f, 51.0f, 4.5f };
+
+//133384
+struct boss_merektha : public BossAI
 {
-    BOSS_MEREKTHA = 133384,
-    NPC_SAND_CRUSTED_STRIKER_BFA = 134390,
-    NPC_VENOMOUS_OPHIDIAN = 135562,
-    NPC_A_KNOT_OF_SNAKES = 135029,
-};
+    boss_merektha(Creature* creature) : BossAI(creature, DATA_MEREKTHA) { }
 
-const Position centerPos = { 3549.29f, 3423.07f, 51.68f }; //55y
-
-//toxic pool and dust cloud AT visual
-
-class bfa_boss_merektha : public CreatureScript
-{
-public:
-    bfa_boss_merektha() : CreatureScript("bfa_boss_merektha")
+    void Reset() override
     {
+        BossAI::Reset();
+        me->RemoveUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
     }
 
-    struct bfa_boss_merektha_AI : public BossAI
+    void EnterCombat(Unit* who) override
     {
-        bfa_boss_merektha_AI(Creature* creature) : BossAI(creature, DATA_MEREKTHA), summons(me)
-        {
-            instance = me->GetInstanceScript();
-        }
-
-        InstanceScript* instance;
-        EventMap events;
-        SummonList summons;
-        bool phase2;
-        bool phase3;
-        uint8 burrow;
-
-        void Reset() override
-        {
-            events.Reset();
-            summons.DespawnAll();
-            burrow = 0;
-            phase2 = false;
-            phase3 = false;
-
-            me->RemoveAura(167209);
-            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            summons.Summon(summon);
-
-            switch (summon->GetEntry())
-            {
-            case NPC_SAND_CRUSTED_STRIKER_BFA:
-            case NPC_VENOMOUS_OPHIDIAN:
-                summon->SetInCombatWithZone();
-                break;
-            }
-        }
-
-        void JustDied(Unit*) override
-        {
-            me->RemoveAura(167209);
-            summons.DespawnAll();
-            me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        }
-
-        void EnterEvadeMode(EvadeReason w) override
-        {
-            Reset();
-            _DespawnAtEvade(15);
-        }
-        
-        void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)
-        {
-            switch (summon->GetEntry())
-            {
-            case NPC_A_KNOT_OF_SNAKES:
-                me->CastStop(SPELL_A_KNOT_OF_SNAKES);
-                break;
-            }
-        }
-
-        void DamageTaken(Unit* at, uint32& damage) override
-        {
-            if (me->HealthBelowPct(60) && !phase2)
-            {
-                phase2 = true;
-
-                ++burrow;
-
-                std::ostringstream str;
-                str << "Merektha |cFFF00000|h[Burrows]|h|r across the battlefield!";
-                me->TextEmote(str.str().c_str(), 0, true);
-
-                events.Reset();
-                events.ScheduleEvent(EVENT_BURROW, 1000);
-                events.ScheduleEvent(EVENT_EMERGE, TIMER_EMERGE);
-
-                for (uint8 i = 0; i < 4; ++i)
-                    me->SummonCreature(NPC_VENOMOUS_OPHIDIAN, 3550.0f, 3447.0f, 51.0f, TEMPSUMMON_MANUAL_DESPAWN);
-            }
-
-            if (me->HealthBelowPct(45) && !phase3)
-            {
-                phase3 = true;
-
-                ++burrow;
-
-                std::ostringstream str;
-                str << "Merektha |cFFF00000|h[Burrows]|h|r across the battlefield!";
-                me->TextEmote(str.str().c_str(), 0, true);
-
-                events.Reset();
-                events.ScheduleEvent(EVENT_BURROW, 1000);
-                events.ScheduleEvent(EVENT_EMERGE, TIMER_EMERGE);
-
-                for (uint8 i = 0; i < 4; ++i)
-                    me->SummonCreature(NPC_SAND_CRUSTED_STRIKER_BFA, 3550.0f, 3447.0f, 51.0f, TEMPSUMMON_MANUAL_DESPAWN);
-            }
-        }
-
-        void EnterCombat(Unit*) //override
-        {
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-
-            if (me->GetMap()->IsHeroic() || me->GetMap()->IsMythic())
-                events.ScheduleEvent(EVENT_A_KNOT_OF_SNAKES, TIMER_A_KNOT_OF_SNAKES);
-
-            events.ScheduleEvent(EVENT_NOXIOUS_BREATH, TIMER_NOXIOUS_BREATH);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            if (!UpdateVictim())
-                return;
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_NOXIOUS_BREATH:
-                    if (Unit* target = me->GetVictim())
-                        me->CastSpell(target, SPELL_NOXIOUS_BREATH);
-                    events.ScheduleEvent(EVENT_NOXIOUS_BREATH, TIMER_NOXIOUS_BREATH);
-                    break;
-                case EVENT_BLINDING_SAND:
-                {
-                    std::ostringstream str;
-                    str << "Merektha is about to hit you with |cFFF00000|h[Blinding Sand]|h|r, look away!";
-                    me->TextEmote(str.str().c_str(), 0, true);
-
-                    if (Unit* target = me->GetVictim())
-                        me->CastSpell(target, SPELL_BLINDING_SAND);
-                    events.ScheduleEvent(EVENT_BLINDING_SAND, TIMER_BLIDING_SAND);
-                    break;
-                }
-                case EVENT_A_KNOT_OF_SNAKES:
-                {
-                    std::list<Unit*> targets;
-                //    SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 100.0f, true);
-
-                    if (!targets.empty())
-                        if (targets.size() >= 1)
-                            targets.resize(1);
-                    for (auto target : targets)
-                    {
-                        me->CastSpell(target, SPELL_A_KNOT_OF_SNAKES, true);
-                        me->SummonCreature(NPC_A_KNOT_OF_SNAKES, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN);
-
-                        std::ostringstream str;
-                        str << target->GetName(); " is enveloped by |cFFF00000|h[A Knot of Snakes]|h|r free him!";
-                        me->TextEmote(str.str().c_str(), 0, true);
-                    }
-
-                    events.ScheduleEvent(EVENT_A_KNOT_OF_SNAKES, TIMER_A_KNOT_OF_SNAKES);
-                    break;
-                }
-                case EVENT_BURROW:
-                    me->SetObjectScale(0.1f);
-                    me->GetMotionMaster()->Clear();
-                    me->GetMotionMaster()->MoveRandom(30.0f);
-                    me->SetUnitFlags(UNIT_FLAG_NON_ATTACKABLE);
-                    me->AddAura(167209, me);
-                    break;
-                case EVENT_EMERGE:
-                    me->SetObjectScale(1.0f);
-                    me->RemoveAura(167209);
-                    me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-                    me->GetMotionMaster()->Clear();
-                    if (Unit* target = me->GetVictim())
-                        me->Attack(target, true);
-                    if (burrow == 1)
-                        events.ScheduleEvent(EVENT_BLINDING_SAND, TIMER_BLIDING_SAND);
-                    else if (burrow > 1)
-                    {
-                        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, TIMER_NOXIOUS_BREATH);
-                        events.ScheduleEvent(EVENT_BLINDING_SAND, TIMER_BLIDING_SAND);
-                    }
-
-                    if (me->GetMap()->IsHeroic() || me->GetMap()->IsMythic())
-                        events.ScheduleEvent(EVENT_A_KNOT_OF_SNAKES, TIMER_A_KNOT_OF_SNAKES);
-                    break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new bfa_boss_merektha_AI(creature);
-    }
-};
-
-class bfa_npc_venomous_ophidian : public CreatureScript
-{
-public:
-    bfa_npc_venomous_ophidian() : CreatureScript("bfa_npc_venomous_ophidian")
-    {
+        _EnterCombat();
+        events.SetPhase(PHASE_1);
+        events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 3s);
+        events.ScheduleEvent(EVENT_BLINDING_SAND, 8s);
     }
 
-    struct bfa_npc_venomous_ophidian_AI : public ScriptedAI
+    void JustDied(Unit* u) override
     {
-        bfa_npc_venomous_ophidian_AI(Creature* creature) : ScriptedAI(creature)
-        {
-        }
-
-        EventMap events;
-
-        void Reset() override
-        {
-            events.Reset();
-        }
-
-        void EnterCombat(Unit*) //override
-        {
-            events.ScheduleEvent(EVENT_CYTOTOXIN, TIMER_CYTOTOXIN);
-        }
-
-        Creature* GetMerektha()
-        {
-            return me->FindNearestCreature(BOSS_MEREKTHA, 200.0f, true);
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            events.Update(diff);
-
-            if (!UpdateVictim())
-                return;
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_CYTOTOXIN:
-                    if (Creature* merektha = GetMerektha())
-                        if (Unit* target = merektha->GetVictim())
-                            me->CastSpell(target, SPELL_CYTOTOXIN);
-                    events.ScheduleEvent(EVENT_CYTOTOXIN, TIMER_CYTOTOXIN);
-                    break;
-                }
-            }
-            DoMeleeAttackIfReady();
-        }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new bfa_npc_venomous_ophidian_AI(creature);
+        _JustDied();
+        me->NearTeleportTo(me->GetHomePosition());
+        me->DespawnCreaturesInArea(NPC_SAND_CRUSHED_STRIKER, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SAND_CRUSTED_STRIKER_2, 125.0f);
+        if (auto* MerekthaDoor = me->FindNearestGameObject(GO_MEREKTHA_EXIT, 100.0f))
+            MerekthaDoor->SetGoState(GO_STATE_ACTIVE);
     }
+
+    void EnterEvadeMode(EvadeReason /*why*/) override 
+    { 
+        me->DespawnCreaturesInArea(NPC_SAND_CRUSHED_STRIKER, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SAND_CRUSTED_STRIKER_2, 125.0f);
+    }
+
+    void JustSummoned(Creature* summon) override 
+    { 
+        summon->AI()->DoZoneInCombat();
+        summon->AI()->DoCast(SPELL_DUST_CLOUD_DUMMY);
+        summon->AI()->DoCast(SPELL_DUST_CLOUD_MISSILE);
+    }
+
+    void DamageTaken(Unit* done_by, uint32& dmg) override
+    {
+        if (me->HealthBelowPctDamaged(61, dmg) && events.IsInPhase(PHASE_1))
+        {
+            events.SetPhase(PHASE_2);
+            events.ScheduleEvent(EVENT_BURROW, 1s);
+            events.ScheduleEvent(EVENT_WAVE_1, 3s);
+        }
+    }
+
+    void ExecuteEvent(uint32 eventId) override
+    {
+        switch (eventId)
+        {
+        case EVENT_NOXIOUS_BREATH:
+             DoCastRandom(SPELL_NOXIOUS_BREATH, 5.0f, false);
+             events.Repeat(15s);
+             break;
+
+        case EVENT_BLINDING_SAND:
+             DoCastAOE(SPELL_BLINDING_SAND);
+             events.Repeat(20s);
+             break;
+
+        case EVENT_BURROW:
+             burrow_count++;
+             me->CastStop();
+             me->SetReactState(REACT_PASSIVE);
+             me->AddUnitState(UNIT_STAND_STATE_SUBMERGED);
+             me->NearTeleportTo(3557.0f, 3422.0f, 40.0f, 3.3f, false);
+             events.CancelEvent(EVENT_NOXIOUS_BREATH);
+             events.CancelEvent(EVENT_BLINDING_SAND);
+             events.ScheduleEvent(EVENT_UNBURROW, 30s);
+             if (burrow_count == 2)
+             {
+                 events.ScheduleEvent(EVENT_WAVE_2, 3s);
+                 events.CancelEvent(EVENT_BURROW);
+                 burrow_count = 0;
+             }
+             break;
+
+        case EVENT_UNBURROW:
+             me->NearTeleportTo(me->GetHomePosition());
+             me->ClearUnitState(UNIT_STAND_STATE_SUBMERGED);
+             me->SetReactState(REACT_AGGRESSIVE);            
+             events.ScheduleEvent(EVENT_NOXIOUS_BREATH, 3s);
+             events.ScheduleEvent(EVENT_BLINDING_SAND, 8s);
+             events.ScheduleEvent(EVENT_BURROW, 30s);
+             break;
+
+        case EVENT_WAVE_1:
+             for (uint8 i = 0; i < 6; i++)
+             {
+                me->SummonCreature(NPC_SAND_CRUSHED_STRIKER, me->GetRandomPoint(wave_1_pos, 10.0f), TEMPSUMMON_MANUAL_DESPAWN);
+             }
+             break;
+
+        case EVENT_WAVE_2:
+            for (uint8 i = 0; i < 6; i++)
+            {
+                me->SummonCreature(NPC_SAND_CRUSTED_STRIKER_2, me->GetRandomPoint(wave_1_pos, 10.0f), TEMPSUMMON_MANUAL_DESPAWN);
+            }
+            break;
+        }
+    }
+private:
+    uint8 burrow_count;
 };
 
 void AddSC_boss_merektha()
 {
-    new bfa_boss_merektha();
-    
-    new bfa_npc_venomous_ophidian();
+    RegisterCreatureAI(boss_merektha);
 }

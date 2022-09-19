@@ -101,7 +101,7 @@ struct boss_rawani_kanae : public BossAI
         me->RemoveAura(PERIODIC_ENERGY_GAIN);
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
-        me->AddAura(SACRED_BLADE, me);
+        me->AddAura(SACRED_BLADE);
         intro = false;
         hp60 = false;
         hp30 = false;
@@ -117,13 +117,13 @@ struct boss_rawani_kanae : public BossAI
         }
     }
 
-    void EnterCombat(Unit* /*unit*/) //override
+    void EnterCombat(Unit* /*unit*/) override
     {        
-       // _EnterCombat();
+        _EnterCombat();
         Talk(SAY_AGGRO);
         DoCast(PERIODIC_ENERGY_GAIN);
         me->StopMoving();
-        me->AddAura(SEAL_OF_RETRIBUTION, me);
+        me->AddAura(SEAL_OF_RETRIBUTION);
         me->GetScheduler().Schedule(3s, [this] (TaskContext context)
         {
             Talk(SAY_RETRIBUTION);           
@@ -190,8 +190,8 @@ struct boss_rawani_kanae : public BossAI
     {
        _JustDied();
        Talk(SAY_DEATH);
-     //  me->DespawnCreaturesInArea(NPC_ZANDALARI_CRUSADER, 125.0f);
-      // me->DespawnCreaturesInArea(NPC_REZANI_DISCIPLE, 125.0f);
+       me->DespawnCreaturesInArea(NPC_ZANDALARI_CRUSADER, 125.0f);
+       me->DespawnCreaturesInArea(NPC_REZANI_DISCIPLE, 125.0f);
        me->SummonCreature(NPC_CUSTOM_LIONS_ROAR_TANK, -2185.024f, 803.182f, 5.932f, 0.048f, TEMPSUMMON_MANUAL_DESPAWN);
     }
 
@@ -205,7 +205,7 @@ struct boss_rawani_kanae : public BossAI
    void SpellHit(Unit* caster, SpellInfo const* spell) override 
    {
        if (me->HasAura(SEAL_OF_RECKONING))
-           me->AddAura(ZEALOTRY, me);
+           me->AddAura(ZEALOTRY);
    }
 
    void JudgmentRighteousnessTargets()
@@ -256,19 +256,19 @@ struct boss_rawani_kanae : public BossAI
             if (Creature* crusader = me->FindNearestCreature(NPC_ZANDALARI_CRUSADER, 100.0f, true))
             {
                 if (crusader->HealthBelowPct(99) && !crusader->HasAura(DIVINE_PROCTECTION_REDUCTION)) 
-                    crusader->AddAura(DIVINE_PROCTECTION_REDUCTION, crusader);
+                    crusader->AddAura(DIVINE_PROCTECTION_REDUCTION);
             }
             if (Creature* disciple = me->FindNearestCreature(NPC_REZANI_DISCIPLE, 100.0f, true))
             {
                 if (disciple->HealthBelowPct(99) && !disciple->HasAura(DIVINE_PROCTECTION_REDUCTION))      
-                    disciple->AddAura(DIVINE_PROCTECTION_REDUCTION, disciple);
+                    disciple->AddAura(DIVINE_PROCTECTION_REDUCTION);
             }
             events.Repeat(15s);
             break;
         }
         case EVENT_WAVE_OF_LIGHT:
         {
-            if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 100.0f))
+            if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f))
             {
                 me->SetFacingToObject(target);
                 me->CastSpell(nullptr, WAVE_OF_LIGHT_CREATE_AT, false);
@@ -325,7 +325,7 @@ struct boss_rawani_kanae : public BossAI
                         me->RemoveAura(SEAL_OF_RETRIBUTION);
                         me->RemoveAura(PERIODIC_ENERGY_GAIN);                        
 
-                        me->AddAura(SEAL_OF_RECKONING, me);                        
+                        me->AddAura(SEAL_OF_RECKONING);                        
                     });
                 }
                 if (me->HasAura(SEAL_OF_RECKONING))
@@ -336,8 +336,8 @@ struct boss_rawani_kanae : public BossAI
                         me->RemoveAura(SEAL_OF_RECKONING);
                         me->RemoveAura(PERIODIC_ENERGY_GAIN);                        
 
-                        me->AddAura(SEAL_OF_RETRIBUTION, me);
-                        me->AddAura(PERIODIC_ENERGY_GAIN, me);
+                        me->AddAura(SEAL_OF_RETRIBUTION);
+                        me->AddAura(PERIODIC_ENERGY_GAIN);
                     });
                 }
             }
@@ -371,7 +371,7 @@ struct npc_zandalari_crusader_147896 : public ScriptedAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void EnterCombat(Unit * u) //override
+    void EnterCombat(Unit * u) override
     {
         //instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_CRUSADER_STRIKE, 3s);
@@ -390,7 +390,7 @@ struct npc_zandalari_crusader_147896 : public ScriptedAI
                 {
                     if (!me->HasAura(AURA_OF_RETRIBUTION))
                     {
-                        me->AddAura(AURA_OF_RETRIBUTION, me);
+                        me->AddAura(AURA_OF_RETRIBUTION);
                     }
                 }
                 else
@@ -408,10 +408,10 @@ struct npc_zandalari_crusader_147896 : public ScriptedAI
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         if (Creature* frida = me->FindNearestCreature(NPC_RAWANI_KANAE, 100.0f))
-            frida->AddAura(ZEALOTRY, frida);
+            frida->AddAura(ZEALOTRY);
     }
 
-    void OnSpellFinished(SpellInfo const* spellInfo)// override
+    void OnSpellFinished(SpellInfo const* spellInfo) override
     { 
         if (spellInfo->Id == BLINDING_FAITH_DUMMY)
         {
@@ -419,7 +419,7 @@ struct npc_zandalari_crusader_147896 : public ScriptedAI
         }
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -448,9 +448,6 @@ struct npc_zandalari_crusader_147896 : public ScriptedAI
              break;
         }
     }
-private:
-    InstanceScript* instance;
-    EventMap events;
 };
 
 //147895
@@ -464,7 +461,7 @@ struct npc_rezani_disciple_147895 : public ScriptedAI
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
 
-    void EnterCombat(Unit* u) //override
+    void EnterCombat(Unit* u) override
     {
         //instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_DIVINE_BURST, 3s);
@@ -482,7 +479,7 @@ struct npc_rezani_disciple_147895 : public ScriptedAI
                 if (rawani->HasAura(AURA_OF_RETRIBUTION))
                 {
                     if (!me->HasAura(AURA_OF_RETRIBUTION))
-                        me->AddAura(AURA_OF_RETRIBUTION, me);
+                        me->AddAura(AURA_OF_RETRIBUTION);
                 }
                 else
                 {
@@ -497,10 +494,10 @@ struct npc_rezani_disciple_147895 : public ScriptedAI
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         if (Creature* frida = me->FindNearestCreature(NPC_RAWANI_KANAE, 100.0f))
-            frida->AddAura(ZEALOTRY, frida);
+            frida->AddAura(ZEALOTRY);
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -535,9 +532,6 @@ struct npc_rezani_disciple_147895 : public ScriptedAI
              break;
         }
     }
-private:
-    InstanceScript* instance;
-    EventMap events;
 };
 
 //500522

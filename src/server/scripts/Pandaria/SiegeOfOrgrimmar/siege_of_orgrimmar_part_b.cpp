@@ -255,27 +255,25 @@ class npc_siege_of_orgrimmar_jaina_proudmoore_2 : public CreatureScript
                 }
             }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 player->PlayerTalkClass->SendCloseGossip();
 
                 if (!secondGalakrasIntroDone)
-                    return true;
+                    return;
 
                 if (player->IsInCombat())
-                    return true;
+                    return;
 
                 if (gossipListId != 0)
-                    return true;
+                    return;
 
                 SendStartGalakras();
 
                 me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_GOSSIP));
-
-                return true;
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 m_SceneHelper.UpdateSceneHelper(diff);
             }
@@ -486,27 +484,25 @@ class npc_siege_of_orgrimmar_lorthemar_theron_2 : public CreatureScript
                 }
             }
 
-            bool GossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
+            void sGossipSelect(Player* player, uint32 menuId, uint32 gossipListId) override
             {
                 player->PlayerTalkClass->SendCloseGossip();
 
                 if (!secondGalakrasIntroDone)
-                    return true;
+                    return;
 
                 if (player->IsInCombat())
-                    return true;
+                    return;
 
                 if (gossipListId != 0)
-                    return true;
+                    return;
 
                 SendStartGalakras();
 
                 me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_GOSSIP));
-
-                return true;
             }
 
-            void UpdateAI(const uint32 diff) override
+            void UpdateAI(const uint32 diff)
             {
                 m_SceneHelper.UpdateSceneHelper(diff);
             }
@@ -1015,13 +1011,13 @@ class npc_siege_of_orgrimmar_korkron_cannon : public CreatureScript
                 me->SetUnitFlags(UnitFlags(UNIT_NPC_FLAG_GOSSIP));
             }
 
-            bool GossipHello(Player* player) override
+            void sGossipHello(Player* player) override
             {
                 if (player->IsInCombat())
-                    return true;
+                    return;
 
                 if (isMineActivated)
-                    return true;
+                    return;
 
                 if (Creature* pMine = me->SummonCreature(NPC_SPIKE_MINE, *me, TEMPSUMMON_TIMED_DESPAWN, 10000))
                 {
@@ -1034,8 +1030,6 @@ class npc_siege_of_orgrimmar_korkron_cannon : public CreatureScript
                 me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_GOSSIP));
 
                 isMineActivated = true;
-
-                return true;
             }
 
         private:
@@ -1074,7 +1068,7 @@ class go_siege_of_orgrimmar_minor_portal : public GameObjectScript
 
             // all summoned gameobjects with spellid despawns after using
             // use this function to prevent despawn
-            bool GossipHello(Player* player) override
+            bool GossipHello(Player* player, bool /*reportUse*/) override
             {
                 player->CastSpell(player, SPELL_MINOR_PORTAL_TELEPORT_PLAYER, true);
 
@@ -2223,7 +2217,7 @@ class npc_siege_of_orgrimmar_hellscream_demolisher : public CreatureScript
                 if (me->IsWithinMeleeRange(me->GetVictim()))
                     return true;
 
-                if (Unit* target = me->SelectNearestPlayer(20.0f))
+                if (Unit* target = me->SelectNearestPlayer(me->GetMeleeRange(me->SelectNearestPlayer(20.0f))))
                 {
                     AttackStart(target);
                     return true;

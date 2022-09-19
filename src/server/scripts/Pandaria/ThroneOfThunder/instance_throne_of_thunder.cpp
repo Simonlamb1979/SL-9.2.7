@@ -1,358 +1,278 @@
-/*
- * Copyright 2021 FuzionCore Project
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- *
- * Raid: Throne of Thunder.
- * Description: Instance Script.
- */
-
-#include "ObjectMgr.h"
 #include "ScriptMgr.h"
 #include "InstanceScript.h"
-#include "ScriptedCreature.h"
-#include "ObjectAccessor.h"
-#include "Group.h"
-#include "Unit.h"
-#include "Player.h"
-#include "Map.h"
-#include "PoolMgr.h"
-#include "VMapFactory.h"
-#include "AccountMgr.h"
-
 #include "throne_of_thunder.h"
+
+DoorData const doorData[] =
+{
+    { GOB_JIN_ROKH_ENTRANCE, DATA_JINROKH, DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { GOB_JIN_ROKH_EXIT, DATA_JINROKH, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GOB_HORRIDON_ENTRANCE, DATA_HORRIDON, DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { GOB_HORRIDON_EXIT, DATA_HORRIDON, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GOB_COUNCIL_ENTRANCE1, DATA_COUNCIL_OF_ELDERS, DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { GOB_COUNCIL_ENTRANCE2, DATA_COUNCIL_OF_ELDERS, DOOR_TYPE_ROOM, BOUNDARY_NONE },
+    { GOB_COUNCIL_EXIT, DATA_COUNCIL_OF_ELDERS, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GOB_TORTOS_DOOR, DATA_TORTOS, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GOB_TORTOS_COLLISION, DATA_TORTOS, DOOR_TYPE_SPAWN_HOLE, BOUNDARY_NONE },
+    { GOB_MEGAERA_EXIT, DATA_MEGAERA, DOOR_TYPE_PASSAGE, BOUNDARY_NONE },
+    { GOB_PRIMORDIUS_ENTRANCE, DATA_PRIMORDIUS, DOOR_TYPE_ROOM, BOUNDARY_S },
+    { GOB_PRIMORDIUS_EXIT, DATA_PRIMORDIUS, DOOR_TYPE_PASSAGE, BOUNDARY_NONE }
+};
+
+typedef std::unordered_map<uint32, uint64> EntryGuidMap;
 
 class instance_throne_of_thunder : public InstanceMapScript
 {
-    public:
-        instance_throne_of_thunder() : InstanceMapScript("instance_throne_of_thunder", 1098) { }
+public:
+    instance_throne_of_thunder() : InstanceMapScript("instance_throne_of_thunder", 1098) { }
 
-        struct instance_throne_of_thunder_InstanceMapScript : public InstanceScript
+
+    InstanceScript* GetInstanceScript(InstanceMap* map) const
+    {
+        return new instance_throne_of_thunder_InstanceScript(map);
+    }
+
+    struct instance_throne_of_thunder_InstanceScript : public InstanceScript
+    {
+        instance_throne_of_thunder_InstanceScript(InstanceMap* map) : InstanceScript(map)
         {
-            instance_throne_of_thunder_InstanceMapScript(Map* map) : InstanceScript(map)
-            {
-                Initialize();
-            }
-
-            // creatures
-            uint64 jinrokhBreakerGUID;
-            uint64 horridonGUID;
-            uint64 kazrajinGUID;
-            uint64 sulTheSandCrawlerGUID;
-            uint64 frostKingMalakkGUID;
-            uint64 highPriestessMarliGUID;
-            uint64 tortosGUID;
-            uint64 megaeraGUID;
-            uint64 jiKunGUID;
-            uint64 durumuTheForgottenGUID;
-            uint64 primordiusGUID;
-            uint64 darkAnimusGUID;
-            uint64 ironQonGUID;
-            uint64 luLinGUID;
-            uint64 suenGUID;
-            uint64 leiShenGUID;
-            uint64 raDenGUID;
-
-            // gameObjects
-            uint64 firstDoorguid;
-            uint64 moguFountainNEguid;
-            uint64 moguFountainNWguid;
-            uint64 moguFountainSEguid;
-            uint64 moguFountainSWguid;
-            uint64 jinRokhfrontDoor;
-            uint64 jinRokhbackDoor;
-
-            void Initialize()
-            {
-                SetBossNumber(MAX_ENCOUNTERS);
-
-                // creatures
-                jinrokhBreakerGUID     = 0;
-                horridonGUID           = 0;
-                kazrajinGUID           = 0;
-                sulTheSandCrawlerGUID  = 0;
-                frostKingMalakkGUID    = 0;
-                highPriestessMarliGUID = 0;
-                tortosGUID             = 0;
-                megaeraGUID            = 0;
-                jiKunGUID              = 0;
-                durumuTheForgottenGUID = 0;
-                primordiusGUID         = 0;
-                darkAnimusGUID         = 0;
-                ironQonGUID            = 0;
-                luLinGUID              = 0;
-                suenGUID               = 0;
-                leiShenGUID            = 0;
-                raDenGUID              = 0;
-
-               // gameObjects
-               firstDoorguid           = 0;
-               moguFountainNEguid      = 0;
-               moguFountainNWguid      = 0;
-               moguFountainSEguid      = 0;
-               moguFountainSWguid      = 0;
-               jinRokhfrontDoor        = 0;
-               jinRokhbackDoor         = 0;
-
-			    for (uint32 i = 0; i < MAX_ENCOUNTERS; ++i)
-			        SetBossState(i, NOT_STARTED);
-            }
-
-            bool IsEncounterInProgress() const
-            {
-                for (uint32 i = 0; i < MAX_ENCOUNTERS; ++i)
-                    if (GetBossState(i) == IN_PROGRESS)
-                        return true;
-
-                return false;
-            }
-
-            void OnCreatureCreate(Creature* creature)
-            {
-                switch (creature->GetEntry())
-                {
-                    case DATA_JIN_ROKH_BREAKER:
-                        jinrokhBreakerGUID = creature->GetGUID();
-                        break;
-                    case DATA_HORRIDON:
-                        horridonGUID = creature->GetGUID();
-                        break;
-                    case DATA_KAZRAJIN:
-                        kazrajinGUID = creature->GetGUID();
-                        break;
-                    case DATA_SUL_THE_SANDCRAWLER:
-                        sulTheSandCrawlerGUID = creature->GetGUID();
-                        break;
-                    case DATA_FROST_KING_MALAKK:
-                        frostKingMalakkGUID = creature->GetGUID();
-                        break;
-                    case DATA_HIGH_PRIESTESS_MARLI:
-                        highPriestessMarliGUID = creature->GetGUID();
-                        break;
-                    case DATA_TORTOS:
-                        tortosGUID = creature->GetGUID();
-                        break;
-                    case DATA_MEGAERA:
-                        megaeraGUID = creature->GetGUID();
-                        break;
-                    case DATA_JI_KUN:
-                        jiKunGUID = creature->GetGUID();
-                        break;
-                    case DATA_DURUMU_THE_FORGOTTEN:
-                        durumuTheForgottenGUID = creature->GetGUID();
-                        break;
-                    case DATA_PRIMORDIUS:
-                        primordiusGUID = creature->GetGUID();
-                        break;
-                    case DATA_DARK_ANIMUS:
-                        darkAnimusGUID = creature->GetGUID();
-                        break;
-                    case DATA_IRON_QON:
-                        ironQonGUID = creature->GetGUID();
-                        break;
-                    case DATA_LU_LIN:
-                        luLinGUID = creature->GetGUID();
-                        break;
-                    case DATA_SUEN:
-                        suenGUID = creature->GetGUID();
-                        break;
-                    case DATA_LEI_SHEN:
-                        leiShenGUID = creature->GetGUID();
-                        break;
-                    case DATA_RA_DEN:
-                        raDenGUID = creature->GetGUID();
-                        break;
-
-                    default: break;
-                }
-            }
-
-            /*
-            void OnUnitDeath(Unit* killed)
-            {
-                if (killed->GetTypeId() == TYPEID_PLAYER) return;
-            
-                switch(killed->ToCreature()->GetEntry())
-                {
-                }
-            }
-            */
-
-            void OnGameObjectCreate(GameObject* go)
-            {
-                switch (go->GetEntry())
-                {
-                    case DATA_FIRST_DOOR:
-                        firstDoorguid = go->GetGUID();
-                        break;
-                    case DATA_MOGU_FOUNTAIN_NE:
-                        moguFountainNEguid = go->GetGUID();
-                        break;
-                    case DATA_MOGU_FOUNTAIN_NW:
-                        moguFountainNWguid = go->GetGUID();
-                        break;
-                    case DATA_MOGU_FOUNTAIN_SE:
-                        moguFountainSEguid = go->GetGUID();
-                        break;
-                    case DATA_MOGU_FOUNTAIN_SW:
-                        moguFountainSWguid = go->GetGUID();
-                        break;
-                    case DATA_JIN_ROKH_FRONT_DOOR:
-                        jinRokhfrontDoor = go->GetGUID();
-                        break;
-                    case DATA_JIN_ROKH_BACK_DOOR:
-                        jinRokhbackDoor = go->GetGUID();
-						break;
-
-                    default: break;
-                }
-            }
-
-            /*
-            void OnGameObjectRemove(GameObject* go)
-            {
-                switch (go->GetEntry())
-                {
-                }
-            }
-            */
-
-		    void SetData(uint32 type, uint32 data)
-            {
-                SetBossState(type, EncounterState(data));
-
-                if (data == DONE)
-                    SaveToDB();
-		    }
-
-            bool SetBossState(uint32 data, EncounterState state)
-            {
-                if (!InstanceScript::SetBossState(data, state))
-                    return false;
-
-                if (state == DONE)
-                {
-                    switch(data)
-                    {
-                        case DATA_JIN_ROKH_BREAKER_EVENT:
-                        case DATA_HORRIDON_EVENT:
-                        case DATA_COUNCIL_OF_ELDERS_EVENT:
-                        case DATA_TORTOS_EVENT:
-                        case DATA_MEGAERA_EVENT:
-                        case DATA_JI_KUN_EVENT:
-                        case DATA_DURUMU_THE_FORGOTTEN_EVENT:
-                        case DATA_PRIMORDIUS_EVENT:
-                        case DATA_DARK_ANIMUS_EVENT:
-                        case DATA_IRON_QON_EVENT:
-                        case DATA_TWIN_CONSORTS_EVENT:
-                        case DATA_LEI_SHEN_EVENT:
-                        case DATA_RA_DEN_EVENT:
-                        break;
-                    }
-                }
-
-                return true;
-            }
-
-		    uint32 GetData(uint32 type)
-            {
-		    	return GetBossState(type);
-		    }
-
-            uint64 GetData64(uint32 type) const
-            {
-                switch (type)
-                {
-                    case DATA_JIN_ROKH_BREAKER:     return jinrokhBreakerGUID;     break;
-                    case DATA_HORRIDON:             return horridonGUID;           break;
-                    case DATA_KAZRAJIN:             return kazrajinGUID;           break;
-                    case DATA_SUL_THE_SANDCRAWLER:  return sulTheSandCrawlerGUID;  break;
-                    case DATA_FROST_KING_MALAKK:    return frostKingMalakkGUID;    break;
-                    case DATA_HIGH_PRIESTESS_MARLI: return highPriestessMarliGUID; break;
-                    case DATA_TORTOS:               return tortosGUID;             break;
-                    case DATA_MEGAERA:              return megaeraGUID;            break;
-                    case DATA_JI_KUN:               return jiKunGUID;              break;
-                    case DATA_DURUMU_THE_FORGOTTEN: return durumuTheForgottenGUID; break;
-                    case DATA_PRIMORDIUS:           return primordiusGUID;         break;
-                    case DATA_DARK_ANIMUS:          return darkAnimusGUID;         break;
-                    case DATA_IRON_QON:             return ironQonGUID;            break;
-                    case DATA_LU_LIN:               return luLinGUID;              break;
-                    case DATA_SUEN:                 return suenGUID;               break;
-                    case DATA_LEI_SHEN:             return leiShenGUID;            break;
-                    case DATA_RA_DEN:               return raDenGUID;              break;
-
-                    case DATA_FIRST_DOOR:           return firstDoorguid;          break;
-                    case DATA_MOGU_FOUNTAIN_NE:     return moguFountainNEguid;     break;
-                    case DATA_MOGU_FOUNTAIN_NW:     return moguFountainNWguid;     break;
-                    case DATA_MOGU_FOUNTAIN_SE:     return moguFountainSEguid;     break;
-                    case DATA_MOGU_FOUNTAIN_SW:     return moguFountainSWguid;     break;
-                    case DATA_JIN_ROKH_FRONT_DOOR:  return jinRokhfrontDoor;       break;
-                    case DATA_JIN_ROKH_BACK_DOOR:   return jinRokhbackDoor;        break;
-
-                    default:                        return 0;                      break;
-                }
-            }
-
-		    std::string GetSaveData() 
-            {
-		    	OUT_SAVE_INST_DATA;
-
-		    	std::ostringstream saveStream;
-		    	saveStream << "T T " << GetBossSaveData();
-
-		    	OUT_SAVE_INST_DATA_COMPLETE;
-		    	return saveStream.str();
-		    }
-
-		    void Load(const char* in) 
-            {
-		    	if (!in) 
-                {
-		    		OUT_LOAD_INST_DATA_FAIL;
-		    		return;
-		    	}
-
-		    	OUT_LOAD_INST_DATA(in);
-
-		    	char dataHead1, dataHead2;
-
-		    	std::istringstream loadStream(in);
-		    	loadStream >> dataHead1 >> dataHead2;
-
-		    	if (dataHead1 == 'T' && dataHead2 == 'T') 
-                {
-                    for (uint32 i = 0; i < MAX_ENCOUNTERS; ++i)
-                    {
-                        uint32 tmpState;
-                        loadStream >> tmpState;
-
-                        if (tmpState == IN_PROGRESS || tmpState > SPECIAL)
-                            tmpState = NOT_STARTED;
-
-                        SetBossState(i, EncounterState(tmpState));
-                    }
-
-		    	} else OUT_LOAD_INST_DATA_FAIL;
-
-		    	OUT_LOAD_INST_DATA_COMPLETE;
-		    }
-        };
-
-        InstanceScript* GetInstanceScript(InstanceMap* map) const
-        {
-            return new instance_throne_of_thunder_InstanceMapScript(map);
         }
+
+        EntryGuidMap m_mNpcGuidStorage;
+        EntryGuidMap m_mGoGuidStorage;
+        EventMap m_mEvents;
+
+        uint64 horridonHelperGuid;
+        uint64 megaeraChestGuid;
+
+        uint32 m_auiEncounter[MAX_TYPES];
+        std::string strSaveData;
+        std::list<uint64> m_lMoguBellGuids;
+
+
+        void Initialize() override
+        {
+            SetBossNumber(MAX_DATA);
+            LoadDoorData(doorData);
+
+            memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+        }
+
+        bool SetBossState(uint32 uiId, EncounterState eState) override
+        {
+            //TC_LOG_ERROR("scripts", "SetBossState called type%u, state %u, instance id %u", uiId, (uint32)eState, instance->GetInstanceId());
+            if (!InstanceScript::SetBossState(uiId, eState))
+                return false;
+
+            if (uiId >= MAX_DATA)
+                return false;
+
+            switch (uiId)
+            {
+            case DATA_JINROKH:
+            case DATA_HORRIDON:
+            case DATA_COUNCIL_OF_ELDERS:
+            case DATA_TORTOS:
+            case DATA_MEGAERA:
+            case DATA_JI_KUN:
+            case DATA_DURUMU_THE_FORGOTTEN:
+            case DATA_PRIMORDIUS:
+            case DATA_DARK_ANIMUS:
+            case DATA_IRON_QON:
+            case DATA_TWIN_CONSORTS:
+            case DATA_LEI_SHEN:
+            case DATA_RA_DEN:
+                SetData(uiId, (uint32)eState);
+                break;
+            default:
+                break;
+            }
+
+            return true;
+        }
+
+
+        void SetData64(uint32 uiType, uint64 uiData) override
+        {
+            switch (uiType)
+            {
+            case MOB_GARA_JALS_SOUL:
+                m_mNpcGuidStorage[MOB_GARA_JALS_SOUL] = uiData;
+                break;
+            default:
+                break;
+            }
+        }
+
+        uint64 GetData64(uint32 uiType) const
+        {
+            switch (uiType)
+            {
+                // Creatures here
+            case BOSS_JINROKH:
+            case BOSS_HORRIDON:
+            case BOSS_COUNCIL_KAZRAJIN:
+            case BOSS_COUNCIL_SUL_THE_SANDCRAWLER:
+            case BOSS_COUNCIL_FROST_KING_MALAKK:
+            case BOSS_COUNCIL_HIGH_PRIESTESS_MARLI:
+            case BOSS_TORTOS:
+            case BOSS_MEGAERA:
+            case BOSS_JI_KUN:
+            case BOSS_DURUMU_THE_FORGOTTEN:
+            case BOSS_PRIMORDIUS:
+            case BOSS_DARK_ANIMUS:
+            case BOSS_IRON_QON:
+            case BOSS_LULIN:
+            case BOSS_SUEN:
+            case BOSS_LEI_SHEN:
+            case BOSS_RA_DEN:
+            case MOB_GARA_JAL:
+            case MOB_GARA_JALS_SOUL:
+            case MOB_WAR_GOD_JALAK:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(uiType);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_JINROKH:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(BOSS_JINROKH);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_HORRIDON:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(BOSS_HORRIDON);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_COUNCIL_OF_ELDERS:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(MOB_GARA_JAL);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_TORTOS:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(BOSS_TORTOS);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_MEGAERA:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(BOSS_MEGAERA);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_JI_KUN:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(BOSS_JI_KUN);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_DURUMU_THE_FORGOTTEN:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(BOSS_DURUMU_THE_FORGOTTEN);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_PRIMORDIUS:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(BOSS_PRIMORDIUS);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_DARK_ANIMUS:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(NPC_AREATRIGGER_ANIMA);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_IRON_QON:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(NPC_IRON_QON);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_TWIN_CONSORTS:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(NPC_LULIN);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_LEI_SHEN:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(NPC_LEI_SHEN);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case DATA_RA_DEN:
+            {
+                EntryGuidMap::const_iterator find = m_mNpcGuidStorage.find(BOSS_RA_DEN);
+                if (find != m_mNpcGuidStorage.cend())
+                    return find->second;
+                return 0;
+                break;
+            }
+            case NPC_HORRIDON_EVENT_HELPER:
+                return horridonHelperGuid;
+                // Gameobjects below here #####
+                // ############################
+                // ############################
+            case GOB_JIN_ROKH_ENTRANCE:
+            case GOB_JIN_ROKH_PREDOOR:
+            case GOB_JIN_ROKH_EXIT:
+            case GOB_HORRIDON_ENTRANCE:
+            case GOB_HORRIDON_EXIT:
+            case GOB_COUNCIL_ENTRANCE1:
+            case GOB_COUNCIL_ENTRANCE2:
+            case GOB_COUNCIL_EXIT:
+            case GOB_TORTOS_DOOR:
+            case GOB_TORTOS_COLLISION:
+            case GOB_MEGAERA_EXIT:
+            case GOB_TRIBAL_DOOR_FARRAKI:
+            case GOB_TRIBAL_DOOR_GURUBASHI:
+            case GOB_TRIBAL_DOOR_DRAKKARI:
+            case GOB_TRIBAL_DOOR_AMANI:
+            case GOB_MOGU_STATUE_1:
+            case GOB_MOGU_STATUE_2:
+            case GOB_MOGU_STATUE_3: 
+            case GOB_MOGU_STATUE_4:
+            case GOB_JIKUN_FEATHER:
+            case GOB_PRIMORDIUS_ENTRANCE:
+            case GOB_PRIMORDIUS_EXIT:
+            {
+                EntryGuidMap::const_iterator find = m_mGoGuidStorage.find(uiType);
+                if (find != m_mGoGuidStorage.cend())
+                    return find->second;
+                return 0;
+            }
+            case GOB_MEGAERA_CHEST:
+                return megaeraChestGuid;
+            default:
+                return 0;
+            }
+
+            return 0;
+        }
+
+        std::string GetSaveData() override
+        {
+            return strSaveData;
+        }
+    };
 };
 
 void AddSC_instance_throne_of_thunder()

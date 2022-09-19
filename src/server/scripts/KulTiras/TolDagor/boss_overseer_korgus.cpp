@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,7 +47,7 @@ struct boss_overseer_korgus : public BossAI
 {
     boss_overseer_korgus(Creature* creature) : BossAI(creature, DATA_OVERSEER_KORGUS) { }
 
-    void JustEngagedWith(Unit* who) override
+    void EnterCombat(Unit* who) override
     {
         //todo change chance to ari or airblast and script the auras
         events.ScheduleEvent(EVENT_MUNITION, 5100);
@@ -55,7 +55,7 @@ struct boss_overseer_korgus : public BossAI
         events.ScheduleEvent(EVENT_CROSSIGNITION, 16000);
         events.ScheduleEvent(EVENT_MASSIVE_BLAST, 17000);
         events.ScheduleEvent(EVENT_DEADEYE, 23300);
-        BossAI::JustEngagedWith(who);
+        BossAI::EnterCombat(who);
     }
 
     void UpdateAI(uint32 diff) override
@@ -87,12 +87,12 @@ struct boss_overseer_korgus : public BossAI
             case EVENT_CROSSIGNITION:
                 DoCastVictim(SPELL_CROSSIGNITION);
                 // todo fix offset cast and make it depend on korgus orientation
-               // me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 6.065254f);
-                //me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 5.018055f);
-               // me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 3.970858f);
-              //  me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 2.923661f);
-              //  me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 0.8292661f);
-              //  me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 1.876463f);
+                me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 6.065254f);
+                me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 5.018055f);
+                me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 3.970858f);
+                me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 2.923661f);
+                me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 0.8292661f);
+                me->CastSpellWithOrientation(me, SPELL_CROSSIGNITION_VISUAL, true, 1.876463f);
                 events.ScheduleEvent(EVENT_CROSSIGNITION, 44800);
                 break;
             case EVENT_DEADEYE:
@@ -133,9 +133,9 @@ private:
 };
 
 // 256038 - Deadeye
-class spell_generic_deadeye : public AuraScript
+class bfa_spell_generic_deadeye : public AuraScript
 {
-    PrepareAuraScript(spell_generic_deadeye);
+    PrepareAuraScript(bfa_spell_generic_deadeye);
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
@@ -147,19 +147,19 @@ class spell_generic_deadeye : public AuraScript
         if (!target)
             return;
 
-      //  caster->CastSpell(target, SPELL_DEADEYE_BULLET, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+        caster->CastSpell(target, SPELL_DEADEYE_BULLET, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_generic_deadeye::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(bfa_spell_generic_deadeye::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 // 256105 - Explosive Burst
-class spell_explosive_burst : public AuraScript
+class bfa_spell_explosive_burst : public AuraScript
 {
-    PrepareAuraScript(spell_explosive_burst);
+    PrepareAuraScript(bfa_spell_explosive_burst);
 
     void OnRemove(AuraEffect const* aurEff, AuraEffectHandleModes /*mode*/)
     {
@@ -171,18 +171,18 @@ class spell_explosive_burst : public AuraScript
         if (!target)
             return;
 
-     //   caster->CastSpell(target, SPELL_EXPLOSIVE_BURST_DAMAGE, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+        caster->CastSpell(target, SPELL_EXPLOSIVE_BURST_DAMAGE, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
     }
 
     void Register() override
     {
-        AfterEffectRemove += AuraEffectRemoveFn(spell_explosive_burst::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+        AfterEffectRemove += AuraEffectRemoveFn(bfa_spell_explosive_burst::OnRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
     }
 };
 
 void AddSC_boss_overseer_korgus()
 {
     RegisterCreatureAI(boss_overseer_korgus);
-    RegisterAuraScript(spell_generic_deadeye);
-    RegisterAuraScript(spell_explosive_burst);
+    RegisterAuraScript(bfa_spell_generic_deadeye);
+    RegisterAuraScript(bfa_spell_explosive_burst);
 }

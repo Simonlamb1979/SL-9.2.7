@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -392,7 +391,7 @@ class boss_raigonn : public CreatureScript
                         me->SetReactState(REACT_AGGRESSIVE);
                         me->GetMotionMaster()->Clear();
 
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             AttackStart(target);
 
                         events.ScheduleEvent(EVENT_FIXATE, 30000, PHASE_VULNERABILITY);

@@ -229,7 +229,7 @@ class boss_gruul_foundry : public CreatureScript
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
                    // if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
-                        me->SetLootRecipient(nullptr);
+                        me->AddLootRecipient(nullptr);
                    // else
                         CastSpellToPlayers(me->GetMap(), me, eSpells::GruulBonus, true);
                 }
@@ -1012,8 +1012,8 @@ class spell_foundry_overhead_smash : public SpellScriptLoader
 
             void Register() override
             {
-               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_overhead_smash_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_AREA_THREAT_LIST_FRONT);
-               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_overhead_smash_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_AREA_THREAT_LIST_FRONT);
+               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_overhead_smash_SpellScript::CorrectTargets, EFFECT_0, TARGET_UNIT_CASTER_AREA_ENEMY_FRONT);
+               // OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_foundry_overhead_smash_SpellScript::CorrectTargets, EFFECT_1, TARGET_UNIT_CASTER_AREA_ENEMY_FRONT);
                 OnEffectHitTarget += SpellEffectFn(spell_foundry_overhead_smash_SpellScript::HandleKnockBack, EFFECT_1, SPELL_EFFECT_KNOCK_BACK);
             }
         };

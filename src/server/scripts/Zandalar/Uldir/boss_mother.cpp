@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore
+ * Copyright 2021 BfaCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -100,7 +100,7 @@ struct boss_mother : public BossAI
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
         me->SetMaxPower(POWER_ENERGY, 100);
-      //  me->AddAura(AURA_OVERRIDE_POWER_COLOR_ENTROPIC);
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_ENTROPIC);
         defeated = false;
     }
 
@@ -109,17 +109,17 @@ struct boss_mother : public BossAI
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_FIRST_ROOM_OCCUPANT);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_SECOND_ROOM_OCCUPANT);
         instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_THIRD_ROOM_OCCUPANT);
-       // me->DespawnCreaturesInArea(NPC_PURIFYING_FLAME_2, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_SURGICAL_GRID, 125.0f);
+        me->DespawnCreaturesInArea(NPC_PURIFYING_FLAME_2, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SURGICAL_GRID, 125.0f);
         Talk(SAY_WIPE);
         _JustReachedHome();
         _DespawnAtEvade();
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         Talk(SAY_AGGRO);
-       // _EnterCombat();
+        _EnterCombat();
         instance->DoAddAuraOnPlayers(SPELL_FIRST_ROOM_OCCUPANT);
         events.ScheduleEvent(EVENT_SANITIZING_STRIKE, 3s);
         events.ScheduleEvent(EVENT_PURIFYING_FLAME, 6s);
@@ -143,7 +143,7 @@ struct boss_mother : public BossAI
             me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             me->SetWalk(true);
             me->SetHealth(me->GetMaxHealth());            
-           // me->DeleteThreatList();
+            me->DeleteThreatList();
             me->ClearInCombat();
             instance->SendBossKillCredit(MOTHER_ENCOUNTER);
             me->GetScheduler().Schedule(4s, [this](TaskContext context)
@@ -169,11 +169,11 @@ struct boss_mother : public BossAI
         }
     }
 
-    void OnSpellFinished(SpellInfo const* spellInfo) //override
+    void OnSpellFinished(SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_SANITIZING_STRIKE)
         {
-            if (Unit* tar = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.0f, true))
+            if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
                 me->AddAura(SPELL_SANITIZING_STRIKE, tar);
             }
@@ -187,7 +187,7 @@ struct boss_mother : public BossAI
         case EVENT_SANITIZING_STRIKE:
         {
             Talk(SAY_SANITIZING_STRIKE);
-            if (Unit* tar = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.0f, true))
+            if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
                 DoCast(tar, SPELL_SANITIZING_STRIKE, false);
             }            
@@ -223,7 +223,7 @@ struct boss_mother : public BossAI
         {
             Talk(SAY_PURIFYING_FLAME);
             UnitList tarlist;
-            //SelectTargetList(tarlist, 100, SELECT_TARGET_RANDOM, 100.0f, true);
+            SelectTargetList(tarlist, 100, SELECT_TARGET_RANDOM, 100.0f, true);
             for (Unit* targets : tarlist)
             {
                 targets->SummonCreature(NPC_PURIFYING_FLAME_2, targets->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
@@ -314,7 +314,7 @@ struct npc_corners_purifying_flame : public ScriptedAI
         me->CastSpell(nullptr, SPELL_PURIFYING_FLAME_DAMAGE);
     }
 
-    void OnSpellFinished(SpellInfo const* spellInfo) //override
+    void OnSpellFinished(SpellInfo const* spellInfo) override
     {
         if (spellInfo->Id == SPELL_PURIFYING_FLAME_DAMAGE)
         {
@@ -368,7 +368,7 @@ struct npc_mother_defense_grid : public ScriptedAI
                     if (player->GetPosition().m_positionX > first_to_second)
                     {
                         player->RemoveAura(SPELL_FIRST_ROOM_OCCUPANT);
-                        player->AddAura(SPELL_SECOND_ROOM_OCCUPANT, player);
+                        player->AddAura(SPELL_SECOND_ROOM_OCCUPANT);
 
                         instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
                         player->Yell(player->GetName(), LANG_UNIVERSAL);
@@ -380,7 +380,7 @@ struct npc_mother_defense_grid : public ScriptedAI
                     if (player->GetPosition().m_positionX > second_to_third)
                     {
                         player->RemoveAura(SPELL_SECOND_ROOM_OCCUPANT);
-                        player->AddAura(SPELL_THIRD_ROOM_OCCUPANT, player);
+                        player->AddAura(SPELL_THIRD_ROOM_OCCUPANT);
 
                         instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
                         player->Yell(player->GetName(), LANG_UNIVERSAL);
@@ -389,7 +389,7 @@ struct npc_mother_defense_grid : public ScriptedAI
                     else if (player->GetPosition().m_positionX < first_to_second)
                     {
                         player->RemoveAura(SPELL_SECOND_ROOM_OCCUPANT);
-                        player->AddAura(SPELL_FIRST_ROOM_OCCUPANT, player);
+                        player->AddAura(SPELL_FIRST_ROOM_OCCUPANT);
 
                         instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
                         player->Yell(player->GetName(), LANG_UNIVERSAL);
@@ -402,7 +402,7 @@ struct npc_mother_defense_grid : public ScriptedAI
                     if (player->GetPosition().m_positionX < second_to_third)
                     {
                         player->RemoveAura(SPELL_THIRD_ROOM_OCCUPANT);
-                        player->AddAura(SPELL_SECOND_ROOM_OCCUPANT, player);
+                        player->AddAura(SPELL_SECOND_ROOM_OCCUPANT);
 
                         instance->DoCastSpellOnPlayers(SPELL_DEFENSE_GRID_DAMAGE);
                         player->Yell(player->GetName(), LANG_UNIVERSAL);
@@ -415,7 +415,6 @@ struct npc_mother_defense_grid : public ScriptedAI
     }
 
 private:
-    InstanceScript* instance;
     float timer;
     float first_to_second = -108.608f;
     float second_to_third = -54.6701f;
@@ -449,10 +448,10 @@ struct at_wind_tunnel_l_to_r : public AreaTriggerAI
 
     void OnInitialize() override
     {
-       // at->SetPeriodicProcTimer(500);
+        at->SetPeriodicProcTimer(500);
     }
 
-    void OnPeriodicProc()// override
+    void OnPeriodicProc() override
     {
         std::list<Player*> playerList;
         at->GetPlayerListInGrid(playerList, 100.0f);
@@ -471,8 +470,8 @@ struct at_wind_tunnel_l_to_r : public AreaTriggerAI
 
     void OnRemove() override
     {
-      //  if (InstanceScript* instance = at->GetInstanceScript())
-       //     instance->DoRemoveForcedMovementsOnPlayers(at->GetGUID());
+        if (InstanceScript* instance = at->GetInstanceScript())
+            instance->DoRemoveForcedMovementsOnPlayers(at->GetGUID());
     }
 };
 
@@ -483,10 +482,10 @@ struct at_wind_tunnel_r_to_l : public AreaTriggerAI
 
     void OnInitialize() override
     {
-     //   at->SetPeriodicProcTimer(500);
+        at->SetPeriodicProcTimer(500);
     }
 
-    void OnPeriodicProc()// override
+    void OnPeriodicProc() override
     {
         std::list<Player*> playerList;
         at->GetPlayerListInGrid(playerList, 75.0f);
@@ -505,8 +504,8 @@ struct at_wind_tunnel_r_to_l : public AreaTriggerAI
 
     void OnRemove() override
     {
-       // if (InstanceScript* instance = at->GetInstanceScript())
-        //    instance->DoRemoveForcedMovementsOnPlayers(at->GetGUID());
+        if (InstanceScript* instance = at->GetInstanceScript())
+            instance->DoRemoveForcedMovementsOnPlayers(at->GetGUID());
     }
 };
 
@@ -545,7 +544,6 @@ struct npc_surgical_grid : public ScriptedAI
     }
 
 private:
-    InstanceScript* instance;;
     TaskScheduler scheduler;    
 };
 
@@ -562,7 +560,7 @@ struct at_surgical_grid : public AreaTriggerAI
         Position pos = caster->GetPosition();
 
         at->MovePosition(pos, 60.0f, caster->GetOrientation());
-    //    at->SetDestination(pos, 15000);    
+        at->SetDestination(pos, 15000);    
     }
 
     void OnUnitEnter(Unit* unit) override

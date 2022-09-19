@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -101,7 +100,7 @@ class npc_shadopan_ambusher : public CreatureScript
                 if (uiId == 1)
                 {
                     DoZoneInCombat();
-                    if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE))
+                    if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST))
                         AttackStart(target);
                 }
             }
@@ -116,7 +115,7 @@ class npc_shadopan_ambusher : public CreatureScript
                     DoZoneInCombat();
                     if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 0, true))
                     {
-                        me->GetThreatManager().addThreat(target, 1000000.0f);
+                        me->getThreatManager().addThreat(target, 1000000.0f);
                         me->CastSpell(me, SPELL_CRISE, true);
                     }
 
@@ -273,7 +272,7 @@ class npc_shadopan_hatred : public CreatureScript
                     }
                     case EVENT_SHADOW_BOLT:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(target, SPELL_SHADOW_BOLT, false);
 
                         events.ScheduleEvent(EVENT_SHADOW_BOLT, urand(2500, 10000));
@@ -282,7 +281,7 @@ class npc_shadopan_hatred : public CreatureScript
                     // Vestige of Hatred
                     case EVENT_BLACK_CLEAVE:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(target, SPELL_BLACK_CLEAVE, false);
 
                         events.ScheduleEvent(EVENT_BLACK_CLEAVE, 15000);
@@ -290,7 +289,7 @@ class npc_shadopan_hatred : public CreatureScript
                     }
                     case EVENT_DEATH_GRIP:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST))
                             me->CastSpell(target, SPELL_DEATH_GRIP, false);
 
                         events.ScheduleEvent(EVENT_DEATH_GRIP, urand(7500, 12500));
@@ -307,7 +306,7 @@ class npc_shadopan_hatred : public CreatureScript
                     // Vestige of Hatred
                     case EVENT_SINISTER_STRIKE:
                     {
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(target, SPELL_SINISTER_STRIKE, false);
 
                         events.ScheduleEvent(EVENT_SINISTER_STRIKE, urand(2500, 10000));

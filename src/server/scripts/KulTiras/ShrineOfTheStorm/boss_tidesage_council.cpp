@@ -1,25 +1,8 @@
-/*
- * Copyright 2021 ShadowCore
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
 #include "SpellHistory.h"
 #include "shrine_of_the_storm.h"
-#include <sstream>
 
 enum Spells
 {
@@ -141,7 +124,7 @@ public:
                 me->CastSpell(fayeBoss, SPELL_REINFORCING_WARD);
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode(EvadeReason why)
         {
             _DespawnAtEvade(15);
             Reset();
@@ -155,6 +138,29 @@ public:
                 instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
                 break;
             }
+        }
+
+        bool CheckCheaters()
+        {
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+                if (Player* player = i->GetSource())
+                {
+                    if (!player->IsGameMaster()) //gm check
+                    {
+                        if (player->GetDistance(centerPos.GetPositionX(), centerPos.GetPositionY(), centerPos.GetPositionZ()) >= 30.0f)
+                        {
+                            me->Kill(player, false);
+                            std::ostringstream str;
+                            str << "CHEATERS!";
+                            me->TextEmote(str.str().c_str(), 0, true);
+                            return false;
+                        }
+                    }
+
+                }
+
+            return true;
         }
 
         Creature* fayeDead()
@@ -171,14 +177,14 @@ public:
             }
         }
 
-        void JustDied(Unit*) override
+        void JustDied(Unit*)
         {
             if (instance)
             {
                 switch (CouncilActive(instance, me))
                 {
                 case 1:
-                    me->SetLootRecipient(nullptr);
+                    me->AddLootRecipient(NULL);
                     break;
                 case 0:
                     if (Creature* faye = fayeDead())
@@ -198,20 +204,20 @@ public:
             events.ScheduleEvent(EVENT_REGEN_MANA, TIMER_REGEN_MANA);
         }
 
-        void Reset() override
+        void Reset()
         {
             events.Reset();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         }
 
-        void JustEngagedWith(Unit*) override
+        void EnterCombat(Unit*)
         {
             SelectSoundAndText(me, 1);
             if (Creature* faye = Faye())
                 faye->SetInCombatWithZone();
             HandleManaRegen();
             events.ScheduleEvent(EVENT_HINDERING_CLEAVE, TIMER_HINDERING_CLEAVE);
-            if (me->GetMap()->IsHeroic() /*|| me->GetMap()->IsMythic()*/)
+            if (me->GetMap()->IsHeroic() || me->GetMap()->IsMythic())
                 events.ScheduleEvent(EVENT_BLESSING_OF_IRONSIDE, TIMER_BLESSING_OF_IRONSIDE);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         }
@@ -235,7 +241,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -244,6 +250,9 @@ public:
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
+
+            if (me->IsInCombat())
+                CheckCheaters();
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -303,7 +312,7 @@ public:
         EventMap events;
         InstanceScript* instance;
 
-        void JustDied(Unit*) override
+        void JustDied(Unit*)
         {
             if (instance)
             {
@@ -311,7 +320,7 @@ public:
                 {
                 case 1:
                     SelectSoundAndText(me, 2);
-                    me->SetLootRecipient(nullptr);
+                    me->AddLootRecipient(NULL);
                     break;
                 case 0:
                     if (Creature* ironhull = ironhullDead())
@@ -356,19 +365,42 @@ public:
             return me->FindNearestCreature(BOSS_BROTHER_IRONHULL, 500.0f, true);
         }
 
+        bool CheckCheaters()
+        {
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+                if (Player* player = i->GetSource())
+                {
+                    if (!player->IsGameMaster()) //gm check
+                    {
+                        if (player->GetDistance(centerPos.GetPositionX(), centerPos.GetPositionY(), centerPos.GetPositionZ()) >= 30.0f)
+                        {
+                            me->Kill(player, false);
+                            std::ostringstream str;
+                            str << "CHEATERS!";
+                            me->TextEmote(str.str().c_str(), 0, true);
+                            return false;
+                        }
+                    }
+
+                }
+
+            return true;
+        }
+
         void HandleWards()
         {
             if (Creature* ironhullBoss = Ironhull())
                 me->CastSpell(ironhullBoss, SPELL_SWIFTNESS_WARD);
         }
 
-        void Reset() override
+        void Reset()
         {
             events.Reset();
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode(EvadeReason why)
         {
             _DespawnAtEvade(15);
             Reset();
@@ -397,24 +429,27 @@ public:
             events.ScheduleEvent(EVENT_REGEN_MANA, TIMER_REGEN_MANA);
         }
 
-        void JustEngagedWith(Unit*) override
+        void EnterCombat(Unit*)
         {
             if (Creature* iron = Ironhull())
                 iron->SetInCombatWithZone();
 
             HandleManaRegen();
             events.ScheduleEvent(EVENT_SLICING_BLAST, TIMER_SLICING_BLAST);
-            if (me->GetMap()->IsHeroic()/* || me->GetMap()->IsMythic()*/)
+            if (me->GetMap()->IsHeroic() || me->GetMap()->IsMythic())
                 events.ScheduleEvent(EVENT_BLESSING_OF_THE_TEMPEST, TIMER_BLESSING_OF_THE_TEMPEST);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
             if (!UpdateVictim())
                 return;
+
+            if (me->IsInCombat())
+                CheckCheaters();
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -491,7 +526,7 @@ public:
 
         EventMap events;
 
-        void Reset() override
+        void Reset()
         {
             me->CastSpell(me, SPELL_BLOWBACK_VISUAL, true);
             events.ScheduleEvent(EVENT_CHECK_PLAYER_BLOWBACK, 2500);
@@ -517,7 +552,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 

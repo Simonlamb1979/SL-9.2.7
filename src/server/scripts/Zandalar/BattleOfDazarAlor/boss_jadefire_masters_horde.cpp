@@ -101,14 +101,14 @@ private:
         me->RemoveAura(PERIODIC_ENERGY_GAIN);
         me->SetMaxPower(POWER_ENERGY, 100);
         me->SetPower(POWER_ENERGY, 0);
-       // me->DespawnCreaturesInArea(NPC_MAGMA_TRAP_BOD, 125.0f);
-       // me->DespawnCreaturesInArea(NPC_SPIRIT_OF_XUEN, 125.0f);
+        me->DespawnCreaturesInArea(NPC_MAGMA_TRAP_BOD, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SPIRIT_OF_XUEN, 125.0f);
         instance->DoRemoveAurasDueToSpellOnPlayers(MAGMA_TRAP_KNOCK);
         instance->DoRemoveAurasDueToSpellOnPlayers(285632);
         me->NearTeleportTo(me->GetHomePosition());
         me->ClearUnitState(UNIT_STATE_ROOT);
-    //    if (me->GetEntry() == NPC_ANATHOS_FIRECALLER)
-        //    me->AddAura(AURA_OVERRIDE_POWER_COLOR_ENTROPIC);
+        if (me->GetEntry() == NPC_ANATHOS_FIRECALLER)
+            me->AddAura(AURA_OVERRIDE_POWER_COLOR_ENTROPIC);
     }
 
     void JustReachedHome() override
@@ -142,12 +142,12 @@ private:
         }
     }
 
-    void EnterCombat(Unit* /*unit*/) //override
+    void EnterCombat(Unit* /*unit*/) override
     {
         switch (me->GetEntry())
         {
         case NPC_MARA_GRIMFANG:
-         //   _EnterCombat();
+            _EnterCombat();
             Talk(0);
             DoCast(PERIODIC_ENERGY_GAIN);
             events.ScheduleEvent(EVENT_WHIRLING_JADE_STORM, 3s);
@@ -164,7 +164,7 @@ private:
             break;
 
         case NPC_ANATHOS_FIRECALLER:
-          //  _EnterCombat();
+            _EnterCombat();
             me->GetScheduler().Schedule(4s, [this](TaskContext context)
             {
                 Talk(0);
@@ -204,7 +204,7 @@ private:
         }
     }
 
-   void OnSpellFinished(SpellInfo const* spellInfo) //override
+   void OnSpellFinished(SpellInfo const* spellInfo) override
    {
        if (spellInfo->Id == BLAZING_PHOENIX_TRANSFORM)
        {
@@ -240,11 +240,11 @@ private:
             break;
 
        case NPC_SPIRIT_OF_XUEN:            
-            if (Unit* tar = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 500.0f, true))
+            if (Unit* tar = SelectTarget(SELECT_TARGET_FARTHEST, 0, 500.0f, true))
             {
                  summon->GetMotionMaster()->MoveChase(tar, 500.0f, PET_FOLLOW_ANGLE);
                  summon->AI()->AttackStart(tar);
-                // summon->AddThreat(tar, 1000.0f, SpellSchoolMask::SPELL_SCHOOL_MASK_NORMAL);
+                 summon->AddThreat(tar, 1000.0f, SpellSchoolMask::SPELL_SCHOOL_MASK_NORMAL);
                  if (tar->HasAura(285632))
                      return;
                  else
@@ -299,7 +299,7 @@ private:
        }
        case EVENT_PYROBLAST:
        {
-           me->AddAura(FIRE_SHIELD, me);
+           me->AddAura(FIRE_SHIELD);
            DoCastRandom(PYROBLAST, 300.0f);
            events.Repeat(20s);
            break;
@@ -310,7 +310,7 @@ private:
            {
                Talk(0);
                UnitList tarlist;
-              // SelectTargetList(tarlist, 5, SELECT_TARGET_RANDOM, 100.0f, true);
+               SelectTargetList(tarlist, 5, SELECT_TARGET_RANDOM, 100.0f, true);
                for (Unit* tar : tarlist)
                DoCast(tar, SEARING_EMBERS);
            }      
@@ -347,7 +347,7 @@ private:
                 break;
 
            case NPC_MARA_GRIMFANG:
-                me->AddAura(RING_OF_HOSTILITY_MESTRAH_PERIODIC_DUMMY, me);
+                me->AddAura(RING_OF_HOSTILITY_MESTRAH_PERIODIC_DUMMY);
                 break;
            }
        }
@@ -379,7 +379,7 @@ private:
                {
                    //DoCast(BLAZING_PHOENIX_TRANSFORM);
                    me->SetDisplayId(89730);                   
-                   me->AddAura(282040, me);
+                   me->AddAura(282040);
                    me->SetObjectScale(2.0f);
                    events.ScheduleEvent(EVENT_RISING_FLAMES, 3s);
                    events.ScheduleEvent(EVENT_MAGMA_TRAPS, 8s);

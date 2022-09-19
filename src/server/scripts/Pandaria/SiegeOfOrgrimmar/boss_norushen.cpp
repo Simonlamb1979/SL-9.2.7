@@ -2876,8 +2876,8 @@ struct spell_area_norushen_residual_corruption : AreaTriggerAI
 
         if (at->GetDuration() != 0)
         {
-            float bp0 = 25.f;
-            creature->CastCustomSpell(player, SPELL_CORRUPT, &bp0, nullptr, nullptr, true);
+            int32 bp0 = 25;
+            creature->CastCustomSpell(player, SPELL_CORRUPT, &bp0, NULL, NULL, true);
             at->SetDuration(0);
 
             creature->ToCreature()->DespawnOrUnsummon(100);

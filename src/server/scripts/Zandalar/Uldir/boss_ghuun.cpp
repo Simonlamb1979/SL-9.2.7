@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore
+ * Copyright 2021 BfaCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -159,7 +159,7 @@ private:
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
         me->SetMaxPower(POWER_ENERGY, 100);
-       // me->AddAura(AURA_OVERRIDE_POWER_COLOR_ORANGE);
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_ORANGE);
         me->SetVisible(true);
         SetCombatMovement(false);
     }
@@ -169,10 +169,10 @@ private:
         damage = 0;
     }
 
-    void EnterCombat(Unit* /*who*/)// override
+    void EnterCombat(Unit* /*who*/) override
     {
         this->phase = 1;
-      //  _EnterCombat();
+        _EnterCombat();
         events.ScheduleEvent(EVENT_POWER_MATRIX, 4s);
         events.ScheduleEvent(EVENT_EXPLOSIVE_CORRUPTION, 5s);
         events.ScheduleEvent(EVENT_THOUSAND_MAWS, 23s);
@@ -203,16 +203,16 @@ private:
 
     void CleanEncounter(InstanceScript* instance, Creature* ghuun)
     {
-     //   me->DespawnCreaturesInArea(NPC_POWER_MATRIX, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_DARK_YOUNG, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_CYCLOPEAN_TERROR, 125.0f);
+        me->DespawnCreaturesInArea(NPC_POWER_MATRIX, 125.0f);
+        me->DespawnCreaturesInArea(NPC_DARK_YOUNG, 125.0f);
+        me->DespawnCreaturesInArea(NPC_CYCLOPEAN_TERROR, 125.0f);
         if (Creature* reoriginationDrive = me->FindNearestCreature(NPC_REORIGINATION_DRIVE, 150.0f, true))
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, reoriginationDrive);
-      //  me->DespawnCreaturesInArea(NPC_BLIGHTSPREADER_TENDRIL, 125.0f);
-       // me->DespawnCreaturesInArea(NPC_GIBBERING_HORROR, 125.0f);
-       // me->DespawnCreaturesInArea(NPC_SPAWN_OF_GHUUN, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_MATRIX_SURGE, 125.0f);
-       // me->DespawnCreaturesInArea(NPC_BURSTING_BOIL, 125.0f);
+        me->DespawnCreaturesInArea(NPC_BLIGHTSPREADER_TENDRIL, 125.0f);
+        me->DespawnCreaturesInArea(NPC_GIBBERING_HORROR, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SPAWN_OF_GHUUN, 125.0f);
+        me->DespawnCreaturesInArea(NPC_MATRIX_SURGE, 125.0f);
+        me->DespawnCreaturesInArea(NPC_BURSTING_BOIL, 125.0f);
     }
 
     void SummonedCreatureDies(Creature* summon, Unit* /*killer*/)  override
@@ -247,7 +247,7 @@ private:
             if (this->phase != 3)
             {
                 UnitList u_li;
-             //   SelectTargetList(u_li, 3, SELECT_TARGET_RANDOM, 150.0f, true);
+                SelectTargetList(u_li, 3, SELECT_TARGET_RANDOM, 150.0f, true);
                 for (Unit* targets : u_li)
                 {
                     me->CastSpell(targets, SPELL_EXPLOSIVE_CORRUPTION, true);
@@ -264,11 +264,11 @@ private:
         case EVENT_POWER_MATRIX:
         {
             bool taked = false;
-           /* for (auto players : me->SelectNearestPlayers(200))
+            for (auto players : me->SelectNearestPlayers(200))
             {
                 if (players->HasAura(SPELL_POWER_MATRIX))
                     taked = true;
-            }*/
+            }
             if (!taked)
             for (auto idx : me->FindNearestCreatures(NPC_POWER_MATRIX, 500.0f))
             {
@@ -423,7 +423,7 @@ struct npc_cyclopean_terror : public ScriptedAI
             me->AI()->DoZoneInCombat(nullptr);
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_TORMENT, 5s);
     }
@@ -433,7 +433,7 @@ struct npc_cyclopean_terror : public ScriptedAI
         ScriptedAI::InitializeAI();
     }
 
-    void ExecuteEvent(uint32 eventId)// override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -446,8 +446,6 @@ struct npc_cyclopean_terror : public ScriptedAI
         }
         }
     }
-private:
-    EventMap events;
 };
 
 //134635
@@ -461,7 +459,7 @@ struct npc_dark_young : public ScriptedAI
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
         me->SetMaxPower(POWER_ENERGY, 100);
-       // me->AddAura(AURA_OVERRIDE_POWER_COLOR_PURPLE);
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_PURPLE);
     }
 
     void IsSummonedBy(Unit* summoner) override
@@ -470,9 +468,9 @@ struct npc_dark_young : public ScriptedAI
             me->AI()->DoZoneInCombat(nullptr);       
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {        
-        me->AddAura(SPELL_PERIODIC_ENERGY_GAIN, me);
+        me->AddAura(SPELL_PERIODIC_ENERGY_GAIN);
         me->CastSpell(nullptr, SPELL_DARK_YOUNG_COSMETIC, true);
         events.ScheduleEvent(EVENT_MASSIVE_SMASH, 5s);
     }
@@ -482,7 +480,7 @@ struct npc_dark_young : public ScriptedAI
         ScriptedAI::InitializeAI();
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         if (me->GetPower(POWER_ENERGY) == 100)
         {
@@ -505,9 +503,6 @@ struct npc_dark_young : public ScriptedAI
         if (instance)
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
-private:
-    InstanceScript* instance;
-    EventMap events;
 };
 
 //272504
@@ -622,7 +617,7 @@ private:
                 if (ghuun->IsInCombat() && player->GetPositionZ() > 465 && player->GetPositionZ() < 475)
                 {
                     player->CastSpell(player, SPELL_UNCLEAN_CONTAGION);
-                    player->AddAura(SPELL_UNCLEAN_CONTAGION_AURA, player);
+                    player->AddAura(SPELL_UNCLEAN_CONTAGION_AURA);
                 }
                 if (player->GetPositionZ() < 475)
                 {
@@ -756,7 +751,7 @@ struct npc_blightspreader_tendril : public ScriptedAI
         me->SetPower(POWER_ENERGY, 100);
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         if (instance)
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -771,7 +766,7 @@ struct npc_blightspreader_tendril : public ScriptedAI
             me->AI()->DoZoneInCombat(nullptr);
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         if (me->GetPowerPct(POWER_ENERGY) == 0)
         {
@@ -799,9 +794,6 @@ struct npc_blightspreader_tendril : public ScriptedAI
         if (instance)
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
-private:
-    InstanceScript* instance;
-    EventMap events;
 };
 
 enum GhuunNonStatic
@@ -846,15 +838,15 @@ private:
         BossAI::Reset();
     }
 
-    void EnterCombat(Unit* /*who*/)// override
+    void EnterCombat(Unit* /*who*/) override
     {
-     //   _EnterCombat();
-        me->AddAura(SPELL_CORRUPTING_BITE_DUMMY, me);
+        _EnterCombat();
+        me->AddAura(SPELL_CORRUPTING_BITE_DUMMY);
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
         me->SetMaxPower(POWER_ENERGY, 100);
-     //   me->AddAura(AURA_OVERRIDE_POWER_COLOR_ORANGE);
-        me->AddAura(SPELL_PERIODIC_ENERGY_GAIN, me);
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_ORANGE);
+        me->AddAura(SPELL_PERIODIC_ENERGY_GAIN);
         events.ScheduleEvent(EVENT_EXPLOSIVE_CORRUPTION, 5s);
         events.ScheduleEvent(EVENT_CORRUPTING_BITE, 1500ms);
         events.ScheduleEvent(EVENT_WAVE_OF_CORRUPTION, 20s);
@@ -880,16 +872,16 @@ private:
 
     void CleanEncounter(InstanceScript* instance, Creature* ghuun)
     {
-      //  me->DespawnCreaturesInArea(NPC_POWER_MATRIX, 125.0f);
-    //    me->DespawnCreaturesInArea(NPC_DARK_YOUNG, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_CYCLOPEAN_TERROR, 125.0f);
+        me->DespawnCreaturesInArea(NPC_POWER_MATRIX, 125.0f);
+        me->DespawnCreaturesInArea(NPC_DARK_YOUNG, 125.0f);
+        me->DespawnCreaturesInArea(NPC_CYCLOPEAN_TERROR, 125.0f);
         if (Creature* reoriginationDrive = me->FindNearestCreature(NPC_REORIGINATION_DRIVE, 150.0f, true))
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, reoriginationDrive);
-      //  me->DespawnCreaturesInArea(NPC_BLIGHTSPREADER_TENDRIL, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_GIBBERING_HORROR, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_SPAWN_OF_GHUUN, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_MATRIX_SURGE, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_BURSTING_BOIL, 125.0f);
+        me->DespawnCreaturesInArea(NPC_BLIGHTSPREADER_TENDRIL, 125.0f);
+        me->DespawnCreaturesInArea(NPC_GIBBERING_HORROR, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SPAWN_OF_GHUUN, 125.0f);
+        me->DespawnCreaturesInArea(NPC_MATRIX_SURGE, 125.0f);
+        me->DespawnCreaturesInArea(NPC_BURSTING_BOIL, 125.0f);
     }
 
     void DamageTaken(Unit* done_by, uint32& /*damage*/) override
@@ -900,7 +892,7 @@ private:
             events.Reset();
             if (Creature* reoriginationDrive = me->FindNearestCreature(NPC_REORIGINATION_DRIVE, 150.0f, true))
                 me->Kill(reoriginationDrive);
-            me->AddAura(SPELL_CORPULENT_MASS, me);
+            me->AddAura(SPELL_CORPULENT_MASS);
             AddTimedDelayedOperation(19000, [this]() -> void
             {
                 me->RemoveAura(SPELL_CORPULENT_MASS);
@@ -948,7 +940,7 @@ private:
         case EVENT_CORRUPTING_BITE:
         {
             DoCastVictim(SPELL_CORRUPTING_BITE_DAMAGE, true);
-            me->AddAura(SPELL_GROWING_CORRUPTION, me);
+            me->AddAura(SPELL_GROWING_CORRUPTION);
             events.Repeat(1500ms);
             break;
         }
@@ -984,7 +976,7 @@ private:
             if (Is25ManRaid())
             {
                 UnitList u_li;
-              //  SelectTargetList(u_li, 15, SELECT_TARGET_RANDOM, 150.0f, true);
+                SelectTargetList(u_li, 15, SELECT_TARGET_RANDOM, 150.0f, true);
                 for (Unit* targets : u_li)
                 {
                     me->CastSpell(targets->GetPosition(), SPELL_MALIGNANT_GROWTH_MISSILE, true);
@@ -993,7 +985,7 @@ private:
             else
             {
                 UnitList u_li;
-              //  SelectTargetList(u_li, 5, SELECT_TARGET_RANDOM, 150.0f, true);
+                SelectTargetList(u_li, 5, SELECT_TARGET_RANDOM, 150.0f, true);
                 for (Unit* targets : u_li)
                 {
                     me->CastSpell(targets->GetPosition(), SPELL_MALIGNANT_GROWTH_MISSILE, true);
@@ -1049,9 +1041,9 @@ struct npc_matrix_surge : public ScriptedAI
         {            
             if (Unit* matrixHolder = SelectTarget(SELECT_TARGET_RANDOM, 0, 25.0f, true))
             {
-                me->AddAura(SPELL_MATRIX_SURGE, me);
-                //if (matrixHolder->HasAura(SPELL_POWER_MATRIX))
-                 //   me->AddThreat(matrixHolder, 1000.0f, SpellSchoolMask::SPELL_SCHOOL_MASK_NORMAL);                
+                me->AddAura(SPELL_MATRIX_SURGE);
+                if (matrixHolder->HasAura(SPELL_POWER_MATRIX))
+                    me->AddThreat(matrixHolder, 1000.0f, SpellSchoolMask::SPELL_SCHOOL_MASK_NORMAL);                
             }
             me->DespawnOrUnsummon(30s);
         });
@@ -1077,7 +1069,7 @@ struct npc_bursting_boil : public ScriptedAI
         AddTimedDelayedOperation(8100, [this]() -> void
         {
             UnitList u_li;
-           // SelectTargetList(u_li, 2, SELECT_TARGET_RANDOM, 15.0f, true);
+            SelectTargetList(u_li, 2, SELECT_TARGET_RANDOM, 15.0f, true);
             for (Unit* targets : u_li)
             {
                 me->CastSpell(targets, SPELL_BURSTING_BOIL_AURA, true);
@@ -1101,7 +1093,7 @@ private:
         unstopabbleCorruption = false;
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_MIND_NUMBED_CHATTER, 5s);
     }
@@ -1112,7 +1104,7 @@ private:
             me->AI()->DoZoneInCombat(nullptr);
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -1129,15 +1121,13 @@ private:
         {
             if (!unstopabbleCorruption)
             {
-                me->AddAura(SPELL_UNSTOPABBLE_CORRUPTION, me);
+                me->AddAura(SPELL_UNSTOPABBLE_CORRUPTION);
                 me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
                 me->SetHealth(me->GetMaxHealth() / 100 * 80);
                 me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
             };
         }
     }
-private:
-    EventMap events;
 };
 
 //141851
@@ -1158,8 +1148,8 @@ private:
         host_Targeted = false;
         if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0 , 100.0f, true))
         {
-            me->AddAura(SPELL_DARK_PURPOSE, me);
-           // me->AddThreat(target, 1000.0f, SpellSchoolMask::SPELL_SCHOOL_MASK_NORMAL);
+            me->AddAura(SPELL_DARK_PURPOSE);
+            me->AddThreat(target, 1000.0f, SpellSchoolMask::SPELL_SCHOOL_MASK_NORMAL);
             me->GetMotionMaster()->MoveChase(target, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
         }
     }

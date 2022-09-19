@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 KyrianCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -48,15 +48,16 @@ public:
 	AlliedRaces() : PlayerScript("AlliedRaces") { }
 
 
-    void OnLogin(Player* player, bool firstLogin)
+    void OnLogin(Player* player, bool firstLogin) override
     {
 		if (firstLogin)
 		{
-            /* Cinematic - Pandaren death knight */
             //Store all future Allied races cinematics on first login here, not in CharacterHandler, it will create camera bugs and some other issues
+            /* Cinematic - Pandaren death knight */
 			if (player->getRace() == RACE_PANDAREN_HORDE || RACE_PANDAREN_ALLIANCE && player->GetMapId() == MAP_ALLIED_DK_ICECROWN && player->getClass() == CLASS_DEATH_KNIGHT)
             {
-                player->GetSceneMgr().PlaySceneByPackageId(2780);
+                player->GetSceneMgr().PlaySceneByPackageId(2780);		
+				player->SetLevel(58); // todo: get level from worldserver conf (dk start level)
             }
 
 
@@ -75,7 +76,7 @@ public:
 		}
     }
 
-    void OnUpdateArea(Player* player, uint32 newArea, uint32 /*oldArea*/)
+    void OnUpdateArea(Player* player, uint32 newArea, uint32 /*oldArea*/) override
     {
         /* Fix allied race deathknight missing aura */
         /* Dominion Over Acherus */
@@ -99,7 +100,7 @@ class npc_valkyr_battle_maiden_allied : public CreatureScript
 public:
     npc_valkyr_battle_maiden_allied() : CreatureScript("npc_valkyr_battle_maiden_allied") { }
 
-    CreatureAI* GetAI(Creature* creature) const 
+    CreatureAI* GetAI(Creature* creature) const override
     {
         return new npc_valkyr_battle_maiden_alliedAI(creature);
     }
@@ -124,7 +125,7 @@ public:
         float x, y, z;
         uint32 phase;
 
-        void Reset()
+        void Reset() override
         {
             me->setActive(true);
             me->SetVisible(false);
@@ -136,10 +137,10 @@ public:
             x -= 3.5f;
             y -= 5.0f;
             me->GetMotionMaster()->Clear(false);
-            //me->SetPosition(x, y, z, 0.0f);
+            me->SetPosition(x, y, z, 0.0f);
         }
 
-        void UpdateAI(uint32 diff)
+        void UpdateAI(uint32 diff) override
         {
             if (FlyBackTimer <= diff)
             {
@@ -159,7 +160,7 @@ public:
                         FlyBackTimer = 500;
                         break;
                     case 1:
-                    //    player->GetClosePoint(x, y, z, me->GetObjectSize());
+                        player->GetClosePoint(x, y, z, me->GetObjectSize());
                         z += 2.5f;
                         x -= 2.0f;
                         y -= 1.5f;
@@ -199,10 +200,10 @@ class zone_allied_dk : public ZoneScript
 public:
     zone_allied_dk() : ZoneScript("zone_allied_dk") { }
 
-    void OnPlayerDeath(Player* player)
+    void OnPlayerDeath(Player* player) override
     {
         if (player->GetMapId() == MAP_ALLIED_DK_ICECROWN)
-            player->SummonCreature(228534, player->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0U, 0U);
+            player->SummonCreature(228534, player->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0U, 0U, true);
     }
 
 };

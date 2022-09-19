@@ -1745,18 +1745,11 @@ public:
         }
 
         void Register()
-        {         
-            switch (m_scriptSpellId)
-            {
-            case 138006:
-                OnEffectApply += AuraEffectApplyFn(aura_impl::HandleOnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(aura_impl::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
-                break;
-            case 138002:
-                OnEffectApply += AuraEffectApplyFn(aura_impl::HandleOnApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                OnEffectRemove += AuraEffectRemoveFn(aura_impl::HandleOnRemove, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
-                break;
-            }
+        {
+            OnEffectApply += AuraEffectApplyFn(aura_impl::HandleOnApply, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            OnEffectApply += AuraEffectApplyFn(aura_impl::HandleOnApply, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(aura_impl::HandleOnRemove, EFFECT_1, SPELL_AURA_MOD_DAMAGE_PERCENT_DONE, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(aura_impl::HandleOnRemove, EFFECT_0, SPELL_AURA_PERIODIC_DAMAGE, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
@@ -1985,7 +1978,8 @@ public:
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_jinrokh_ionization_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_DEST_AREA_ENEMY);  
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_jinrokh_ionization_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_TARGET_ANY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_jinrokh_ionization_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_TARGET_ANY);
         }
     };
 

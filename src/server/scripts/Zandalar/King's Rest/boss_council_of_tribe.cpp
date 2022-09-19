@@ -41,8 +41,8 @@ struct boss_council_tribes : public BossAI
         switch (me->GetEntry())
         {
         case NPC_KULA_THE_BUTCHER:
-           //  me->DespawnCreaturesInArea(NPC_AKALI_THE_CONQUEROR, 125.0f);
-          //   me->DespawnCreaturesInArea(NPC_ZANAZAL_THE_WISE, 125.0f);
+             me->DespawnCreaturesInArea(NPC_AKALI_THE_CONQUEROR, 125.0f);
+             me->DespawnCreaturesInArea(NPC_ZANAZAL_THE_WISE, 125.0f);
              break;
         }
     }
@@ -112,24 +112,24 @@ struct boss_council_tribes : public BossAI
         }
     }
 
-    void EnterCombat(Unit* u) //override
+    void EnterCombat(Unit* u) override
     {
         switch (me->GetEntry())
         {
         case NPC_KULA_THE_BUTCHER:
-          //   _EnterCombat();
+             _EnterCombat();
              events.ScheduleEvent(EVENT_SEVERING_AXE, 5s);
              events.ScheduleEvent(EVENT_WHIRLING_AXES, 10s);
              break;
 
         case NPC_AKALI_THE_CONQUEROR:
-            // _EnterCombat();
+             _EnterCombat();
              events.ScheduleEvent(EVENT_DEBILATING_BACKHAND, 5s);
              events.ScheduleEvent(EVENT_BARREL_THROUGH, 10s);
              break;
 
         case NPC_ZANAZAL_THE_WISE:
-           //  _EnterCombat();
+             _EnterCombat();
              events.ScheduleEvent(EVENT_LIGHTNING_BOLT, 5s);
              events.ScheduleEvent(EVENT_POISON_NOVA, 10s);
              events.ScheduleEvent(EVENT_CALL_OF_THE_ELEMENTS, 15s);
@@ -157,7 +157,7 @@ struct boss_council_tribes : public BossAI
              break;
 
         case EVENT_BARREL_THROUGH:
-             if (Unit* tar = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.0f, true))
+             if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
              {
                 DoCast(tar, SPELL_BARREL_THROUGH);
                 me->GetScheduler().Schedule(8s, [this, tar] (TaskContext context)

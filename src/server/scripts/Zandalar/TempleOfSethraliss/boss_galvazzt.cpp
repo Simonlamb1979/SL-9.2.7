@@ -3,13 +3,13 @@
 #include "GameObjectAI.h"
 #include "temple_of_sethraliss.h"
 
+const Position pos = { };
+
 enum Spells
 {
     SPELL_CONSUME_CHARGE = 266512,
     SPELL_CAPACITANCE = 266511,
-    SPELL_INDUCTION = 265974,
     //Energy core
-    SPELL_BEAM = 265973,
     SPELL_ENERGY_CORE_VISUAL = 265977,
     SPELL_SUMMON_ENERGY_CORE = 274006,
     SPELL_ARC = 265986,
@@ -18,213 +18,121 @@ enum Spells
 
 enum Events
 {
-    EVENT_CHECK_ENERGY = 1,
-    EVENT_ENERGY_CORE,
-    EVENT_INDUCTION,
-
-    EVENT_CHECK_INBETWEEN,
+    EVENT_ENERGY_CORE = 1,
+    EVENT_CONSUME_CHARGE,
 };
 
-enum Timers
+//133389
+struct boss_galvazzt : public BossAI
 {
-    TIMER_CHECK_ENERGY = 1 * IN_MILLISECONDS,
-    TIMER_ENERGY_CORE = 15 * IN_MILLISECONDS,
-    TIMER_INDUCTION = 5 * IN_MILLISECONDS,
-
-    TIMER_CHECK_INBETWEEN = 1 * IN_MILLISECONDS,
-};
-
-enum Creatures
-{
-    BOSS_GALVAZZT = 133389,
-    NPC_ENERGY_CORE_BFA = 135445,
-};
-
-const Position centerPos = { 3704.30f, 3412.07f, 6.75f }; //30y
-
-class bfa_boss_galvazzt : public CreatureScript
-{
-public:
-    bfa_boss_galvazzt() : CreatureScript("bfa_boss_galvazzt")
+    boss_galvazzt(Creature* creature) : BossAI(creature, DATA_GALVAZZT) 
     {
+        me->RemoveUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);
     }
 
-    struct bfa_boss_galvazzt_AI : public BossAI
+private:
+    uint8 energyCore;
+
+    void Reset() override
     {
-        bfa_boss_galvazzt_AI(Creature* creature) : BossAI(creature, DATA_GALVAZZT), summons(me)
-        {
-            me->RemoveUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);
-            instance = me->GetInstanceScript();
-        }
+        BossAI::Reset();
+        me->SetPowerType(POWER_ENERGY);
+        me->SetMaxPower(POWER_ENERGY, 100);
+        me->SetPower(POWER_ENERGY, 0);
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_OCEAN);
+        this->energyCore = 0;
+    }
 
-        InstanceScript* instance;
-        EventMap events;
-        SummonList summons;
+    void EnterCombat(Unit* who) override
+    {
+        _EnterCombat();
+        events.ScheduleEvent(EVENT_ENERGY_CORE, 15s);
+    }
 
-        void Reset() override
-        {
-            events.Reset();
-            me->SetPowerType(POWER_ENERGY);
-            me->SetMaxPower(POWER_ENERGY, 100);
-            me->SetPower(POWER_ENERGY, 0);
-
-            summons.DespawnAll();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        }
-
-        void JustSummoned(Creature* summon) override
-        {
-            summons.Summon(summon);
-
-            switch (summon->GetEntry())
-            {
-            case NPC_ENERGY_CORE_BFA:
-                summon->SetUnitFlags(UNIT_FLAG_NON_ATTACKABLE);
-                summon->SetUnitFlags(UNIT_FLAG_NOT_SELECTABLE);
-                summon->AddUnitState(UNIT_STATE_ROOT);
-                summon->AddAura(SPELL_ENERGY_CORE_VISUAL, summon);
-                break;
-            }
-        }
-
-        void JustDied(Unit*) override
-        {
-            summons.DespawnAll();
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
-        }
-
-        void EnterEvadeMode(EvadeReason w) override
-        {
-            _DespawnAtEvade(15);
-        }
-
-        void EnterCombat(Unit*)// override
+    void ExecuteEvent(uint32 eventId) override
+    {
+        if (me->GetPower(POWER_ENERGY) == 100)
         {
             me->SetPower(POWER_ENERGY, 0);
-            instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-
-            events.ScheduleEvent(EVENT_CHECK_ENERGY, TIMER_CHECK_ENERGY);
-            events.ScheduleEvent(EVENT_INDUCTION, TIMER_INDUCTION);
-            events.ScheduleEvent(EVENT_ENERGY_CORE, TIMER_ENERGY_CORE);
+            me->CastSpell(nullptr, SPELL_CONSUME_CHARGE, false);
         }
-
-        void UpdateAI(uint32 diff) override
+        switch (eventId)
         {
-            events.Update(diff);
-
-            if (!UpdateVictim())
-                return;
-
-            if (me->HasUnitState(UNIT_STATE_CASTING))
-                return;
-
-            while (uint32 eventId = events.ExecuteEvent())
-            {
-                switch (eventId)
-                {
-                case EVENT_CHECK_ENERGY:
-                    if (me->GetPower(POWER_ENERGY) == 100)
-                    {
-                        me->CastSpell(me, SPELL_CONSUME_CHARGE);
-                        me->SetPower(POWER_ENERGY, 0);
-                    }
-
-                    events.ScheduleEvent(EVENT_CHECK_ENERGY, TIMER_CHECK_ENERGY);
-                    break;
-                case EVENT_INDUCTION:
-                {
-                    std::list<Player*> playerList;
-                    me->GetPlayerListInGrid(playerList, 100.0f);
-                    if (playerList.size())
-                    {
-                        for (auto player : playerList)
-                            me->CastSpell(player, SPELL_INDUCTION, true);
-                    }
-
-                    events.ScheduleEvent(EVENT_INDUCTION, TIMER_INDUCTION);
-                    break;
-                }
-                case EVENT_ENERGY_CORE:
-                    Position pos;
-                    pos = me->GetRandomNearPosition(20.0f);
-                    me->SummonCreature(NPC_ENERGY_CORE_BFA, pos, TEMPSUMMON_TIMED_DESPAWN);
-
-                    events.ScheduleEvent(EVENT_ENERGY_CORE, TIMER_ENERGY_CORE);
-                    break;
-                }
+        case EVENT_ENERGY_CORE:
+            for (uint8 i = 0; i < 3; i++)
+            {                
+                me->CastSpell(me->GetRandomNearPosition(20.0f), SPELL_SUMMON_ENERGY_CORE, true);
             }
-            DoMeleeAttackIfReady();
+            events.Repeat(15s, 30s);
+            break;
         }
-    };
+    }
 
-    CreatureAI* GetAI(Creature* creature) const override
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
-        return new bfa_boss_galvazzt_AI(creature);
+        me->DespawnCreaturesInArea(NPC_ENERGY_CORE, 125.0f);
+    }
+
+    void JustDied(Unit* u) override
+    {
+        _JustDied();
+        me->DespawnCreaturesInArea(NPC_ENERGY_CORE, 125.0f);
+        if (auto* GalvazztDoor = me->FindNearestGameObject(GO_GALVAZZT_EXIT, 100.0f))
+            GalvazztDoor->SetGoState(GO_STATE_ACTIVE);
     }
 };
 
-
-class bfa_npc_energy_core : public CreatureScript
+//135445
+struct npc_energy_core : public ScriptedAI
 {
-public:
-    bfa_npc_energy_core() : CreatureScript("bfa_npc_energy_core")
+    npc_energy_core(Creature* c) : ScriptedAI(c) { }
+
+private: 
+    uint32 Timer = 0;
+
+    void Reset() override
     {
+        ScriptedAI::Reset();
+        me->SetReactState(REACT_PASSIVE);
+        me->AddUnitFlag(UnitFlags(UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_IMMUNE_TO_NPC));
+        me->CastSpell(nullptr, SPELL_ENERGY_CORE_VISUAL, true);
+        me->CastSpell(nullptr, SPELL_ARC, true);
+        me->GetOwnerGUID();
     }
 
-    struct bfa_npc_energy_core_AI : public ScriptedAI
+    void Initialize()
     {
-        bfa_npc_energy_core_AI(Creature* creature) : ScriptedAI(creature)
-        {
-            me->SetReactState(REACT_PASSIVE);
-        }
+        Timer = 0;
+    }
 
-        uint32 timer;
-
-        void Reset() override
+    void UpdateAI(uint32 diff) override
+    {
+        if (Timer <= diff)
         {
-            timer = 0;
-        }
-
-        void UpdateAI(uint32 diff) override
-        {
-            if (timer <= diff)
+            if (Unit* owner = me->GetOwner())
             {
-                if (Creature* galvazzt = me->FindNearestCreature(NPC_GALVAZZT, 100.0f, true))
+                if (owner->IsInCombat())
                 {
-                    std::list<Player*> playerList;
-                    me->GetPlayerListInGrid(playerList, 100.0f);
-                    if (playerList.size())
+                    if (Player* player = me->SelectNearestPlayer(5.0f))
                     {
-                        for (auto player : playerList)
-                        {
-                            if (player->IsInBetween(me, galvazzt, 3.0f))
-                            {
-                                me->CastSpell(player, SPELL_GALVANIZE, true);
-                                me->CastSpell(player, SPELL_BEAM, true);
-                            }
-                            else
-                            {
-                                galvazzt->SetPower(POWER_ENERGY, galvazzt->GetPower(POWER_ENERGY) + urand(1, 5));
-                                me->CastSpell(galvazzt, SPELL_BEAM, true);
-                            }
-                        }
+                        me->CastSpell(player, SPELL_GALVANIZE, true);
+                        return;
+                    }
+                    else
+                    {
+                        if (Creature* galvazzt = me->FindNearestCreature(NPC_GALVAZZT, 100.0f, true))                            
+                            galvazzt->ModifyPower(POWER_ENERGY, +1);
                     }
                 }
-                timer = 1500;
+                Timer = 1000;
             }
-            else timer -= diff;
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new bfa_npc_energy_core_AI(creature);
+        else Timer -= diff;
     }
 };
 
 void AddSC_boss_galvazzt()
 {
-    new bfa_boss_galvazzt();
-
-    new bfa_npc_energy_core();
+    RegisterCreatureAI(boss_galvazzt);
+    RegisterCreatureAI(npc_energy_core);
 }

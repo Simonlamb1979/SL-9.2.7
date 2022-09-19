@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -225,7 +224,7 @@ class boss_zorlok : public CreatureScript
             bool isAttEcho;
             bool isFaVEcho;
             bool hasSummonedLastEcho;
-
+            
             void Reset() override
             {
                 events.Reset();
@@ -320,8 +319,8 @@ class boss_zorlok : public CreatureScript
             {
                 isFlying = true;
                 me->AttackStop();
-                ResetThreatList();
-                me->GetThreatManager().clearReferences();
+                me->DeleteThreatList();
+                me->getThreatManager().clearReferences();
                 me->SetCanFly(true);
                 me->SetReactState(REACT_PASSIVE);
                 me->HandleEmoteCommand(EMOTE_ONESHOT_LIFTOFF);
@@ -510,7 +509,7 @@ class boss_zorlok : public CreatureScript
                     me->RemoveAura(SPELL_SONG_OF_THE_EMPRESS);
 
                 // Start attacking player
-                AddThreat(attacker, 0.0f);
+                me->AddThreat(attacker, 0.0f);
             }
 
             void KilledUnit(Unit* victim) override
@@ -906,7 +905,7 @@ class boss_zorlok : public CreatureScript
 
                 if (!isFlying && (!target || me->GetDistance(target) > 5.0f) && !me->HasUnitState(UNIT_STATE_CASTING))
                     me->CastSpell(me, SPELL_SONG_OF_THE_EMPRESS, true);
-
+                
                 switch (events.ExecuteEvent())
                 {
                     // All-time events

@@ -1206,7 +1206,7 @@ class spell_malkorok_ancient_miasma_heal_absorb : public SpellScriptLoader
                     else if (absorbAmount < GetUnitOwner()->GetMaxHealth())
                         basePoints = absorbAmount;
 
-                    GetUnitOwner()->CastCustomSpell(GetUnitOwner(), SPELL_ANCIENT_BARRIER, &basePoints, nullptr, true);
+                    GetUnitOwner()->CastCustomSpell(GetUnitOwner(), SPELL_ANCIENT_BARRIER, &basePoints, NULL, NULL, true);
                 }
             }
 
@@ -1372,14 +1372,12 @@ class spell_malkorok_displaced_energy : public SpellScriptLoader
                     uint8 targetsCount = pCreature->GetMap()->Is25ManRaid() ? 4 : 2;
                     std::list<Unit*> newTargets;
                     pCreature->AI()->SelectTargetList(newTargets, DisplacedEnergyTargetSelector(pCreature), targetsCount, SELECT_TARGET_RANDOM);
-                    if (!newTargets.empty())
-                    {
-                        for (auto target : newTargets)
-                            targets.push_back(target);
 
-                        if (targets.size() > targetsCount)
-                            Trinity::Containers::RandomResize(targets, targetsCount);
-                    }
+                    for (auto target : newTargets)
+                        targets.push_back(target);
+
+                    if (targets.size() > targetsCount)
+                        Trinity::Containers::RandomResize(targets, targetsCount);
                 }
             }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -68,11 +68,11 @@ struct boss_viqgoth : public BossAI
 
 	void EnterEvadeMode(EvadeReason why) override
 	{
-		if (me->GetThreatManager().isThreatListEmpty() && this->encountered == 1 && me->HealthAbovePct(1) && instance->GetBossState(DATA_VIQGOTH == IN_PROGRESS))
+		if (me->getThreatManager().isThreatListEmpty() && this->encountered == 1 && me->HealthAbovePct(1) && instance->GetBossState(DATA_VIQGOTH == IN_PROGRESS))
 		{
 			if (Creature* viqgoth = me->FindNearestCreature(NPC_VIQGOTH, 100.0f, true))
 			{
-				//viqgoth->GetScheduler().Schedule(1s, [viqgoth] (TaskContext context)
+				viqgoth->GetScheduler().Schedule(1s, [viqgoth] (TaskContext context)
 				{
 					viqgoth->AI()->JustReachedHome();
 					viqgoth->ForcedDespawn(1, 5s);
@@ -83,7 +83,7 @@ struct boss_viqgoth : public BossAI
 					{						
 						creatures->AI()->EnterEvadeMode();
 					}					
-				}//);					
+				});					
 				std::list<Creature*> c_list;
 				viqgoth->GetCreatureListWithEntryInGrid(c_list, NPC_DEMOLISHING_TERROR, 250.0f);
 				viqgoth->GetCreatureListWithEntryInGrid(c_list, NPC_GRIPPING_TERROR, 250.0f);
@@ -94,9 +94,9 @@ struct boss_viqgoth : public BossAI
 		}		
 	}
 
-	void JustEngagedWith(Unit* u) override
+	void EnterCombat(Unit* u) override
 	{
-		_JustEngagedWith();
+		_EnterCombat();
 		//events.ScheduleEvent(EVENT_ERADICATION, 3s);
 		events.ScheduleEvent(EVENT_PUTRID_WATERS, 6s);
 		instance->SetBossState(DATA_VIQGOTH, IN_PROGRESS);
@@ -161,13 +161,13 @@ struct npc_demolishing_terror : public ScriptedAI
 	void Reset() override
 	{
 		ScriptedAI::Reset();
-		//events.ScheduleEvent(EVENT_HULLCRACKER, 1s);
+		events.ScheduleEvent(EVENT_HULLCRACKER, 1s);
 	}
 
-	void JustEngagedWith(Unit* u) override
+	void EnterCombat(Unit* u) override
 	{
-		//instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-		//events.ScheduleEvent(EVENT_SLAM, 1s);
+		instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
+		events.ScheduleEvent(EVENT_SLAM, 1s);
 
 		if (Creature* viqgoth = me->FindNearestCreature(NPC_VIQGOTH, 100.0f, true))
 		{
@@ -182,14 +182,14 @@ struct npc_demolishing_terror : public ScriptedAI
 				{
 					if (gripping_terror->GetDistance(me) > 45.0f && gripping_terror->GetDistance(me) < 50.0f)
 					{
-						//instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, gripping_terror);
+						instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, gripping_terror);
 					}					
 				}
 			}
 		}
 	}
 
-	void ExecuteEvent(uint32 eventid) //override
+	void ExecuteEvent(uint32 eventid) override
 	{
 		switch (eventid)
 		{
@@ -198,7 +198,7 @@ struct npc_demolishing_terror : public ScriptedAI
 			{
 				DoCastAOE(SLAM, false);
 			}
-			//events.Repeat(15s);	
+			events.Repeat(15s);	
 			break;
 
 		case EVENT_HULLCRACKER:
@@ -206,7 +206,7 @@ struct npc_demolishing_terror : public ScriptedAI
 			{
 				DoCast(HULLCRACKER);
 			}
-		//	events.Repeat(17s);
+			events.Repeat(17s);
 			break;	
 
 		default:
@@ -216,7 +216,7 @@ struct npc_demolishing_terror : public ScriptedAI
 
 	void JustDied(Unit* u) override
 	{		
-	//	instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
+		instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 	}
 };
 
@@ -230,7 +230,7 @@ struct npc_cannon_viq : public ScriptedAI
 
 	}
 
-	bool GossipHello(Player* player) override
+	void sGossipHello(Player* player)
 	{	
 		CloseGossipMenuFor(player);
 		//me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
@@ -249,17 +249,17 @@ struct npc_cannon_viq : public ScriptedAI
 
 			if (this->cannon_count == 3)
 			{				
-				//events.CancelEvent(EVENT_PUTRID_WATERS);
+				events.CancelEvent(EVENT_PUTRID_WATERS);
 				if (Creature* viqgoth = me->FindNearestCreature(NPC_VIQGOTH, 100.0f, true))
 				{					
 					if (viqgoth->IsAlive())
 					{	
 						viqgoth->AI()->JustDied(nullptr);
-						//events.CancelEvent(EVENT_PUTRID_WATERS);
-						//events.CancelEvent(EVENT_ERADICATION);
+						events.CancelEvent(EVENT_PUTRID_WATERS);
+						events.CancelEvent(EVENT_ERADICATION);
 						viqgoth->SetReactState(REACT_PASSIVE);
-						//instance->SetBossState(DATA_VIQGOTH, DONE);	
-						//instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, viqgoth);
+						instance->SetBossState(DATA_VIQGOTH, DONE);	
+						instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, viqgoth);
 						viqgoth->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
 						viqgoth->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 						viqgoth->RemoveAllAuras();
@@ -268,10 +268,10 @@ struct npc_cannon_viq : public ScriptedAI
 						viqgoth->SetSpeedRate(MOVE_SWIM, 1.5f);
 						viqgoth->UpdateSpeed(MOVE_SWIM);
 						viqgoth->GetMotionMaster()->MovePoint(1, 84.71f, -268.0f, -3.48f, true);				
-					//	viqgoth->DespawnCreaturesInArea(NPC_DEMOLISHING_TERROR);
-					//	viqgoth->DespawnCreaturesInArea(NPC_GRIPPING_TERROR);
-					//	viqgoth->DespawnCreaturesInArea(NPC_CANNON_VIQ_ENCOUNTER);						
-					//	instance->SendBossKillCredit(ENCOUNTER_ID);
+						viqgoth->DespawnCreaturesInArea(NPC_DEMOLISHING_TERROR);
+						viqgoth->DespawnCreaturesInArea(NPC_GRIPPING_TERROR);
+						viqgoth->DespawnCreaturesInArea(NPC_CANNON_VIQ_ENCOUNTER);						
+						instance->SendBossKillCredit(ENCOUNTER_ID);
 						viqgoth->DespawnOrUnsummon(20s);
 						std::list<Player*> p_li;
 						viqgoth->GetPlayerListInGrid(p_li, 500.0f);
@@ -279,38 +279,36 @@ struct npc_cannon_viq : public ScriptedAI
 						{
 							players->KilledMonsterCredit(viqgoth->GetEntry());
 						}						
-						//if (Creature* jaina = me->FindNearestCreature(NPC_JAINA_SOB_ALI_OUTRO_ALI, 100.0f, true))
-						//{
-						//	jaina->SetVisible(true);
-							//if (jaina->IsAlive())
-							//{
-								//jaina->GetScheduler().Schedule(3s, [jaina] (TaskContext context)
-								//{
-								//	jaina->AI()->Talk(SAY_OUTRO_1);
-								//}//);
+						if (Creature* jaina = me->FindNearestCreature(NPC_JAINA_SOB_ALI_OUTRO_ALI, 100.0f, true))
+						{
+							jaina->SetVisible(true);
+							if (jaina->IsAlive())
+							{
+								jaina->GetScheduler().Schedule(3s, [jaina] (TaskContext context)
+								{
+									jaina->AI()->Talk(SAY_OUTRO_1);
+								});
 								
-							//	jaina->GetScheduler().Schedule(9s, [jaina] (TaskContext context)
-							//	{
-								//	jaina->AI()->Talk(SAY_OUTRO_2);
-								//}//);
+								jaina->GetScheduler().Schedule(9s, [jaina] (TaskContext context)
+								{
+									jaina->AI()->Talk(SAY_OUTRO_2);
+								});
 
-								//jaina->GetScheduler().Schedule(10s, [jaina] (TaskContext context)
-								//{								
-								//	jaina->SummonGameObject(GO_TREASURE_RICH_FLOTSAM, 226.745f, -180.668f, 0.607619f, 0.0166253f, QuaternionData(), false);
-								//}//);
+								jaina->GetScheduler().Schedule(10s, [jaina] (TaskContext context)
+								{								
+									jaina->SummonGameObject(GO_TREASURE_RICH_FLOTSAM, 226.745f, -180.668f, 0.607619f, 0.0166253f, QuaternionData(), false);
+								});
 
-							//	if (IsMythic() && instance->IsChallengeModeStarted())
-							//	{
-							//		jaina->SummonGameObject(GO_CHALLENGERS_CACHE_BORALUS, 230.170f, -181.269f, 0.581000f, 3.05467f, QuaternionData(), false);								
-							//	}
-							//}
+								if (IsMythic() && instance->IsChallengeModeStarted())
+								{
+									jaina->SummonGameObject(GO_CHALLENGERS_CACHE_BORALUS, 230.170f, -181.269f, 0.581000f, 3.05467f, QuaternionData(), false);								
+								}
+							}
 						}
-					//}
+					}
 				}
 			}
 		}
-
-      //  return true;
 	}
 
 private:
@@ -329,7 +327,7 @@ struct npc_jaina_sob_outro_ali : public ScriptedAI
 		me->SetVisible(false);
 	}
 
-	bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+	void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
 	{
 		if (player->GetTeam() != HORDE)
 		{			
@@ -341,11 +339,9 @@ struct npc_jaina_sob_outro_ali : public ScriptedAI
 			CloseGossipMenuFor(player);
 			player->TeleportTo(1643, -313.0f, -1571.0f, 0.75f, 0.7f);
 		}
-
-        return true;
 	}
 
-	void UpdateAI(uint32 diff) override
+	void UpdateAI(uint32 diff)
 	{
 		scheduler.Update(diff);
 	}

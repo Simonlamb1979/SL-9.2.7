@@ -1,5 +1,5 @@
 /*
-* Copyright 2021 ShadowCore
+* Copyright (C) 2021 BfaCore Reforged
 *
 * This program is free software; you can redistribute it and/or modify it
 * under the terms of the GNU General Public License as published by the
@@ -95,9 +95,9 @@ public:
         return new npc_velen_shadowmoon_beginAI(creature);
     }
 
-    struct npc_velen_shadowmoon_beginAI : public EscortAI
+    struct npc_velen_shadowmoon_beginAI : public npc_escortAI
     {
-        npc_velen_shadowmoon_beginAI(Creature* creature) : EscortAI(creature) { }
+        npc_velen_shadowmoon_beginAI(Creature* creature) : npc_escortAI(creature) { }
 
         ObjectGuid playerGuid;
 
@@ -132,9 +132,9 @@ public:
         return new npc_velen_shadowmoon_followerAI(creature);
     }
 
-    struct npc_velen_shadowmoon_followerAI : public EscortAI
+    struct npc_velen_shadowmoon_followerAI : public npc_escortAI
     {
-        npc_velen_shadowmoon_followerAI(Creature* creature) : EscortAI(creature) { }
+        npc_velen_shadowmoon_followerAI(Creature* creature) : npc_escortAI(creature) { }
 
         void SetGUID(ObjectGuid guid, int32 /*id*/) override
         {
@@ -173,7 +173,7 @@ struct npc_vindicator_maraad_79470 : public ScriptedAI
 {
     npc_vindicator_maraad_79470(Creature* c) : ScriptedAI(c) { }
 
-    void QuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) override
     {
         if (quest->ID == QUEST_FOR_THE_ALLIANCE)
             player->ForceCompleteQuest(QUEST_FOR_THE_ALLIANCE);

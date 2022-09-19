@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,11 +66,6 @@ void AddSC_boss_viqgoth();
 void AddSC_siege_of_boralus();
 void AddSC_instance_siege_of_boralus();
 
-// Crucible Of Storms
-void AddSC_bfa_boss_restless_cabal();
-void AddSC_instance_crucible_of_storms();
-void AddSC_bfa_boss_uunat();
-
 // The name of this function should match:
 // void Add${NameOfDirectory}Scripts()
 void AddKulTirasScripts()
@@ -124,9 +119,4 @@ void AddKulTirasScripts()
     AddSC_boss_viqgoth();
     AddSC_siege_of_boralus();
     AddSC_instance_siege_of_boralus();
-
-    // Crucible of Storms
-    AddSC_bfa_boss_restless_cabal();
-    AddSC_instance_crucible_of_storms();
-    AddSC_bfa_boss_uunat();
 }

@@ -84,7 +84,7 @@ public:
         EventMap events;
         InstanceScript* instance;
 
-        void Reset() override
+        void Reset()
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             events.Reset();
@@ -102,21 +102,44 @@ public:
                     (*itr)->DespawnOrUnsummon();
         }
 
-        void JustDied(Unit*) override
+        bool CheckCheaters()
+        {
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+                if (Player* player = i->GetSource())
+                {
+                    if (!player->IsGameMaster()) //gm check
+                    {
+                        if (me->GetDistance(centerZone.GetPositionX(), centerZone.GetPositionY(), centerZone.GetPositionZ()) >= 80.0f)
+                        {
+                            me->Kill(player, false);
+                            std::ostringstream str;
+                            str << "CHEATERS!";
+                            me->TextEmote(str.str().c_str(), 0, true);
+                            return false;
+                        }
+                    }
+
+                }
+
+            return true;
+        }
+
+        void JustDied(Unit*)
         {
             DespawnCreature(NPC_BLOOD_TICK);
             DespawnCreature(NPC_LARVES);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode(EvadeReason why)
         {
             DespawnCreature(NPC_BLOOD_TICK);
             DespawnCreature(NPC_LARVES);
             _DespawnAtEvade(15);
         }
 
-        void MovementInform(uint32 uiType, uint32 id) override
+        void MovementInform(uint32 uiType, uint32 id)
         {
             switch (id)
             {
@@ -172,7 +195,7 @@ public:
 
                 // main spell has 12 missiles
                 for (uint8 i = 0; i < 12; ++i)
-                    me->CastSpell(/*Myx + urand(2, 10) , Myy - urand(2, 10), me->GetPositionZ(), */SPELL_BLOOD_TICK_SPELL_DEST, true);
+                    me->CastSpell(Myx + urand(2, 10) , Myy - urand(2, 10), me->GetPositionZ(), SPELL_BLOOD_TICK_SPELL_DEST, true);
 
             }
             else
@@ -187,12 +210,12 @@ public:
                 y = me->GetVictim()->GetPositionY();
 
                 for (uint8 i = 0; i < 4; ++i)
-                    me->CastSpell(/*x + urand(3, 5), y - urand(3,7), me->GetPositionZ(), */SPELL_BLOOD_TICK_SPELL_DEST, true);
+                    me->CastSpell(x + urand(3, 5), y - urand(3,7), me->GetPositionZ(), SPELL_BLOOD_TICK_SPELL_DEST, true);
 
             }
         }
 
-        void EnterCombat(Unit*) //override
+        void EnterCombat(Unit*)
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
@@ -207,7 +230,7 @@ public:
                 events.ScheduleEvent(EVENT_ENERGY_REGEN, TIMER_ENERGY_REGEN);
         }
 
-        void OnSpellFinished(SpellInfo const* spellInfo) //override
+        void OnSpellFinished(SpellInfo const* spellInfo) override
         {
             switch (spellInfo->Id)
             {
@@ -220,7 +243,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -229,6 +252,9 @@ public:
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
+
+            if (me->IsInCombat())
+                CheckCheaters();
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -295,14 +321,14 @@ public:
 
         EventMap events;
 
-        void Reset() override
+        void Reset()
         {
             me->NearTeleportTo(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ() + 2.0f, me->GetOrientation()); //safety
             events.ScheduleEvent(EVENT_METAMORPHOSIS, TIMER_METAMORPHOSIS);
             me->CastSpell(me, SPELL_LARVA_SUMMON_VISUAL, true);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -356,17 +382,17 @@ public:
 
         EventMap events;
 
-        void Reset() override
+        void Reset()
         {
             events.Reset();
         }
 
-        void EnterCombat(Unit*) //override
+        void EnterCombat(Unit*)
         {
             events.ScheduleEvent(EVENT_SERRATED_FANGS, TIMER_SERRATED_FANGS);
         }
 
-        void DamageTaken(Unit* killer, uint32& damage) override
+        void DamageTaken(Unit* killer, uint32& damage)
         {
             if (damage >= me->GetHealth())
             {
@@ -375,7 +401,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 

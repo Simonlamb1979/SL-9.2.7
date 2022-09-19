@@ -16,7 +16,7 @@ struct instance_temple_of_sethraliss : public InstanceScript
     instance_temple_of_sethraliss(InstanceMap* map) : InstanceScript(map)
     {
         SetHeaders(DataHeader);
-        //SetBossNumber(EncounterCount);
+        SetBossNumber(EncounterCount);
     }
 
     void Initialize() override

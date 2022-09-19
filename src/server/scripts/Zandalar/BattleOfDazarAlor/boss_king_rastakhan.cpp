@@ -136,7 +136,7 @@ private:
         case NPC_PHANTOM_OF_RAGE:
         case NPC_PHANTOM_OF_RETRIBUTION:
         case NPC_HEADHUNTER_GALWANA:
-            summon->AddAura(SPELL_UNDYING_RELENTLESSNESS, me);
+            summon->AddAura(SPELL_UNDYING_RELENTLESSNESS);
             break;
         }
     }
@@ -171,8 +171,8 @@ private:
                 bwonsamdi->CastSpell(me, SPELL_BWONSAMDIS_BOON, false);                
                 me->GetScheduler().Schedule(5300ms, [this](TaskContext context)
                 {
-                    me->AddAura(SPELL_BWONSAMDIS_BOON_BUFF, me);
-                    me->AddAura(SPELL_ALL_ENCOMPASSING_DEATH, me);
+                    me->AddAura(SPELL_BWONSAMDIS_BOON_BUFF);
+                    me->AddAura(SPELL_ALL_ENCOMPASSING_DEATH);
                     me->SetDisplayId(me->GetNativeDisplayId());
                 });
                 bwonsamdi->GetScheduler().Schedule(6000ms, [bwonsamdi](TaskContext context)
@@ -225,9 +225,9 @@ private:
         }
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
-     //   _EnterCombat();
+        _EnterCombat();
         this->phase = 1;
         if (IsHeroic() || IsMythic())
             events.ScheduleEvent(SPELL_GREATER_SERPENT_TOTEM_SUMMON, 5s);
@@ -235,14 +235,14 @@ private:
         events.ScheduleEvent(SPELL_PLAGUE_TOADS_CAST, 10s);
     }
 
-    void OnSpellFinished(SpellInfo const* spellInfo)// override
+    void OnSpellFinished(SpellInfo const* spellInfo) override
     {
         switch (spellInfo->Id)
         {
         case SPELL_PLAGUE_OF_FIRE_CAST:
         {
             UnitList tarlist;
-          //  SelectTargetList(tarlist, 3, SELECT_TARGET_RANDOM, 100.0f, true);
+            SelectTargetList(tarlist, 3, SELECT_TARGET_RANDOM, 100.0f, true);
             for (Unit* targets : tarlist)
             {
                 me->CastSpell(targets, SPELL_PLAGUE_OF_FIRE_AURA, true);
@@ -258,16 +258,16 @@ private:
         {
         case SPELL_SCORCHING_DETONATION_DUMMY_DAMAGE_AURA:
             Talk(1);
-            if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.f, true))      
+            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.f, true))      
             {
                 me->CastSpell(target, SPELL_SCORCHING_DETONATION_DUMMY_DAMAGE_AURA, false);
-              //  target->GetScheduler().Schedule(5100ms, [this, target](TaskContext context)
+                target->GetScheduler().Schedule(5100ms, [this, target](TaskContext context)
                 {
                     if (target)
                         return;
 
                     me->CastSpell(target, SPELL_SCORCHING_DETONATION_EXPLOSION, true);
-                }//);
+                });
             }
             events.Repeat(20s);
             break;
@@ -404,16 +404,16 @@ private:
         switch (spellInfo->Id)
         {
         case SPELL_METEOR_LEAP_DAMAGE:
-            target->AddAura(SPELL_CRUSHED, target);
+            target->AddAura(SPELL_CRUSHED);
             break;
 
         case SPELL_CRUSHING_LEAP_DAMAGE:
-            target->AddAura(SPELL_CRUSHED, target);
+            target->AddAura(SPELL_CRUSHED);
             break;
         }
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         switch (me->GetEntry())
         {
@@ -426,7 +426,7 @@ private:
             if (Creature* rastakhan = GetRastakhan())
             {
                 rastakhan->AI()->Talk(0);
-                rastakhan->AddAura(SPELL_BIND_SOULS, rastakhan);
+                rastakhan->AddAura(SPELL_BIND_SOULS);
                 rastakhan->SetWalk(true);
                 rastakhan->GetMotionMaster()->MovePoint(1, -1232.270f, 805.715f, 351.649f, 0.000f);
             }
@@ -448,23 +448,23 @@ private:
     }
 
 
-    void OnSpellFinished(SpellInfo const* spellInfo) //override
+    void OnSpellFinished(SpellInfo const* spellInfo) override
     {
         switch (spellInfo->Id)
         {
         case SPELL_METEOR_LEAP:
-            if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.f, true))
                 me->CastSpell(target, SPELL_CRUSHING_LEAP_JUMP, true);
             break;
         }
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
         case SPELL_METEOR_LEAP:
-            if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 100.f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.f, true))
                 me->CastSpell(target, SPELL_METEOR_LEAP, false);
             events.Repeat(25s);
             break;
@@ -519,9 +519,6 @@ private:
             if (Creature* rastakhan = GetRastakhan())
                 rastakhan->AI()->DoAction(ACTION_PHASE_TWO);
     }
-    private:
-        InstanceScript* instance;
-        EventMap events;
 };
 
 //20000, 286537
@@ -537,7 +534,7 @@ struct at_seal_of_purification : public AreaTriggerAI
 
         Position movePos = caster->GetPosition();
         at->MovePosition(movePos, 30.0f, 0.0f);
-      //  at->SetDestination(movePos, 10000);
+        at->SetDestination(movePos, 10000);
         at->SetDuration(10000);
     }
 
@@ -567,14 +564,14 @@ struct at_dread_reaping : public AreaTriggerAI
 
         Position moveRandom = at->GetRandomNearPosition(30.0f);
         at->MovePosition(moveRandom, 30.0f, 0.0f);
-     //   at->SetDestination(moveRandom, 10000);
+        at->SetDestination(moveRandom, 10000);
     }
 
     void OnDestinationReached() override
     { 
         Position moveRandom = at->GetRandomNearPosition(30.0f);
         at->MovePosition(moveRandom, 30.0f, 0.0f);
-        //at->SetDestination(moveRandom, 10000);
+        at->SetDestination(moveRandom, 10000);
     }
 
     void OnCreate() override
@@ -651,8 +648,8 @@ private:
         ScriptedAI::Reset();
         me->SetReactState(REACT_DEFENSIVE);
         me->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC | UNIT_FLAG_NOT_SELECTABLE));
-        me->AddAura(SPELL_UNLIVING_PASSIVE, me);
-        me->AddAura(SPELL_AURA_OF_DEATH_MAIN, me);
+        me->AddAura(SPELL_UNLIVING_PASSIVE);
+        me->AddAura(SPELL_AURA_OF_DEATH_MAIN);
         me->SetHover(true);
         IsInPhaseFour = false;
     }
@@ -665,15 +662,15 @@ private:
         if (target->IsPlayer() && target->GetDistance2d(me) <= 30.0f && !target->HasAura(SPELL_AURA_OF_DEATH))
         {
             me->AddAura(SPELL_AURA_OF_DEATH, target);
-           // target->GetScheduler().Schedule(100ms, [this, target](TaskContext context)
+            target->GetScheduler().Schedule(100ms, [this, target](TaskContext context)
             {
                 if (!target)
                     return;
 
                 me->AddAura(SPELL_DEATHLY_WITHERING, target);
-               // if (target->HasAura(SPELL_AURA_OF_DEATH))
-                //    context.Repeat(3s);
-            }//);
+                if (target->HasAura(SPELL_AURA_OF_DEATH))
+                    context.Repeat(3s);
+            });
         }
 
         if (target->IsPlayer() && target->GetDistance2d(me) >= 30.0f && target->HasAura(SPELL_AURA_OF_DEATH))
@@ -717,24 +714,24 @@ private:
         }
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(SPELL_AURA_OF_DEATH_MAIN, 100s);
         events.ScheduleEvent(SPELL_CARESS_OF_DEATH, 7s);
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
         case SPELL_AURA_OF_DEATH_MAIN:
-            me->AddAura(SPELL_AURA_OF_DEATH_MAIN, me);
+            me->AddAura(SPELL_AURA_OF_DEATH_MAIN);
             break;
         case SPELL_CARESS_OF_DEATH:
             if (roll_chance_f(15))
                 Talk(2);
-            if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.0f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                 me->CastSpell(target, SPELL_CARESS_OF_DEATH, false);
             events.Repeat(20s);
             break;
@@ -745,9 +742,6 @@ private:
     {
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
     }
-    private:
-        InstanceScript* instance;
-        EventMap events;
 };
 
 //288449
@@ -783,7 +777,7 @@ struct npc_phantom_generic : public ScriptedAI
         ScriptedAI::Reset();
     }
 
-    void EnterCombat(Unit* /*who*/)// override
+    void EnterCombat(Unit* /*who*/) override
     {
         switch (me->GetEntry())
         {
@@ -811,7 +805,7 @@ struct npc_phantom_generic : public ScriptedAI
         }
     }
 
-    void ExecuteEvent(uint32 eventId)// override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -833,8 +827,6 @@ struct npc_phantom_generic : public ScriptedAI
             break;
         }
     }
-private:
-    EventMap events;
 };
 
 //146731,146766
@@ -859,7 +851,7 @@ struct npc_king_rastakhan_static_generic : public ScriptedAI
         }
     }
 
-    void EnterCombat(Unit* /*who*/)// override
+    void EnterCombat(Unit* /*who*/) override
     {
         switch (me->GetEntry())
         {
@@ -873,7 +865,7 @@ struct npc_king_rastakhan_static_generic : public ScriptedAI
         }
     }
 
-    void ExecuteEvent(uint32 eventId)//override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -888,8 +880,6 @@ struct npc_king_rastakhan_static_generic : public ScriptedAI
             break;
         }
     }
-private:
-    EventMap events;
 };
 
 //146695,146698,146700
@@ -970,15 +960,15 @@ class aura_bwonsamdis_toon : public AuraScript
         if (Unit* caster = GetCaster())
             if (Unit* target = GetTarget())
             {
-                //target->GetScheduler().Schedule(100ms, [target](TaskContext context)
+                target->GetScheduler().Schedule(100ms, [target](TaskContext context)
                 {
                     if (!target)
                         return;
 
-                    target->AddAura(SPELL_BWONSAMDIS_BOON_BUFF, target);
+                    target->AddAura(SPELL_BWONSAMDIS_BOON_BUFF);
 
-                  //  context.Repeat(3s);
-                }//);
+                    context.Repeat(3s);
+                });
             }
     }
 

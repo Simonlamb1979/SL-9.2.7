@@ -214,7 +214,7 @@ static void WiningConditionRocketsparkAndBurka(InstanceScript* p_Instance, Creat
             if (l_Borka->isDead() || l_Rocketspark->isDead())
             {
                 p_Instance->SetBossState(GrimrailDepotData::DataRocketspark, EncounterState::DONE);
-                l_Rocketspark->SetLootRecipient(l_Killer);
+                l_Rocketspark->AddLootRecipient(l_Killer);
             }
         }
     }
@@ -991,7 +991,7 @@ class grimrail_depot_rocketspark_spell_new_plan : public SpellScriptLoader
     }
 };
 
-void AddSC_RocketsparkandBorka()
+void AddSC_boss_rocketspark_and_borka()
 {
     new boss_rocketspark();                                            ///< 77803
     new grimrail_depot_rocketspark_mob_borka();                        ///< 86226

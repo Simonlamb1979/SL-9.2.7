@@ -1,19 +1,3 @@
-/*
- * Copyright 2021 FuzionCore Project
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
 #include "GameObjectAI.h"
 #include "GridNotifiers.h"
 #include "ScriptMgr.h"
@@ -393,7 +377,7 @@ public:
                         me->AddAura(SPELL_SHA_CORRUPTION, kaolan);
                     }
 
-                    me->SetLootRecipient(nullptr);
+                    me->ResetLootRecipients();
                     break;
                 }
                 case 1:
@@ -410,7 +394,7 @@ public:
                         kaolan->AI()->Talk(TALK_REGAIL_DIES_SECOND_KAOLAN);
                     }
 
-                    me->SetLootRecipient(nullptr);
+                    me->ResetLootRecipients();
                     break;
                 }
                 case 0:
@@ -697,7 +681,7 @@ public:
                         me->AddAura(SPELL_SHA_CORRUPTION, kaolan);
                     }
 
-                    me->SetLootRecipient(nullptr);
+                    me->ResetLootRecipients();
                     break;
                 }
                 case 1:
@@ -714,7 +698,7 @@ public:
                         kaolan->AI()->Talk(TALK_ASANI_DIES_SECOND_KAOLAN);
                     }
 
-                    me->SetLootRecipient(nullptr);
+                    me->ResetLootRecipients();
                     break;
                 }
                 case 0:
@@ -1029,7 +1013,7 @@ public:
                         me->AddAura(SPELL_SHA_CORRUPTION, asani);
                     }
 
-                    me->SetLootRecipient(nullptr);
+                    me->ResetLootRecipients();
                     break;
                 }
                 case 1:
@@ -1044,7 +1028,7 @@ public:
                         asani->AI()->DoAction(ACTION_SECOND_PROTECTOR_DIED);
                     }
 
-                    me->SetLootRecipient(nullptr);
+                    me->ResetLootRecipients();
                     break;
                 }
                 case 0:

@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -364,7 +363,7 @@ class boss_tayak : public CreatureScript
                     me->RemoveAura(SPELL_VISINTRO_TAYAK);
 
                 //me->DisableEvadeMode();
-                me->SetRegenerateHealth(false);
+                me->DisableHealthRegen();
                 _EnterCombat();
             }
 
@@ -393,7 +392,7 @@ class boss_tayak : public CreatureScript
 
                 me->RemoveAllAuras();
                 Reset();
-                ResetThreatList();
+                me->DeleteThreatList();
                 me->CombatStop(false);
                 me->GetMotionMaster()->MoveTargetedHome();
 
@@ -594,7 +593,7 @@ class boss_tayak : public CreatureScript
                         {
                             // Store current victim to return to it afterwards
                             currentTank = me->GetVictim() ? me->GetVictim()->GetGUID() : ObjectGuid::Empty;
-                            if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 50.0f, true))
+                            if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 50.0f, true))
                                 DoCast(target, SPELL_WIND_STEP_TP);
                             events.ScheduleEvent(EVENT_WIND_STEP_RETURN, 1000);
                             events.ScheduleEvent(EVENT_TAYAK_WIND_STEP, urand(24000, 26000));
@@ -718,7 +717,7 @@ class boss_tayak : public CreatureScript
 
             void SetAggro()
             {
-                if (Unit* victim = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                if (Unit* victim = SelectTarget(SELECT_TARGET_TOPAGGRO))
                 {
                     AttackStart(victim);
                     me->SetInCombatWith(victim);
@@ -810,7 +809,7 @@ class npc_tempest_slash_tornado : public CreatureScript
                 if (events.ExecuteEvent() == EVENT_STORM_MOVE)
                 {
                     float x, y, z;
-                    me->GetClosePoint(x, y, z, me->GetCombatReach() / 3, frand(5.0f, 30.0f));
+                    me->GetClosePoint(x, y, z, me->GetObjectSize() / 3, frand(5.0f, 30.0f));
                     me->GetMotionMaster()->MovePoint(8, x, y, z);
                 }
             }
@@ -1010,7 +1009,7 @@ class mob_gale_winds_stalker : public CreatureScript
                                 GetPlayerListInGrid(playerList, me, 200.0f);
 
                                 for (Player* player : playerList)
-                                    player->RemoveAllMovementForces();
+                                    player->RemoveMovementForce(me->GetGUID());
                             }
 
                             isActive = false;
@@ -1045,12 +1044,12 @@ class mob_gale_winds_stalker : public CreatureScript
                                 player->ApplyMovementForce(me->GetGUID(), pos, -7.0f, 0);
                             // Dead player has forcedMovement
                             else if (!player->IsAlive())
-                                player->RemoveAllMovementForces();
+                                player->RemoveMovementForce(me->GetGUID());
                         }
                         // player not in wind gale
                         else
                         {
-                            player->RemoveAllMovementForces();
+                            player->RemoveMovementForce(me->GetGUID());
                         }
                     }
                 }
@@ -1492,7 +1491,7 @@ void AddSC_boss_tayak()
     new mob_gale_winds_stalker();           // 63292
     new spell_wind_step();                  // 123175
     new spell_tayak_wind_step();            // 123459
-    new spell_tayak_storms_vehicle();       // 124258
+    //new spell_tayak_storms_vehicle();       // 124258
     new spell_tayak_storm_unleashed_dmg();  // 124783
     new spell_tempest_slash();              // 122853
     new spell_unseen_strike_aura();         // 122982

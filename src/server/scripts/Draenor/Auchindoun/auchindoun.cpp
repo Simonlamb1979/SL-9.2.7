@@ -1488,9 +1488,9 @@ class auchindoun_spell_void_shift : public SpellScript
                     continue;
 
                 if ((*l_It)->GetTypeId() == TypeID::TYPEID_PLAYER)
-                    GetCaster()->CastCustomSpell((*l_It), eAuchindounSpells::SpellVoidShiftDamage, &l_CalcDamage, nullptr, true, nullptr);
+                    GetCaster()->CastCustomSpell((*l_It), eAuchindounSpells::SpellVoidShiftDamage, &l_CalcDamage, NULL, NULL, true, NULL);
                 else
-                    GetCaster()->CastCustomSpell((*l_It), eAuchindounSpells::SpellVoidShiftHeal, &l_CalcDamage, nullptr, true, nullptr);
+                    GetCaster()->CastCustomSpell((*l_It), eAuchindounSpells::SpellVoidShiftHeal, &l_CalcDamage, NULL, NULL, true, NULL);
             }
         }
     }

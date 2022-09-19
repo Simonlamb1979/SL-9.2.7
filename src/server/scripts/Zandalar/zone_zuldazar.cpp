@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -63,9 +63,9 @@ struct npc_talanji_arrival : public ScriptedAI
 {
     npc_talanji_arrival(Creature* creature) : ScriptedAI(creature) { }
 
-    void QuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->GetQuestId() == QUEST_WELCOME_ZULDAZAR)
+        if (quest->ID == QUEST_WELCOME_ZULDAZAR)
         {
             me->DestroyForPlayer(player);
             player->SummonCreature(132661, me->GetPosition());
@@ -74,9 +74,9 @@ struct npc_talanji_arrival : public ScriptedAI
 };
 
 // 132661
-struct npc_talanji_arrival_escort : public EscortAI
+struct npc_talanji_arrival_escort : public npc_escortAI
 {
-    npc_talanji_arrival_escort(Creature* creature) : EscortAI(creature) { }
+    npc_talanji_arrival_escort(Creature* creature) : npc_escortAI(creature) { }
 
     void Reset() override
     {
@@ -117,9 +117,9 @@ struct npc_talanji_arrival_escort : public EscortAI
 
 
 // 138912
-struct npc_enforcer_pterrordax : public EscortAI
+struct npc_enforcer_pterrordax : public npc_escortAI
 {
-    npc_enforcer_pterrordax(Creature* creature) : EscortAI(creature) { }
+    npc_enforcer_pterrordax(Creature* creature) : npc_escortAI(creature) { }
 
     void IsSummonedBy(Unit* summoner) override
     {
@@ -140,15 +140,13 @@ struct npc_talanji_135440 : public ScriptedAI
 {
     npc_talanji_135440(Creature* c) : ScriptedAI(c) { }
 
-    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
         if (player->GetQuestStatus(QUEST_RASTAKHAN) == QUEST_STATUS_INCOMPLETE)
         {            
             player->KilledMonsterCredit(135440);
             player->GetSceneMgr().PlaySceneByPackageId(1895);
         }
-
-        return true;
     }
 };
 
@@ -157,18 +155,18 @@ struct npc_rastakhan_zuldazar_arrival : public ScriptedAI
 {
     npc_rastakhan_zuldazar_arrival(Creature* creature) : ScriptedAI(creature) { }
 
-    void QuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->GetQuestId() == QUEST_SPEAKER_OF_THE_HORDE)
-            player->SummonCreature(NPC_ZOLANI, -1100.689941f, 817.934021f, 497.243011f, 6.062160f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000, player->GetGUID());
+        if (quest->ID == QUEST_SPEAKER_OF_THE_HORDE)
+            player->SummonCreature(NPC_ZOLANI, -1100.689941f, 817.934021f, 497.243011f, 6.062160f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 120000, true);
     }
 };
 
-struct npc_soth_zolani : public EscortAI
+struct npc_soth_zolani : public npc_escortAI
 {
-    npc_soth_zolani(Creature* creature) : EscortAI(creature) { }
+    npc_soth_zolani(Creature* creature) : npc_escortAI(creature) { }
 
-    bool GossipHello(Player* player) override
+    void sGossipHello(Player* player) override
     {        
         if (player->HasQuest(QUEST_SPEAKER_OF_THE_HORDE))
         {            
@@ -184,8 +182,6 @@ struct npc_soth_zolani : public EscortAI
                 me->ForcedDespawn(10000);
             });
         }
-
-        return true;
     }
 };
 
@@ -210,7 +206,7 @@ struct npc_horde_banner : public ScriptedAI
                 if (!player->GetQuestObjectiveData(QUEST_SPEAKER_OF_THE_HORDE, 0))
                 {
                     me->RemoveNpcFlag(UNIT_NPC_FLAG_SPELLCLICK);
-                    player->AddAura(241211, player);
+                    player->AddAura(241211);
                     player->KilledMonsterCredit(121000);
                     me->ForcedDespawn(0, 3s);
                 }
@@ -229,7 +225,7 @@ struct npc_brillin_the_beauty : public ScriptedAI
         if (Player* player = unit->ToPlayer())
             if (player->GetDistance(me) < 10.f)
                 if (player->GetQuestStatus(QUEST_SPEAKER_OF_THE_HORDE) == QUEST_STATUS_INCOMPLETE)
-                //    if (player->GetQuestObjectiveCounter(OBJECTIVE_SUMMON_THE_HORDE) != 0)
+                    if (player->GetQuestObjectiveCounter(OBJECTIVE_SUMMON_THE_HORDE) != 0)
                         KillCreditMe(player);
     }
 };
@@ -244,7 +240,7 @@ struct npc_natal_hakata : public ScriptedAI
         if (Player* player = unit->ToPlayer())
             if (player->GetDistance(me) < 10.f)
                 if (player->GetQuestStatus(QUEST_SPEAKER_OF_THE_HORDE) == QUEST_STATUS_INCOMPLETE)
-               //     if (player->GetQuestObjectiveCounter(OBJECTIVE_SUMMON_THE_HORDE) != 0)
+                    if (player->GetQuestObjectiveCounter(OBJECTIVE_SUMMON_THE_HORDE) != 0)
                         KillCreditMe(player);
     }
 };
@@ -259,7 +255,7 @@ struct npc_telemancer_oculeth_zuldazar : public ScriptedAI
         if (Player* player = unit->ToPlayer())
             if (player->GetDistance(me) < 10.f)
                 if (player->GetQuestStatus(QUEST_SPEAKER_OF_THE_HORDE) == QUEST_STATUS_INCOMPLETE)
-                //    if (player->GetQuestObjectiveCounter(OBJECTIVE_SUMMON_THE_HORDE) != 0)
+                    if (player->GetQuestObjectiveCounter(OBJECTIVE_SUMMON_THE_HORDE) != 0)
                         player->KilledMonsterCredit(135435);
     }
 };
@@ -269,18 +265,18 @@ struct npc_talanji_great_seal : public ScriptedAI
 {
     npc_talanji_great_seal(Creature* creature) : ScriptedAI(creature) { }
 
-    void QuestAccept(Player* player, Quest const* quest) override
+    void sQuestAccept(Player* player, Quest const* quest) override
     {
-        if (quest->GetQuestId() == QUEST_NEED_EACH_OTHER)
+        if (quest->ID == QUEST_NEED_EACH_OTHER)
             player->CastSpell(player, SPELL_PREVIEW_TO_ZANDALAR, true);
     }
 };
 
 //
-class npc_ata_the_winglord_offensively_defence : public EscortAI
+class npc_ata_the_winglord_offensively_defence : public npc_escortAI
 {
 public:
-    npc_ata_the_winglord_offensively_defence(Creature* creature) : EscortAI(creature)
+    npc_ata_the_winglord_offensively_defence(Creature* creature) : npc_escortAI(creature)
     {
         me->SetCanFly(true);
         me->SetSpeed(MOVE_FLIGHT, 26);
@@ -302,7 +298,7 @@ public:
     {
         if (summoner)
         {
-          // me->GetScheduler().Schedule(1s, [this, summoner](TaskContext /*context*/)
+           // me->GetScheduler().Schedule(1s, [this, summoner](TaskContext /*context*/)
            summoner->CastSpell(me, 46598);
         }
     }
@@ -314,10 +310,10 @@ public:
     }
 };
 
-class npc_ata_the_winglord_paku_master_of_winds : public EscortAI
+class npc_ata_the_winglord_paku_master_of_winds : public npc_escortAI
 {
 public:
-    npc_ata_the_winglord_paku_master_of_winds(Creature* creature) : EscortAI(creature)
+    npc_ata_the_winglord_paku_master_of_winds(Creature* creature) : npc_escortAI(creature)
     {
         me->SetCanFly(true);
         me->SetSpeed(MOVE_FLIGHT, 26);
@@ -349,10 +345,10 @@ public:
     }
 };
 
-class npc_pterrordax_paku_master_of_winds : public EscortAI
+class npc_pterrordax_paku_master_of_winds : public npc_escortAI
 {
 public:
-    npc_pterrordax_paku_master_of_winds(Creature* creature) : EscortAI(creature)
+    npc_pterrordax_paku_master_of_winds(Creature* creature) : npc_escortAI(creature)
     {
         me->SetCanFly(true);
         me->SetReactState(REACT_PASSIVE);
@@ -400,11 +396,9 @@ struct npc_paku : public ScriptedAI
     {
     }
 
-    bool GossipHello(Player* player) override
+    void sGossipHello(Player* player) override
     {
         player->KilledMonsterCredit(127377);
-
-        return true;
     }
 
     void UpdateAI(uint32 /*diff*/) override
@@ -414,7 +408,7 @@ struct npc_paku : public ScriptedAI
 
         for (Player* player : players)
         {
-            if (player->GetPositionZ() <= 400 && !player->IsMounted() && player->HasQuest(47440))
+            if (player->GetPositionZ() <= 400 && !player->IsMounted() && !player->IsOnVehicle() && player->HasQuest(47440))
             {
                 Talk(0);
                 player->CastSpell(player, SPELL_CALL_PTERRORDAX);
@@ -497,11 +491,11 @@ class spell_call_the_storm : public SpellScript
         if (!caster)
             return;
 
-        caster->CastSpell(caster, 224842);
-      //  caster->CastSpell(caster->GetPositionWithDistInOrientation(5, 1.6f), 224846);
-        //caster->CastSpell(caster->GetPositionWithDistInOrientation(5, 0.5f), 224842);
-       // caster->CastSpell(caster->GetPositionWithDistInOrientation(5, 0), 224842);
-       // caster->CastSpell(caster->GetPositionWithDistInOrientation(5, 3), 224842);
+        caster->CastSpell(caster, 224842, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+        caster->CastSpell(caster->GetPositionWithDistInOrientation(5, 1.6f), 224846, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+        caster->CastSpell(caster->GetPositionWithDistInOrientation(5, 0.5f), 224842, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+        caster->CastSpell(caster->GetPositionWithDistInOrientation(5, 0), 224842, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
+        caster->CastSpell(caster->GetPositionWithDistInOrientation(5, 3), 224842, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
 
     }
 
@@ -531,7 +525,7 @@ public:
             if (!target)
                 return;
 
-            caster->CastSpell(target, 260073);
+            caster->CastSpell(target, 260073, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
         }
 
         void Register() override
@@ -577,7 +571,7 @@ struct npc_voljamba : public ScriptedAI
     }
 
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SOUL_BLAST, 2000);
         events.ScheduleEvent(EVENT_SUMMON_MASK, 9000);
@@ -590,8 +584,8 @@ struct npc_voljamba : public ScriptedAI
 
         events.Update(diff);
 
-        if (me->HasUnitState(UNIT_STATE_CASTING))
-            return;
+       // if (me->HasUnitState(UNIT_STATE_CASTING))
+       //     return;
 
         while (uint32 eventId = events.ExecuteEvent())
         {
@@ -693,7 +687,6 @@ private:
     bool gong;
     bool potion;
     bool final;
-    EventMap events;
 };
 
 //264007
@@ -772,12 +765,10 @@ struct npc_rakera_146812 : public ScriptedAI
 {
     npc_rakera_146812(Creature* c) : ScriptedAI(c) { }
 
-    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
         if (!player->GetQuestObjectiveData(QUEST_RIDE_OF_THE_ZANDALARI, 1))
             player->KilledMonsterCredit(146812);
-
-        return true;
     }
 };
 
@@ -786,15 +777,13 @@ struct npc_hexlord_146851 : public ScriptedAI
 {
     npc_hexlord_146851(Creature* c) : ScriptedAI(c) { }
 
-    bool GossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
+    void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/) override
     {
         if (!player->GetQuestObjectiveData(QUEST_RIDE_OF_THE_ZANDALARI, 2))
         {
             player->KilledMonsterCredit(146851);
             me->AI()->Talk(0);
         }
-
-        return true;
     }
 };
 

@@ -58,7 +58,7 @@ struct boss_hk_8 : public BossAI
         hk_vulnerable = false;
     }
 
-    void MovementInform(uint32 type, uint32 point)
+    void MovementInform(uint32 type, uint32 point) override
     {
         if (type != POINT_MOTION_TYPE || point != 1)
             return;
@@ -69,12 +69,12 @@ struct boss_hk_8 : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
 
     }
 
-    void JustDied(Unit* /*killer*/) 
+    void JustDied(Unit* /*killer*/) override
     {        
         _JustDied();
         Talk(SAY_DEATH);
@@ -103,20 +103,20 @@ struct npc_tank_buster_mk1 : public ScriptedAI
 {
     npc_tank_buster_mk1(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset() 
+    void Reset() override
     {
         ScriptedAI::Reset();
         init_stage_two = false;        
     }
 
-    void JustEngagedWith(Unit* who)
+    void EnterCombat(Unit* who) override
     {
         if (instance)
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
-            events.ScheduleEvent(EVENT_WRECK, 3s);
-            events.ScheduleEvent(EVENT_ZAP, 8s);
-            events.ScheduleEvent(EVENT_REINFORCEMENTS, 13s);
-            events.ScheduleEvent(EVENT_CANNON_BLAST, 19s);
+        events.ScheduleEvent(EVENT_WRECK, 3s);
+        events.ScheduleEvent(EVENT_ZAP, 8s);
+        events.ScheduleEvent(EVENT_REINFORCEMENTS, 13s);
+        events.ScheduleEvent(EVENT_CANNON_BLAST, 19s);
         if (Creature* hk8 = me->FindNearestCreature(NPC_HK_8_AERIAL_OPPRESION_UNIT, 100.0f, true))
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, hk8);
@@ -124,7 +124,7 @@ struct npc_tank_buster_mk1 : public ScriptedAI
         }
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/)
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         me->DespawnOrUnsummon();
         std::list<Creature*> encounter_list;
@@ -178,18 +178,18 @@ struct npc_tank_buster_mk1 : public ScriptedAI
         }
     }
 
-    void ExecuteEvent(uint32 eventid)
+    void ExecuteEvent(uint32 eventid) override
     {
         switch (eventid)
         {
         case EVENT_WRECK:
-            if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.0f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
             {
                 DoCast(target, SPELL_WRECK, false);
                 me->GetScheduler().Schedule(2900ms, [target, this] (TaskContext context)
                 {
                     DoCast(target, SPELLW_WRECK_DAMAGE, false);
-                }
+                });
             }
             events.Repeat(3s);
             break;
@@ -225,7 +225,7 @@ struct npc_tank_buster_mk1 : public ScriptedAI
                         me->GetPlayerListInGrid(target_list, 300.0f);
                         for (auto& targets : target_list)                        
                             hk8->CastSpell(targets, SPELL_CANNON_BLAST_MISSILE);
-                    }
+                    });
                 }
             }
             events.Repeat(35s);
@@ -258,7 +258,7 @@ struct npc_walkie_shockie_x1 : public ScriptedAI
         me->GetScheduler().Schedule(10s, [this] (TaskContext context)
         {                
             DoCastAOE(SPELL_SELF_DESTRUCT);
-        };
+        });
     }
 
     void IsSummonedBy(Unit* unit) override
@@ -266,19 +266,17 @@ struct npc_walkie_shockie_x1 : public ScriptedAI
         me->GetScheduler().Schedule(1500ms, [this] (TaskContext context)
         {
             me->AI()->DoZoneInCombat(nullptr);
-        };
+        });
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         scheduler.Update(diff);
     }
 
 private:
     TaskScheduler scheduler;
-    bool overcharged;
-    bool move_fall;
-}
+};
 
 //152138
 struct npc_overcharge_station : public ScriptedAI
@@ -299,7 +297,7 @@ struct npc_overcharge_station : public ScriptedAI
         me->SetFaction(35);
     }
 
-    void OnSpellClick(Unit* clicker, bool& result)
+    void OnSpellClick(Unit* clicker, bool& result) override
     {
         if (!overcharged)
         {
@@ -329,27 +327,25 @@ struct npc_overcharge_station : public ScriptedAI
                 hk8->SetCanFly(false);
                 hk8->SetFlying(false);
                 hk8->GetMotionMaster()->MoveFall();
-                hk8->AddAura(SPELL_HAYWIRE, hk8);
+                hk8->AddAura(SPELL_HAYWIRE);
                 if (hk8->HasUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC)))
                     hk8->RemoveUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
 
                  hk8->GetScheduler().Schedule(31s, [hk8, this] (TaskContext context)
-                {
-
+                 {
                     events.CancelEvent(EVENT_ANNIHILATION_EXPLOSION);
                     hk8->AI()->DoCast(SPELL_LIFT_OFF);
-                    hk8->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
+                    //hk8->AddUnitFlag(UnitFlags(UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC));
                     hk8->SetCanFly(true);
                     hk8->SetFlying(true);
                     hk8->GetMotionMaster()->MoveTargetedHome();
-                     //TODO Phase 1 repeat
-                }
-            }        
+                    //TODO Phase 1 repeat
+                 });
+            }
         }
     }
-}            
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         scheduler.Update(diff);
     }
@@ -365,7 +361,7 @@ struct npc_hk8_arena_center_stalker : public ScriptedAI
 {
     npc_hk8_arena_center_stalker(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset()
+    void Reset() override
     {
         ScriptedAI::Reset();
         me->DespawnCreaturesInArea(NPC_HK_8_AERIAL_OPPRESION_UNIT, 125.0f);
@@ -377,7 +373,7 @@ struct npc_hk8_arena_center_stalker : public ScriptedAI
 
     void MoveInLineOfSight(Unit* unit) override
     {
-        if (unit->IsPlayer()) && instance->GetBossState(DATA_TRIXIE_NAENO) == DONE && instance->GetBossState(DATA_GUNKER) == DONE)
+        if (unit->IsPlayer()) /*&& instance->GetBossState(DATA_TRIXIE_NAENO) == DONE && instance->GetBossState(DATA_GUNKER) == DONE)*/
         {            
             if (instance->GetBossState(DATA_HK8) != DONE)
             {
@@ -398,7 +394,7 @@ struct npc_tank_buster_mk2 : public ScriptedAI
 {
     npc_tank_buster_mk2(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset()
+    void Reset() override
     {
         ScriptedAI::Reset();        
     }

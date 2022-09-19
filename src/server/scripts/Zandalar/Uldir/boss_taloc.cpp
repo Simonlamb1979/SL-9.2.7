@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore
+ * Copyright 2021 BfaCore
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -97,9 +97,9 @@ private:
         me->SetCurrentEquipmentId(2);
     };
 
-    void EnterCombat(Unit* u) //override
+    void EnterCombat(Unit* u) override
     {        
-     //   _EnterCombat();
+        _EnterCombat();
         Talk(SAY_AGGRO);
         phase_one = true;
         me->SetHealth(me->CountPctFromMaxHealth(60));
@@ -160,7 +160,7 @@ private:
                 cudgel->EnterVehicle(me);
                 cudgel->SetVisible(false);
                 me->SetCurrentEquipmentId(1);
-                if (Unit* tar = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 100.0f, true))
+                if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 100.0f, true))
                 {
                     me->SetFacingToObject(tar, true);
                     DoCast(tar, SPELL_CUDGEL_OF_GORE_CHARGE);
@@ -180,7 +180,7 @@ private:
         case EVENT_PLASMA_DISCHARGE:
         {            
             UnitList list;
-         //   SelectTargetList(list, 3, SELECT_TARGET_RANDOM, 500.0f, true);
+            SelectTargetList(list, 3, SELECT_TARGET_RANDOM, 500.0f, true);
             for (Unit* tar : list)
             {
                 Talk(SAY_PLASMA_DISCHARGE);
@@ -217,7 +217,7 @@ private:
         {
             DoCastVictim(SPELL_ENLARGED_HEART);
             UnitList list;
-          //  SelectTargetList(list, 10, SELECT_TARGET_RANDOM, 500.0f, true);
+            SelectTargetList(list, 10, SELECT_TARGET_RANDOM, 500.0f, true);
             for (Unit* targets : list)
             {  
                 me->AddAura(SPELL_HARDENED_ARTERIES_DEBUFF, targets);
@@ -285,7 +285,7 @@ class spell_plasma_discharge : public SpellScript
                 int32 HeroicValue = 36719;
                 SetHitDamage(HeroicValue);
             }
-          //  if (caster->GetMap()->IsLFR())
+            if (caster->GetMap()->IsLFR())
             {
                 int32 NormalValue = 26242;
                 SetHitDamage(NormalValue);

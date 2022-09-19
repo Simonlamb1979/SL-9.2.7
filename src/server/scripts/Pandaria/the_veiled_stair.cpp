@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -74,9 +73,9 @@ class npc_wrathion_mason : public CreatureScript
             return true;
         }
 
-        struct npc_wrathion_masonAI : public EscortAI
+        struct npc_wrathion_masonAI : public npc_escortAI
         {
-            npc_wrathion_masonAI(Creature* creature) : EscortAI(creature)
+            npc_wrathion_masonAI(Creature* creature) : npc_escortAI(creature)
             {
                 playerGUID = ObjectGuid::Empty;
             }
@@ -104,7 +103,7 @@ class npc_wrathion_mason : public CreatureScript
                 }
             }
 
-            void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+            void WaypointReached(uint32 waypointId) override
             {
                 switch (waypointId)
                 {
@@ -130,7 +129,7 @@ class npc_wrathion_mason : public CreatureScript
 
             void UpdateAI(uint32 diff) override
             {
-                EscortAI::UpdateAI(diff);
+                npc_escortAI::UpdateAI(diff);
                 events.Update(diff);
 
                 if (Player* player = ObjectAccessor::GetPlayer(*me, playerGUID))

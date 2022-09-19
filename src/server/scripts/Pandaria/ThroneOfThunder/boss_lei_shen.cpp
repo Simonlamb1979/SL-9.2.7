@@ -2940,8 +2940,8 @@ public:
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_overcharge_damage_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_TARGET_ANY);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_overcharge_damage_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_TARGET_ANY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_overcharge_damage_SpellScript::CorrectRange, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_overcharge_damage_SpellScript::CorrectRange, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
         }
     };
 

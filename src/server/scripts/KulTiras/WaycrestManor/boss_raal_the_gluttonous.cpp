@@ -53,10 +53,10 @@ struct boss_raal_the_gluttonous : public BossAI
 		SetCombatMovement(false);
 	}
 
-	void JustEngagedWith(Unit* target) override
+	void EnterCombat(Unit* target) override
 	{
 		Talk(SAY_AGGRO);
-		_JustEngagedWith();
+		_EnterCombat();
 		instance->SetBossState(DATA_RAAL_THE_GLUTTONOUS, IN_PROGRESS);
 		events.ScheduleEvent(EVENT_CHECK_RANGE, 1s);
 		events.ScheduleEvent(EVENT_TENDERIZE, 3s);		
@@ -90,8 +90,8 @@ struct boss_raal_the_gluttonous : public BossAI
 		{
 			me->AI()->EnterEvadeMode();
 			me->AI()->JustReachedHome();
-			//me->DespawnCreaturesInArea(NPC_WASTING_SERVANT, 125.0f);
-			//me->DespawnCreaturesInArea(NPC_BILE_OOZELING, 125.0f);
+			me->DespawnCreaturesInArea(NPC_WASTING_SERVANT, 125.0f);
+			me->DespawnCreaturesInArea(NPC_BILE_OOZELING, 125.0f);
 			me->NearTeleportTo(me->GetHomePosition());
 		}
 	}
@@ -164,8 +164,8 @@ struct boss_raal_the_gluttonous : public BossAI
 		Talk(SAY_DEATH);
 		_JustDied();
 		instance->SetBossState(DATA_RAAL_THE_GLUTTONOUS, DONE);
-	//	me->DespawnCreaturesInArea(NPC_BILE_OOZELING);
-	//	me->DespawnCreaturesInArea(NPC_WASTING_SERVANT);
+		me->DespawnCreaturesInArea(NPC_BILE_OOZELING);
+		me->DespawnCreaturesInArea(NPC_WASTING_SERVANT);
 	}
 };
 

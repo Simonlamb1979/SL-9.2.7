@@ -42,13 +42,13 @@ struct npc_shadow_of_zul : public ScriptedAI
         me->AddUnitFlag(UNIT_FLAG_IMMUNE_TO_NPC);
     }
 
-    void EnterCombat(Unit* u)// override
+    void EnterCombat(Unit* u) override
     {
         events.ScheduleEvent(EVENT_SHADOW_BARRAGE, 5s);
         events.ScheduleEvent(EVENT_DARK_REVELATION, 10s);
     }
 
-    void ExecuteEvent(uint32 eventId)// override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -67,8 +67,6 @@ struct npc_shadow_of_zul : public ScriptedAI
     {
         summon->AI()->DoZoneInCombat();
     }
-private:
-    EventMap events;
 };
 
 void AddSC_instance_kings_rest()

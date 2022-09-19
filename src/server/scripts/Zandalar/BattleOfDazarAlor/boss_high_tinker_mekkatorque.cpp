@@ -109,9 +109,9 @@ private:
     {
     };
 
-    void EnterCombat(Unit* /*who*/)// override
+    void EnterCombat(Unit* /*who*/) override
     {
-       // _EnterCombat();
+        _EnterCombat();
         Talk(SAY_AGGRO);
         phase1 = true;
         events.ScheduleEvent(EVENT_ELETROSHOCK_STRIKES, 2s);
@@ -161,7 +161,7 @@ private:
         switch (eventId)
         {
         case EVENT_ELETROSHOCK_STRIKES:
-            me->AddAura(SPELL_ELECTROSHOCK_AMPLIFICATION_STACK, me);
+            me->AddAura(SPELL_ELECTROSHOCK_AMPLIFICATION_STACK);
             events.Repeat(2s);
             break;
 
@@ -197,14 +197,14 @@ private:
             if (!IsHeroic() || !IsMythic())
             {
                 UnitList tarlist;
-            //    SelectTargetList(tarlist, 2, SELECT_TARGET_RANDOM, 100.0f, true);
+                SelectTargetList(tarlist, 2, SELECT_TARGET_RANDOM, 100.0f, true);
                 for (Unit* target : tarlist)
                 me->CastSpell(target, SPELL_GIGAVOLT_CHARGE, true);
             }
             else
             {
                 UnitList tarlist;
-             //   SelectTargetList(tarlist, 3, SELECT_TARGET_RANDOM, 100.0f, true);
+                SelectTargetList(tarlist, 3, SELECT_TARGET_RANDOM, 100.0f, true);
                 for (Unit* target : tarlist)
                 me->CastSpell(target, SPELL_GIGAVOLT_CHARGE, true);
             }
@@ -215,7 +215,7 @@ private:
         case EVENT_SHRINK:
         {
             UnitList tarlist;
-           // SelectTargetList(tarlist, 3, SELECT_TARGET_RANDOM, 100.0f, true);
+            SelectTargetList(tarlist, 3, SELECT_TARGET_RANDOM, 100.0f, true);
             for (Unit* target : tarlist)
             me->CastSpell(target, EVENT_SHRINK, false);
             events.Repeat(50s);
@@ -239,8 +239,8 @@ private:
             break;
 
         case EVENT_HYPERDRIVE:
-            Talk(SAY_HYPERDRIVE);
-            me->AddAura(SPELL_HYPERDRIVE, me);
+            //Talk(SAY_HYPERDRIVE);
+            me->AddAura(SPELL_HYPERDRIVE);
             break;
 
         case EVENT_PHASE_TWO:
@@ -277,8 +277,8 @@ private:
     {
         _JustReachedHome();        
         me->RemoveAllAreaTriggers();
-        //me->DespawnCreaturesInArea(NPC_SPARK_BOT, 125.0f);
-       // me->DespawnCreaturesInArea(NPC_GNOMISH_SUPPORT_CLAW, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SPARK_BOT, 125.0f);
+        me->DespawnCreaturesInArea(NPC_GNOMISH_SUPPORT_CLAW, 125.0f);
         if (auto* encounterDoor = me->FindNearestGameObject(GO_MEKKATORQUE_WALL_OF_SPEARS_ENTRANCE, 125.0f))
             encounterDoor->SetGoState(GO_STATE_ACTIVE);
 
@@ -293,8 +293,8 @@ private:
         Talk(SAY_DEATH);
         _JustReachedHome();
         me->RemoveAllAreaTriggers();
-      //  me->DespawnCreaturesInArea(NPC_SPARK_BOT, 125.0f);
-      //  me->DespawnCreaturesInArea(NPC_GNOMISH_SUPPORT_CLAW, 125.0f);
+        me->DespawnCreaturesInArea(NPC_SPARK_BOT, 125.0f);
+        me->DespawnCreaturesInArea(NPC_GNOMISH_SUPPORT_CLAW, 125.0f);
         if (auto* encounterDoor = me->FindNearestGameObject(GO_MEKKATORQUE_WALL_OF_SPEARS_ENTRANCE, 125.0f))
             encounterDoor->SetGoState(GO_STATE_ACTIVE);
 
@@ -360,12 +360,12 @@ struct npc_spark_bot : public ScriptedAI
         });
     }
 
-    void EnterCombat(Unit* /*who*/) //override
+    void EnterCombat(Unit* /*who*/) override
     {
         events.ScheduleEvent(EVENT_SPARK_PULSE, 3s);
     }
 
-    void ExecuteEvent(uint32 eventId) //override
+    void ExecuteEvent(uint32 eventId) override
     {
         switch (eventId)
         {
@@ -375,8 +375,6 @@ struct npc_spark_bot : public ScriptedAI
             break;
         }
     }
-private:
-    EventMap events;
 };
 
 //148450
@@ -435,7 +433,7 @@ struct at_buster_cannon : public AreaTriggerAI
         Position pos = caster->GetPosition();
 
         at->MovePosition(pos, 15.0f, 0.0f);
-     //   at->SetDestination(pos, 3000);
+        at->SetDestination(pos, 3000);
     }
 
     void OnUnitEnter(Unit* unit) override
@@ -458,14 +456,14 @@ struct at_sheep_shrapnel : public AreaTriggerAI
 
         Position randomPos = at->GetRandomNearPosition(30.0f);
         at->MovePosition(randomPos, 25.0f, 0.0f);
-      //  at->SetDestination(randomPos, 5000);
+        at->SetDestination(randomPos, 5000);
     }
 
     void OnDestinationReached() override
     {
         Position randomPos = at->GetRandomNearPosition(30.0f);
         at->MovePosition(randomPos, 25.0f, 0.0f);
-      //  at->SetDestination(randomPos, 5000);
+        at->SetDestination(randomPos, 5000);
     }
 };
 

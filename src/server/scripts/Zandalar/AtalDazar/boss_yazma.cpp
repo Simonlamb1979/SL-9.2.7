@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,7 +81,7 @@ struct boss_ataldazar_yazma : public BossAI
     void SpellHitTarget(Unit* target, SpellInfo const* spell) override
     {
         if (spell->Id == SPELL_ECHOES_OF_SHADOW)
-            me->CastSpell(target, SPELL_ECHOES_OF_SHADOW_SPAWN);
+            me->CastSpell(target, SPELL_ECHOES_OF_SHADOW_SPAWN, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
         if (spell->Id == SPELL_SOULREND)
             me->SummonCreature(NPC_SOULREND, target->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN, 0);
     }
@@ -92,7 +92,7 @@ struct boss_ataldazar_yazma : public BossAI
         events.Reset();
     }
 
-    void EnterCombat(Unit* who) //override
+    void EnterCombat(Unit* who) override
     {
 
         //Talk(TALK_AGGRO);
@@ -102,7 +102,7 @@ struct boss_ataldazar_yazma : public BossAI
         events.ScheduleEvent(EVENT_SOULREND, 10000);
         events.ScheduleEvent(EVENT_ECHOES_OF_SHADOW, 16900);
 
-       // BossAI::EnterCombat(who);
+        BossAI::EnterCombat(who);
     }
 
     void UpdateAI(uint32 diff) override
@@ -215,7 +215,7 @@ struct npc_ataldazar_soulspawn : public ScriptedAI
 
     void Reset() override
     {
-       // events.Reset();
+        events.Reset();
         me->setActive(false);
         if (Creature* yazma = me->FindNearestCreature(NPC_YAZMA, 100))
             me->GetMotionMaster()->MoveFollow(yazma, 0, 0);
@@ -258,7 +258,7 @@ struct npc_ataldazar_echo_of_shadra : public ScriptedAI
 
     void Reset() override
     {
-       // events.Reset();
+        events.Reset();
         me->setActive(false);
         me->SetWalk(false);
         me->GetMotionMaster()->MoveRandom(urand(0, 15));
@@ -271,7 +271,7 @@ struct npc_ataldazar_echo_of_shadra : public ScriptedAI
 
     void IsSummonedBy(Unit* summoner) override
     {
-     //   events.ScheduleEvent(EVENT_SHADOW_EMPOWERED, 5000);
+        events.ScheduleEvent(EVENT_SHADOW_EMPOWERED, 5000);
     }
 
     void MovementInform(uint32 type, uint32 id) override
@@ -296,7 +296,7 @@ struct npc_ataldazar_echo_of_shadra : public ScriptedAI
             {
             case EVENT_SHADOW_EMPOWERED:
             {
-                me->AddAura(SPELL_ECHOES_OF_SHADOW_EMPOWERED, me);
+                me->AddAura(SPELL_ECHOES_OF_SHADOW_EMPOWERED);
                 me->GetMotionMaster()->Clear();
                 closestplayer = me->SelectNearestPlayer(100.0f);
                 me->GetMotionMaster()->MoveFollow(closestplayer, 0, 0);
@@ -316,7 +316,6 @@ struct npc_ataldazar_echo_of_shadra : public ScriptedAI
     }
 private:
     Player* closestplayer = NULL;
-    EventMap events;
 };
 
 

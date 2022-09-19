@@ -1388,7 +1388,7 @@ public:
             std::list<Creature*> durumu;
             GetCreatureListWithEntryInGrid(durumu, GetCaster(), 68036, 100.0f);
             for (auto durumuTarget : durumu)
-                durumuTarget->CastCustomSpell(durumuTarget, SPELL_DRAIN_LIFE_HEAL, &bp, nullptr, true);
+                durumuTarget->CastCustomSpell(durumuTarget, SPELL_DRAIN_LIFE_HEAL, &bp, NULL, NULL, true);
 
             SetHitDamage(amount);
         }
@@ -2879,9 +2879,10 @@ public:
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_red_blue_yellow_inside_damage_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_CONE_ENTRY_110);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_red_blue_yellow_inside_damage_SpellScript::CheckTargets, EFFECT_0, TARGET_DEST_CASTER_UNK_36);
             OnEffectHitTarget += SpellEffectFn(bfa_spell_red_blue_yellow_inside_damage_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_red_blue_yellow_inside_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_CONE_ENTRY_110);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_red_blue_yellow_inside_damage_SpellScript::FilterTargets, EFFECT_0, TARGET_DEST_CASTER_UNK_36);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_red_blue_yellow_inside_damage_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_CONE_ENEMY_104);
         }
 
     };

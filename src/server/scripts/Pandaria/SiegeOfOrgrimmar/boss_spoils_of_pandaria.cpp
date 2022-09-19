@@ -2317,10 +2317,10 @@ class npc_spoils_of_pandaria_lift_hook : public CreatureScript
                 }
             }
 
-            bool GossipHello(Player* player) override
+            void sGossipHello(Player* player) override
             {
                 if (!IsReady())
-                    return true;
+                    return;
 
                 me->RemoveUnitFlag(UnitFlags(UNIT_NPC_FLAG_GOSSIP));
 
@@ -2331,8 +2331,6 @@ class npc_spoils_of_pandaria_lift_hook : public CreatureScript
                 {
                     player->NearTeleportTo(liftEndPos[(int)m_Room]);
                 }
-
-                return true;
             }
 
             void UpdateAI(const uint32 diff) override
@@ -5037,10 +5035,10 @@ class spell_spoils_of_pandaria_set_to_blow_override : public SpellScriptLoader
                 int stacks = GetAura()->GetStackAmount();
 
                 Difficulty difficulty = GetUnitOwner()->GetMap()->GetDifficultyID();
-                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SET_TO_BLOW_DMG, DIFFICULTY_NONE);
+                SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_SET_TO_BLOW_DMG);
                 int basepoints = spellInfo->GetEffect(EFFECT_0)->BasePoints * stacks;
 
-                GetUnitOwner()->CastCustomSpell(GetUnitOwner(), SPELL_SET_TO_BLOW_DMG, &basepoints, nullptr, true);
+                GetUnitOwner()->CastCustomSpell(GetUnitOwner(), SPELL_SET_TO_BLOW_DMG, &basepoints, NULL, NULL, true);
             }
 
             void Register()
@@ -5145,9 +5143,9 @@ class spell_spoils_of_pandaria_eminence : public SpellScriptLoader
                 if (!actor)
                     return;
 
-                float healValue = eventInfo.GetDamageInfo()->GetDamage() * 1.5f;
+                int32 healValue = eventInfo.GetDamageInfo()->GetDamage() * 1.5f;
 
-                actor->CastCustomSpell(actor, SPELL_EMINENCE_HEAL, &healValue, nullptr, nullptr, true);
+                actor->CastCustomSpell(actor, SPELL_EMINENCE_HEAL, &healValue, NULL, NULL, true);
             }
 
             void Register()
@@ -5573,7 +5571,7 @@ class spell_spoils_of_pandaria_torment_dmg : public SpellScriptLoader
 
                 int32 l_Damage = aurEff->GetAmount() * aurEff->GetTickNumber();
 
-                SpellNonMeleeDamage l_DamageInfo(l_Caster, l_Target, this->GetSpellInfo(), { Spells::SPELL_TORMENT_DMG, 0 }, SpellSchoolMask::SPELL_SCHOOL_MASK_SHADOW);
+                SpellNonMeleeDamage l_DamageInfo(l_Caster, l_Target, this->GetId(), Spells::SPELL_TORMENT_DMG, SpellSchoolMask::SPELL_SCHOOL_MASK_SHADOW);
                 l_DamageInfo.damage = l_Damage;
                 l_Caster->SendSpellNonMeleeDamageLog(&l_DamageInfo);
                 l_Caster->DealSpellDamage(&l_DamageInfo, false);
@@ -6400,7 +6398,7 @@ private:
 
         for (auto l_Target : l_Targets)
         {
-            SpellNonMeleeDamage l_DamageInfo(p_Caster, l_Target, /*todo check this*/0, { Spells::SPELL_CRIMSON_ACID, 0 }, SpellSchoolMask::SPELL_SCHOOL_MASK_FIRE);
+            SpellNonMeleeDamage l_DamageInfo(p_Caster, l_Target, /*todo check this*/0, Spells::SPELL_CRIMSON_ACID, SpellSchoolMask::SPELL_SCHOOL_MASK_FIRE);
             l_DamageInfo.damage = l_Damage;
             p_Caster->SendSpellNonMeleeDamageLog(&l_DamageInfo);
             p_Caster->DealSpellDamage(&l_DamageInfo, false);

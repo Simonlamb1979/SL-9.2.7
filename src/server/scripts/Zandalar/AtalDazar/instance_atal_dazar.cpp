@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -28,7 +28,7 @@
 
 enum conversationyasma
 {
-  CONVERSATION_YAZMA_INTRO = 6320,
+    CONVERSATION_YAZMA_INTRO = 6320,
 };
 
 struct instance_atal_dazar : public InstanceScript
@@ -47,19 +47,36 @@ struct instance_atal_dazar : public InstanceScript
     {
         switch (cre->GetEntry())
         {
-            case NPC_PRIESTESS_ALUNZA:
-                PriestressGUID = cre->GetGUID();
-                break;
-            default:
-                break;
+        case NPC_PRIESTESS_ALUNZA:
+            PriestressGUID = cre->GetGUID();
+            break;
+        default:
+            break;
         }
-        
+
         InstanceScript::OnCreatureCreate(cre);
+
+        if (instance->GetDifficultyID() == 1)
+        {
+            cre->SetLevel(110);
+        }
+        if (instance->GetDifficultyID() == 2)
+        {
+            cre->SetLevel(121);
+        }
+        if (instance->GetDifficultyID() == 23)
+        {
+            cre->SetLevel(122);
+        }
+        if (instance->GetDifficultyID() == 8)
+        {
+            cre->SetLevel(122);
+        }
     };
 
     void OnPlayerEnter(Player* player) override
     {
-       // SetCheckPointPos({ -839.0337f, -2092.268f, 725.8119f, 0.41233432f});
+        SetCheckPointPos({ -839.0337f, -2092.268f, 725.8119f, 0.41233432f });
         Conversation::CreateConversation(CONVERSATION_YAZMA_INTRO, player, player->GetPosition(), { player->GetGUID() });
     };
 
@@ -172,6 +189,9 @@ struct instance_atal_dazar : public InstanceScript
         case GO_COLLISION_WALL:
             collisionWallGUID = go->GetGUID();
             break;
+        case GO_WATERFALL_STAIRS:
+            waterfallstairsGUID = go->GetGUID();
+            break;
         default:
             break;
         }
@@ -199,6 +219,10 @@ struct instance_atal_dazar : public InstanceScript
                 yazmagate01->SetGoState(GO_STATE_ACTIVE);
             if (GameObject* yazmagate02 = instance->GetGameObject(Gate10GUID))
                 yazmagate02->SetGoState(GO_STATE_ACTIVE);
+            if (GameObject* colision = instance->GetGameObject(collisionWallGUID))
+                colision->SetGoState(GO_STATE_ACTIVE);
+            if (GameObject* water = instance->GetGameObject(waterfallstairsGUID))
+                water->SetGoState(GO_STATE_ACTIVE);
         }
     }
 
@@ -206,6 +230,7 @@ protected:
     ObjectGuid PriestressGUID;
     ObjectGuid ancientSwitchGUID;
     ObjectGuid ancientSwitch02GUID;
+    ObjectGuid waterfallstairsGUID;
     ObjectGuid collisionWallGUID;
     ObjectGuid Gate01GUID;
     ObjectGuid Gate02GUID;

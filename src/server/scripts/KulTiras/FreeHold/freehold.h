@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -112,5 +112,5 @@ enum FreeHoldFaction
     FactionTheBilgeRats = 2934, ///Eudora Faction
     FactionBlacktoothBrawlers = 2935, ///Raoul Faction
     FactionCutwaterCorsairs = 2936, ///Jolly Faction
-    FactionFriendlyFake = 2580, ///This isn?t the original faction
+    FactionFriendlyFake = 2580, ///This isn�t the original faction
 };

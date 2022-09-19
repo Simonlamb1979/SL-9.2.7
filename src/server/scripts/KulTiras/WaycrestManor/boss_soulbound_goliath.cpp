@@ -46,10 +46,10 @@ struct boss_soulbound_goliath : public BossAI
 		me->RemoveUnitFlag(UNIT_FLAG_IMMUNE_TO_PC);
 	}
 
-	void JustEngagedWith(Unit* u) override
+	void EnterCombat(Unit* u) override
 	{
 		Talk(SAY_AGGRO);
-		_JustEngagedWith();
+		_EnterCombat();
 		Talk(SAY_WARNING_SOUL_HARVEST);
 		events.ScheduleEvent(EVENT_SOUL_HARVEST, 100ms);
 		events.ScheduleEvent(EVENT_CRUSH, 3s);
@@ -67,7 +67,7 @@ struct boss_soulbound_goliath : public BossAI
 			break;
 
 		case EVENT_CRUSH:
-			if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 8.0f, true))
+			if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 8.0f, true))
 			DoCast(target, CRUSH);
 			events.Repeat(15s);
 			break;
@@ -89,7 +89,7 @@ struct boss_soulbound_goliath : public BossAI
 			me->CastSpell(me, BURNING_BRUSH_AURA);			
 			me->RemoveAurasDueToSpell(SOUL_HARVEST);
 			//On Heroic difficulty, when the The Soulbound Goliath runs into fire and gains Burning Brush it will spawn many Burning Souls adds.
-			if (IsHeroic() /*|| IsMythic()*/)
+			if (IsHeroic() || IsMythic())
 			{
 				for (uint8 i = 0; i < 6; i++)
 				{
@@ -107,16 +107,16 @@ struct boss_soulbound_goliath : public BossAI
 	void JustReachedHome() override
 	{
 		_JustReachedHome();
-		//me->DespawnCreaturesInArea(NPC_BURNING_SOUL, 125.0f);
-	//	me->DespawnCreaturesInArea(NPC_SOUL_THORNS, 125.0f);
+		me->DespawnCreaturesInArea(NPC_BURNING_SOUL, 125.0f);
+		me->DespawnCreaturesInArea(NPC_SOUL_THORNS, 125.0f);
 	}
 
 	void JustDied(Unit* u) override
 	{
 		Talk(SAY_DEATH);
 		_JustDied();
-		//me->DespawnCreaturesInArea(NPC_BURNING_SOUL, 125.0f);
-		//me->DespawnCreaturesInArea(NPC_SOUL_THORNS, 125.0f);
+		me->DespawnCreaturesInArea(NPC_BURNING_SOUL, 125.0f);
+		me->DespawnCreaturesInArea(NPC_SOUL_THORNS, 125.0f);
 		instance->SetBossState(DATA_SOULBOUND_GOLIATH, DONE);
 	}
 };
@@ -163,10 +163,10 @@ struct npc_burning_soul : public ScriptedAI
 	{		
 		me->CastSpell(me, BURNING_FISTS);
 		me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
-	//	events.ScheduleEvent(EVENT_BURNING_SOUL_KILL, 10s);
+		events.ScheduleEvent(EVENT_BURNING_SOUL_KILL, 10s);
 	}
 
-	void ExecuteEvent(uint32 eventId) //override
+	void ExecuteEvent(uint32 eventId) override
 	{
 		switch (eventId)
 		{

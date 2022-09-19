@@ -46,13 +46,13 @@ struct boss_tusle_tonks : public BossAI
 {
     boss_tusle_tonks(Creature* creature) : BossAI(creature, DATA_TUSSLE_TONKS) { }
 
-    void Reset()
+    void Reset() override
     {
         switch (me->GetEntry())
         {
         case NPC_PLATINUM_PUMMELER:
             BossAI::Reset();
-            me->AddAura(SPELL_PLATINUM_PLATING, me);
+            me->AddAura(SPELL_PLATINUM_PLATING);
             if (Aura* plating = me->GetAura(SPELL_PLATINUM_PLATING))            
                 plating->SetStackAmount(3);
             me->DespawnCreaturesInArea(NPC_BUZZ_SAW, 125.0f);
@@ -65,12 +65,12 @@ struct boss_tusle_tonks : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
         switch (me->GetEntry())
         {
         case NPC_PLATINUM_PUMMELER:
-            _JustEngagedWith();            
+            _EnterCombat();            
             events.ScheduleEvent(EVENT_WHIRLING_EDGE, 5s);
             events.ScheduleEvent(EVENT_LAY_MINE, 10s);
             events.ScheduleEvent(EVENT_BUZZ_SAW, 15s);
@@ -80,7 +80,7 @@ struct boss_tusle_tonks : public BossAI
             break;
 
         case NPC_GNOMERCY:
-            _JustEngagedWith();
+            _EnterCombat();
             events.ScheduleEvent(EVENT_MAXIMUM_THRUST, 1s);
             events.ScheduleEvent(EVENT_VENT_JETS, 6s);
             if (Creature* pummeler = me->FindNearestCreature(NPC_PLATINUM_PUMMELER, 100.0f, true))
@@ -90,7 +90,7 @@ struct boss_tusle_tonks : public BossAI
         }
     }
 
-    void ExecuteEvent(uint32 eventid)
+    void ExecuteEvent(uint32 eventid) override
     {
         switch (eventid)
         {
@@ -111,19 +111,17 @@ struct boss_tusle_tonks : public BossAI
                     me->GetScheduler().Schedule(1s, [buzz_saws, stalker] (TaskContext context)
                     {                        
                         buzz_saws->GetMotionMaster()->MoveCharge(stalker->GetPositionX(), stalker->GetPositionY(), stalker->GetPositionZ(), 80.0f, 1, true);
-                    };
+                    });
                     me->GetScheduler().Schedule(3s, [buzz_saws, stalker] (TaskContext context)
                     {
                         buzz_saws->GetMotionMaster()->MoveRandom(30.0f);
-                    };
+                    });
                     me->GetScheduler().Schedule(6s, [buzz_saws, stalker] (TaskContext context)
                     {
                         buzz_saws->DespawnOrUnsummon();
-                    };
+                    });
                 }
-           }
-        }
-           
+        }   }
         events.Repeat(35s);
         break;
 
@@ -138,20 +136,20 @@ struct boss_tusle_tonks : public BossAI
             break;
 
         case EVENT_MAXIMUM_THRUST:
-            if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
             {
-               me->GetScheduler().Schedule(1s, [this, target] (TaskContext context)
+                me->GetScheduler().Schedule(1s, [this, target] (TaskContext context)
                 {
                     me->GetMotionMaster()->MoveCharge(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 100.0f, 1, true);
-                };
+                });
             }
             events.Repeat(20s);
             break;
 
         case EVENT_VENT_JETS:
-            if (Unit* target = SelectTarget(SELECT_TARGET_MINDISTANCE, 0, 100.0f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_NEAREST, 0, 100.0f, true))
             {
-                me->AddAura(SPELL_AURA_VENT_JETS, me);
+                me->AddAura(SPELL_AURA_VENT_JETS);
                 me->GetMotionMaster()->Clear();
                 me->GetMotionMaster()->MoveChase(target, 100.0f, PET_FOLLOW_ANGLE);
             }
@@ -160,7 +158,7 @@ struct boss_tusle_tonks : public BossAI
         }
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/)
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         _JustReachedHome();
         switch (me->GetEntry())
@@ -189,7 +187,7 @@ struct boss_tusle_tonks : public BossAI
         }
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) override
     {
         switch (me->GetEntry())
         {
@@ -210,7 +208,7 @@ struct npc_buzz_saw : public ScriptedAI
 {
     npc_buzz_saw(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset()
+    void Reset() override
     {
         ScriptedAI::Reset();
         me->SetReactState(REACT_PASSIVE);

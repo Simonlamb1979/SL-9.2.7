@@ -29,19 +29,19 @@ struct npc_lucille_waycrest_intro : public ScriptedAI
 
 	void Intro()
 	{
-			//me->GetScheduler().Schedule(3s, [this](TaskContext context)
-			/*{
-				//if (Creature* lady = instance->GetCreature(NPC_LADY_WAYCREST_INTRO))
+			me->GetScheduler().Schedule(3s, [this](TaskContext context)
+			{
+				if (Creature* lady = instance->GetCreature(NPC_LADY_WAYCREST_INTRO))
 					lady->AI()->Talk(SAY_LADY_INTRO);
-			}//);
+			});
 
 			me->GetScheduler().Schedule(8s, [this](TaskContext context)
 			{
 				if (Creature* lucille = instance->GetCreature(NPC_LUCILLE_WAYCREST_INTRO))
 					lucille->AI()->Talk(SAY_LUCILLE_INTRO);
-			});*/
+			});
 
-		/*	me->GetScheduler().Schedule(11s, [this](TaskContext context)
+			me->GetScheduler().Schedule(11s, [this](TaskContext context)
 			{
 				if (Creature* lady = instance->GetCreature(NPC_LADY_WAYCREST_INTRO))
 					lady->AI()->Talk(SAY_LADY_INTRO_2);
@@ -61,13 +61,13 @@ struct npc_lucille_waycrest_intro : public ScriptedAI
 				if (Creature* malady = instance->GetCreature(NPC_SISTER_MALADY_INTRO))
 					malady->SetVisible(false);
 
-			});*/
+			});
 
-		//	me->GetScheduler().Schedule(21s, [this](TaskContext context)
-		//	{
-			//	if (Creature* mace = instance->GetCreature(NPC_INQUISITOR_MACE))
+			me->GetScheduler().Schedule(21s, [this](TaskContext context)
+			{
+				if (Creature* mace = instance->GetCreature(NPC_INQUISITOR_MACE))
 				{
-				//	mace->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+					mace->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
 					std::list<Creature*> c_list;
 					me->GetCreatureListWithEntryInGrid(c_list, NPC_INQUISITOR_MACE, 500.0f);
 					for (auto & mace : c_list)
@@ -76,11 +76,11 @@ struct npc_lucille_waycrest_intro : public ScriptedAI
 						mace->GetMotionMaster()->MovePoint(1, -547.0f, -259.0f, 245.0f, true);
 					}
 				}
-			//}//);
+			});
 
-			//me->GetScheduler().Schedule(23s, [this](TaskContext context)
-			//{
-				//if (Creature* notley = instance->GetCreature(NPC_INQUISITOR_NOTLEY))
+			me->GetScheduler().Schedule(23s, [this](TaskContext context)
+			{
+				if (Creature* notley = instance->GetCreature(NPC_INQUISITOR_NOTLEY))
 				{
 					std::list<Creature*> c_list;
 					me->GetCreatureListWithEntryInGrid(c_list, NPC_INQUISITOR_NOTLEY, 500.0f);
@@ -89,11 +89,11 @@ struct npc_lucille_waycrest_intro : public ScriptedAI
 						notley->AI()->Talk(SAY_MACE);
 					}
 				}
-			//}//);
+			});
 
-		//	me->GetScheduler().Schedule(25s, [this](TaskContext context)
-			//{
-				//if (Creature* notley = instance->GetCreature(NPC_INQUISITOR_NOTLEY))
+			me->GetScheduler().Schedule(25s, [this](TaskContext context)
+			{
+				if (Creature* notley = instance->GetCreature(NPC_INQUISITOR_NOTLEY))
 				{
 					std::list<Creature*> c_list;
 					me->GetCreatureListWithEntryInGrid(c_list, NPC_INQUISITOR_NOTLEY, 500.0f);
@@ -102,17 +102,17 @@ struct npc_lucille_waycrest_intro : public ScriptedAI
 						notley->AI()->Talk(SAY_RUNNING);
 					}
 				}
-			//}//);
+			});
 
-		//	me->GetScheduler().Schedule(33s, [this](TaskContext context)
-			//{
-				//if (Creature* lucille = instance->GetCreature(NPC_LUCILLE_WAYCREST_INTRO))
-			//		lucille->AI()->Talk(SAY_HEROES);
-		//	}//);
+			me->GetScheduler().Schedule(33s, [this](TaskContext context)
+			{
+				if (Creature* lucille = instance->GetCreature(NPC_LUCILLE_WAYCREST_INTRO))
+					lucille->AI()->Talk(SAY_HEROES);
+			});
 
-			//me->GetScheduler().Schedule(40s, [this](TaskContext context)
-			//{
-			//	if (Creature* yorrick = instance->GetCreature(NPC_INQUISITOR_YORRICK))
+			me->GetScheduler().Schedule(40s, [this](TaskContext context)
+			{
+				if (Creature* yorrick = instance->GetCreature(NPC_INQUISITOR_YORRICK))
 				{
 					std::list<Creature*> c_list;
 					me->GetCreatureListWithEntryInGrid(c_list, NPC_INQUISITOR_YORRICK, 500.0f);
@@ -121,14 +121,14 @@ struct npc_lucille_waycrest_intro : public ScriptedAI
 						yorrick->AI()->Talk(SAY_HUNTING);
 					}
 				}
-			//});
+			});
 
-			//me->GetScheduler().Schedule(44s, [this](TaskContext context)
+			me->GetScheduler().Schedule(44s, [this](TaskContext context)
 			{
-			//	if (Creature* lucille = instance->GetCreature(NPC_LUCILLE_WAYCREST_INTRO))
+				if (Creature* lucille = instance->GetCreature(NPC_LUCILLE_WAYCREST_INTRO))
 				{
 					std::list<Creature*> c_list;
-					//lucille->GetCreatureListInGrid(c_list, 13.0f);
+					lucille->GetCreatureListInGrid(c_list, 13.0f);
 					for (auto & creatures : c_list)
 					switch (creatures->GetEntry())
 					{
@@ -150,7 +150,7 @@ struct npc_lucille_waycrest_intro : public ScriptedAI
 
 					}
 				}
-			}//);
+			});
 	}		
 
 	void UpdateAI(uint32 diff) override

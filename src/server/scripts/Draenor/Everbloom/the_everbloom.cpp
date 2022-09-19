@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -415,7 +415,7 @@ public:
 
         void HandleEffect(SpellEffIndex /*effIndex*/)
         {
-            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_GROWTH_2, DIFFICULTY_NONE);
+            SpellInfo const* spellInfo = sSpellMgr->GetSpellInfo(SPELL_GROWTH_2);
             if (!spellInfo)
                 return;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -40,9 +40,9 @@ struct boss_jiarak : public BossAI
         summons.DespawnAll();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void EnterCombat(Unit* who) override
     {
-        BossAI::JustEngagedWith(who);
+        BossAI::EnterCombat(who);
 
         //EVENTS
         events.ScheduleEvent(EVENT_STORM_WING, 11000);

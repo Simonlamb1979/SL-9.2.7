@@ -492,7 +492,7 @@ class boss_oregorger : public CreatureScript
 
                     /// Allow loots and bonus loots to be enabled/disabled with a simple reload
                   //  if (sObjectMgr->IsDisabledEncounter(m_Instance->GetEncounterIDForBoss(me), GetDifficulty()))
-                        me->SetLootRecipient(nullptr);
+                        me->AddLootRecipient(nullptr);
                   //  else
                         CastSpellToPlayers(me->GetMap(), me, eSpells::OregorgerBonusLoot, true);
                 }
@@ -1585,7 +1585,7 @@ class go_foundry_volatile_blackrock_ore : public GameObjectScript
 
             bool m_Activated;
 
-            bool GossipHello(Player* p_Player) override
+            bool GossipHello(Player* p_Player , bool /*isUse*/)
             {
                 if (!m_Activated)
                 {
@@ -1593,7 +1593,7 @@ class go_foundry_volatile_blackrock_ore : public GameObjectScript
                     p_Player->CastSpell(go, eSpell::HarvestVolatileBlackrock, false);
                 }
 
-        return true;
+                return false;
             }
 
             void OnStateChanged(uint32 /*p_State*/, Unit* /*unit*/)
@@ -1635,7 +1635,7 @@ class go_founrdy_ore_grinder : public GameObjectScript
                 CarryingVolatileBlackrock   = 163454
             };
 
-            bool GossipHello(Player* p_Player) override
+            bool GossipHello(Player* p_Player, bool /*isUse*/)
             {
                 if (p_Player->HasAura(eSpells::CarryingVolatileBlackrock))
                 {

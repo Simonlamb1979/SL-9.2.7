@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -17,15 +17,26 @@
 
 void AddSC_stormwind_extraction();
 void AddSC_scenario_stormwind_extraction();
+void AddSC_uncharted_island_tutorial();
+void AddSC_scenario_uncharted_island_tutorial();
+void AddSC_scenario_whispering_reef_island();
+void AddSC_scenario_pursuing_the_black_harvest();
 //void AddSC_scenario_the_battle_for_lordaeron();
 //void AddSC_scenario_scenario_the_defense_of_karabor();
+
 //Void AddSC_scenario_verdant_wilds();
 
 void AddScenariosScripts()
 {
+
     AddSC_stormwind_extraction();
     AddSC_scenario_stormwind_extraction();
+    AddSC_uncharted_island_tutorial();
+    AddSC_scenario_uncharted_island_tutorial();
+	AddSC_scenario_whispering_reef_island();
+	AddSC_scenario_pursuing_the_black_harvest();
     //AddSC_scenario_the_battle_for_lordaeron();
     //AddSC_scenario_scenario_the_defense_of_karabor();
+
     //AddSC_scenario_verdant_wilds();
 }

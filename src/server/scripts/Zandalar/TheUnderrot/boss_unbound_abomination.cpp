@@ -1,26 +1,9 @@
-/*
- * Copyright 2021 HellgarveCore
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
- * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
- * more details.
- *
- * You should have received a copy of the GNU General Public License along
- * with this program. If not, see <http://www.gnu.org/licenses/>.
- */
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "ScriptMgr.h"
 #include "SpellAuras.h"
 #include "SpellAuraEffects.h"
 #include "Creature.h"
-#include "ScriptedGossip.h"
 #include "CreatureAI.h"
 #include "the_underrot.h"
 
@@ -87,13 +70,6 @@ enum Timers
 enum Actions
 {
     ACTION_COUNT_VISAGE = 1,
-    ACTION_COMBAT,
-    ACTION_RP_EVENT,
-    ACTION_RP_EVENT_2,
-    ACTION_RP_EVENT_3,
-    ACTION_RP_EVENT_4,
-    ACTION_RP_EVENT_5,
-    ACTION_RP_EVENT_6,
 };
 
 enum Creatures
@@ -111,26 +87,6 @@ enum Sounds
     SOUND_UNBOUND_DEATH = 102966,
     SOUND_TITAN_CLEANSING = 104788,
     SOUND_TITAN_PURGE_CORRUPTION = 104790,
-};
-
-enum Points
-{
-    POINT_1 = 1,
-    POINT_2,
-    POINT_3,
-    POINT_4,
-    POINT_5,
-    POINT_6,
-};
-
-const Position MovementPos[6] =
-{
-    { 1032.63f, 1144.16f, 14.60f },
-    { 981.74f, 1152.87f, 14.34f },
-    { 992.49f, 1192.83f, 17.36f },
-    { 982.83f, 1235.51f, 14.39f },
-    { 1045.11f, 1260.05f, 12.48f },
-    { 1097.59f, 1330.80f, 5.81f },
 };
 
 #define TITAN_AGGRO "Virulent specimen Detected. Containment priority one."
@@ -301,7 +257,7 @@ public:
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
 
             if (Creature* titan = me->SummonCreature(NPC_TITAN_KEEPER_HEZREL, centerPosition.GetPositionX(), centerPosition.GetPositionY(), centerPosition.GetPositionZ(), TEMPSUMMON_MANUAL_DESPAWN))
-                titan->AI()->DoAction(ACTION_COMBAT);
+                titan->AI()->AttackStart(me);
 
             events.ScheduleEvent(EVENT_PUTRID_BLOOD, TIMER_PUTRID_BLOOD);
             events.ScheduleEvent(EVENT_VILE_EXPULSION, TIMER_VILE_EXPULSION);
@@ -309,23 +265,23 @@ public:
         }
 
 
-        void OnSpellFinished(SpellInfo const* spellInfo) //override
+        void OnSpellFinished(SpellInfo const* spellInfo) override
         {
             switch (spellInfo->Id)
             {
             case SPELL_VILE_EXPULSION:
             {
                 std::list<Unit*> targets;
-                //SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
+                SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
 
                 if (!targets.empty())
                     if (targets.size() >= 1)
                         targets.resize(1);
-              //  for (auto target : targets)
-               // {
-                  //  for (uint8 i = 0; i < 5; ++i)
-                     //   me->CastSpell(me->GetPositionX() + 2 * i, me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN);
-               // }
+                for (auto target : targets)
+                {
+                    for (uint8 i = 0; i < 5; ++i)
+                        me->CastSpell(me->GetPositionX() + 2 * i, me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN);
+                }
                 break;
             }
             }
@@ -401,31 +357,6 @@ public:
     bfa_npc_titan_keeper_hezrel() : CreatureScript("bfa_npc_titan_keeper_hezrel")
     {}
 
-
-    bool OnGossipHello(Player* player, Creature* me)
-    {
-        if (!me || !player)
-            return false;
-
-        AddGossipItemFor(player, 0, "Show me the abomination.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-
-        SendGossipMenuFor(player, 1, me);
-
-        return true;
-    }
-
-    bool OnGossipSelect(Player* pPlayer, Creature* pCreature, uint32 /*sender*/, uint32 action) override
-    {
-        if (action == GOSSIP_ACTION_INFO_DEF + 1)
-        {
-            pPlayer->TeleportTo(1841, 1221.52f, 1525.49f, -181.81f, 4.39f, 0,0);
-            pCreature->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-        }
-
-        return true;
-    }
-
-
     struct bfa_npc_titan_keeper_hezrel_AI : public ScriptedAI
     {
         bfa_npc_titan_keeper_hezrel_AI(Creature* creature) : ScriptedAI(creature)
@@ -434,68 +365,16 @@ public:
         }
 
         EventMap events;
-        bool combat;
-        EventMap rpevents;
         
         void Reset()
         {
-            combat = false;
             events.Reset();
-            rpevents.Reset();
+            events.ScheduleEvent(EVENT_HOLY_BOLT, TIMER_HOLY_BOLT);
+            events.ScheduleEvent(EVENT_CLEANSING_LIGHT, TIMER_CLEANSING_LIGHT);
+
+            SelectSoundAndText(me, 1);
         }
 
-        Creature* GetAbomination()
-        {
-            return me->FindNearestCreature(BOSS_UNBOUND_ABOMINATION, 500.0f, true);
-        }
-
-        void MovementInform(uint32 type, uint32 pointId)
-        {
-            switch (pointId)
-            {
-            case POINT_1:
-                rpevents.ScheduleEvent(ACTION_RP_EVENT_2, 500);
-                break;
-            case POINT_2:
-                rpevents.ScheduleEvent(ACTION_RP_EVENT_3, 500);
-                break;
-            case POINT_3:
-                rpevents.ScheduleEvent(ACTION_RP_EVENT_4, 500);
-                break;
-            case POINT_4:
-                rpevents.ScheduleEvent(ACTION_RP_EVENT_5, 500);
-                break;
-            case POINT_5:
-                rpevents.ScheduleEvent(ACTION_RP_EVENT_6, 500);
-                break;
-            case POINT_6:
-                me->SetNpcFlags(UNIT_NPC_FLAG_GOSSIP);
-                break;
-            }
-        }
-
-        void DoAction(int32 action)
-        {
-            switch (action)
-            {
-            case ACTION_RP_EVENT:
-            {
-                me->GetScheduler().Schedule(2s, [this](TaskContext /*context*/)
-                {
-                    me->GetMotionMaster()->MovePoint(POINT_1, MovementPos[0], false);
-                });
-                break;
-            }
-            case ACTION_COMBAT:
-                if (Creature* abo = GetAbomination())
-                    me->Attack(abo, false);
-                combat = true;
-                SelectSoundAndText(me, 1);
-                events.ScheduleEvent(EVENT_HOLY_BOLT, TIMER_HOLY_BOLT);
-                events.ScheduleEvent(EVENT_CLEANSING_LIGHT, TIMER_CLEANSING_LIGHT);
-                break;
-            }
-        }
 
         void SelectSoundAndText(Creature* me, uint32  selectedTextSound = 0)
         {
@@ -529,99 +408,71 @@ public:
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
 
-            if (!combat)
+            while (uint32 eventId = events.ExecuteEvent())
             {
-                while (uint32 eventId = rpevents.ExecuteEvent())
+                switch (eventId)
                 {
-                    switch (eventId)
+                case EVENT_HOLY_BOLT:
+                {
+                    std::list<Creature*> cList;
+                    me->GetCreatureListWithEntryInGrid(cList, BOSS_UNBOUND_ABOMINATION, 100.0f);
+                    if (!cList.empty())
                     {
-                    case ACTION_RP_EVENT_2:
-                        me->GetMotionMaster()->MovePoint(POINT_2, MovementPos[1]);
-                        break;
-                    case ACTION_RP_EVENT_3:
-                        me->GetMotionMaster()->MovePoint(POINT_3, MovementPos[2]);
-                        break;
-                    case ACTION_RP_EVENT_4:
-                        me->GetMotionMaster()->MovePoint(POINT_4, MovementPos[3]);
-                        break;
-                    case ACTION_RP_EVENT_5:
-                        me->GetMotionMaster()->MovePoint(POINT_5, MovementPos[4]);
-                        break;
-                    case ACTION_RP_EVENT_6:
-                        me->GetMotionMaster()->MovePoint(POINT_6, MovementPos[5]);
-                        break;
+                        if (cList.size() >= 1)
+                            cList.resize(1);
+
+                        for (auto visage : cList)
+                        {
+                            me->CastSpell(visage, SPELL_HOLY_BOLT);
+                        }
                     }
+                    events.ScheduleEvent(EVENT_PURGE_CORRUPTION, TIMER_PURGE_CORRUPTION);
+                    break;
                 }
-            }
-
-            if(combat)
-            { 
-                while (uint32 eventId = events.ExecuteEvent())
+                case EVENT_PURGE_CORRUPTION:
                 {
-                    switch (eventId)
+                    std::list<Creature*> cList;
+                    me->GetCreatureListWithEntryInGrid(cList, NPC_BLOOD_VISAGE, 100.0f);
+                    if (!cList.empty())
                     {
-                    case EVENT_HOLY_BOLT:
-                    {
-                        std::list<Creature*> cList;
-                        me->GetCreatureListWithEntryInGrid(cList, BOSS_UNBOUND_ABOMINATION, 100.0f);
-                        if (!cList.empty())
+                        if (cList.size() >= 1)
+                            cList.resize(1);
+
+                        for (auto visage : cList)
                         {
-                            if (cList.size() >= 1)
-                                cList.resize(1);
-
-                            for (auto visage : cList)
-                            {
-                                me->CastSpell(visage, SPELL_HOLY_BOLT);
-                            }
+                            SelectSoundAndText(me, 3);
+                            me->CastSpell(visage, SPELL_PURGE_CORRUPTION);
                         }
-                        events.ScheduleEvent(EVENT_PURGE_CORRUPTION, TIMER_PURGE_CORRUPTION);
-                        break;
                     }
-                    case EVENT_PURGE_CORRUPTION:
+                    events.ScheduleEvent(EVENT_HOLY_BOLT, TIMER_HOLY_BOLT);
+                    break;
+                }
+                case EVENT_CLEANSING_LIGHT:
+                {
+                    SelectSoundAndText(me, 2);
+                    std::ostringstream str;
+                    str << "Titan Keeper Hazrel begins to cast |cFFF00000|h[Cleansing Light]|h|r !";
+                    me->TextEmote(str.str().c_str(), 0, true);
+
+                    std::list<Unit*> targets;
+                    SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
+
+                    if (!targets.empty())
+                        if (targets.size() >= 1)
+                            targets.resize(1);
+                    for (auto target : targets)
                     {
-                        std::list<Creature*> cList;
-                        me->GetCreatureListWithEntryInGrid(cList, NPC_BLOOD_VISAGE, 100.0f);
-                        if (!cList.empty())
-                        {
-                            if (cList.size() >= 1)
-                                cList.resize(1);
+                        me->CastSpell(target, SPELL_CLEANSING_LIGHT);
+                        std::list<AreaTrigger*> areatriggers = target->SelectNearestAreaTriggers(SPELL_VILE_EXPULSION_SPAWN, 100.f);
+                        for (AreaTrigger* at : areatriggers)
+                            if (at->GetDistance(target) < 10.f)
+                                at->SetDuration(0);
 
-                            for (auto visage : cList)
-                            {
-                                SelectSoundAndText(me, 3);
-                                me->CastSpell(visage, SPELL_PURGE_CORRUPTION);
-                            }
-                        }
-                        events.ScheduleEvent(EVENT_HOLY_BOLT, TIMER_HOLY_BOLT);
-                        break;
                     }
-                    case EVENT_CLEANSING_LIGHT:
-                    {
-                        SelectSoundAndText(me, 2);
-                        std::ostringstream str;
-                        str << "Titan Keeper Hazrel begins to cast |cFFF00000|h[Cleansing Light]|h|r !";
-                        me->TextEmote(str.str().c_str(), 0, true);
 
-                        std::list<Unit*> targets;
-                     //   SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
-
-                        if (!targets.empty())
-                            if (targets.size() >= 1)
-                                targets.resize(1);
-                        for (auto target : targets)
-                        {
-                            me->CastSpell(target, SPELL_CLEANSING_LIGHT);
-                            std::list<AreaTrigger*> areatriggers = target->SelectNearestAreaTriggers(SPELL_VILE_EXPULSION_SPAWN, 100.f);
-                            for (AreaTrigger* at : areatriggers)
-                                if (at->GetDistance(target) < 10.f)
-                                    at->SetDuration(0);
-
-                        }
-
-                        events.ScheduleEvent(EVENT_CLEANSING_LIGHT, TIMER_CLEANSING_LIGHT);
-                        break;
-                    }
-                    }
+                    events.ScheduleEvent(EVENT_CLEANSING_LIGHT, TIMER_CLEANSING_LIGHT);
+                    break;
+                }
                 }
             }
             DoMeleeAttackIfReady();
@@ -703,15 +554,15 @@ public:
             return me->FindNearestCreature(BOSS_UNBOUND_ABOMINATION, 500.0f, true);
         }
 
-        /*void DamageTaken(Unit* a, uint32& damage)
+        void DamageTaken(Unit* a, uint32& damage)
         {
-           /* if (damage >= me->GetHealth())
+            if (damage >= me->GetHealth())
             {
                 if(Creature* boss = GetUnbound())
                     boss->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN, true);
                 me->DespawnOrUnsummon();
-            }*/
-       // }
+            }
+        }
 
         void CheckNearbyPlayers()
         {
@@ -724,8 +575,8 @@ public:
                         if (me->GetDistance(player) <= 1.5f)
                         {
                             me->CastSpell(player, SPELL_ROTTING_SPORE_DAMAGE);
-                          //  if (Creature* boss = GetUnbound())
-                             //   boss->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN, true);
+                            if (Creature* boss = GetUnbound())
+                                boss->CastSpell(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), SPELL_VILE_EXPULSION_MISSILE_SPAWN, true);
                             me->DespawnOrUnsummon();
                         }
                     }
@@ -743,7 +594,7 @@ public:
                 case EVENT_FIXATE:
                 {
                     std::list<Unit*> targets;
-                    //SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
+                    SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
 
                     if (!targets.empty())
                         if (targets.size() >= 1)
@@ -751,7 +602,7 @@ public:
 
                     for (auto target : targets)
                     {
-                      //  me->AddThreat(target, 9999999999.9f);
+                        me->AddThreat(target, 9999999999.9f);
                         me->AI()->AttackStart(target);
                     }
                     events.ScheduleEvent(EVENT_FIXATE_FOLLOW, 2000);
@@ -795,7 +646,7 @@ public:
         {}
         void OnInitialize() override
         {
-          //  at->SetPeriodicProcTimer(30 * IN_MILLISECONDS);
+            at->SetPeriodicProcTimer(30 * IN_MILLISECONDS);
         }
 
         void OnUnitEnter(Unit* unit) override
@@ -810,7 +661,7 @@ public:
             unit->RemoveAurasDueToSpell(SPELL_VILE_EXPULSION_AT_DAMAGE);
         }
 
-        void OnPeriodicProc() //override
+        void OnPeriodicProc() override
         {
             at->SetDuration(110 * IN_MILLISECONDS);
 

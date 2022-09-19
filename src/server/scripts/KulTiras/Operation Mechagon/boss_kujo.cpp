@@ -43,15 +43,15 @@ struct boss_kujo : public BossAI
 {
     boss_kujo(Creature* creature) : BossAI(creature, DATA_KUJO) { }
 
-    void Reset()
+    void Reset() override
     {
         BossAI::Reset();
         me->DespawnCreaturesInArea(NPC_FLYING_CLAW);
     }
 
-    void JustEngagedWith(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
-        _JustEngagedWith();
+        _EnterCombat();
         if (Creature* wendy = me->FindNearestCreature(NPC_WENDY_COGSWORTH, 300.0f, true))
             wendy->AI()->Talk(SAY_AGGRO);
         events.ScheduleEvent(EVENT_BLAZING_CHOMP, 3s);
@@ -60,7 +60,7 @@ struct boss_kujo : public BossAI
         events.ScheduleEvent(EVENT_EXPLOSIVE_LEAP, 38s);
     }
 
-    void ExecuteEvent(uint32 eventid)
+    void ExecuteEvent(uint32 eventid) override
     {
         switch (eventid)
         {
@@ -68,13 +68,13 @@ struct boss_kujo : public BossAI
             if (Creature* wendy = me->FindNearestCreature(NPC_WENDY_COGSWORTH, 300.0f, true))
                 wendy->AI()->Talk(SAY_EXPLOSIVE_LEAP);
 
-            if (Unit* target = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))
+            if (Unit* target = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
             {
                 me->SetFacingToObject(target);
                 me->GetScheduler().Schedule(3s, [this, target](TaskContext context)
                 {
                     me->GetMotionMaster()->MoveCharge(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), 80.0f, 1, true);
-                };
+                });
             }
             events.Repeat(20s);
             break;
@@ -100,13 +100,12 @@ struct boss_kujo : public BossAI
         }
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
         if (Creature* wendy = me->FindNearestCreature(NPC_WENDY_COGSWORTH, 300.0f, true))
             wendy->AI()->Talk(SAY_DEATH);
         me->DespawnCreaturesInArea(NPC_FLYING_CLAW);
-      
         instance->DoModifyPlayerCurrencies(1553, 35);
     }
 };
@@ -119,7 +118,7 @@ struct npc_flying_claw : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    void IsSummonedBy(Unit* /*summoner*/) 
+    void IsSummonedBy(Unit* /*summoner*/) override
     {        
         me->GetMotionMaster()->MoveFall();
     }

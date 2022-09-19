@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -31,6 +31,10 @@ EndContentData */
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "Spell.h"
+#include "SpellInfo.h"
+#include "ScriptedGossip.h"
+#include "SpellScript.h"
 
 /*######
 ## npc_tapoke_slim_jahn
@@ -39,6 +43,7 @@ EndContentData */
 enum TapokeSlim
 {
     QUEST_MISSING_DIPLO_PT11    = 1249,
+    FACTION_ENEMY               = 168,
     SPELL_STEALTH               = 1785,
     SPELL_CALL_FRIENDS          = 16457,                    //summons 1x friend
     NPC_SLIMS_FRIEND            = 4971,
@@ -55,9 +60,9 @@ public:
         return new npc_tapoke_slim_jahnAI(creature);
     }
 
-    struct npc_tapoke_slim_jahnAI : public EscortAI
+    struct npc_tapoke_slim_jahnAI : public npc_escortAI
     {
-        npc_tapoke_slim_jahnAI(Creature* creature) : EscortAI(creature)
+        npc_tapoke_slim_jahnAI(Creature* creature) : npc_escortAI(creature)
         {
             Initialize();
         }
@@ -75,7 +80,7 @@ public:
                 Initialize();
         }
 
-        void WaypointReached(uint32 waypointId, uint32 /*pathId*/) override
+        void WaypointReached(uint32 waypointId) override
         {
             switch (waypointId)
             {
@@ -88,7 +93,7 @@ public:
             }
         }
 
-        void JustEngagedWith(Unit* /*who*/) override
+        void EnterCombat(Unit* /*who*/) override
         {
             if (HasEscortState(STATE_ESCORT_ESCORTING) && !IsFriendSummoned && GetPlayerForEscort())
             {
@@ -105,6 +110,17 @@ public:
                 summoned->AI()->AttackStart(player);
         }
 
+        void AttackedBy(Unit* pAttacker) override
+        {
+            if (me->GetVictim())
+                return;
+
+            if (me->IsFriendlyTo(pAttacker))
+                return;
+
+            AttackStart(pAttacker);
+        }
+
         void DamageTaken(Unit* /*pDoneBy*/, uint32& uiDamage) override
         {
             if (HealthBelowPct(20))
@@ -117,7 +133,7 @@ public:
 
                     me->RestoreFaction();
                     me->RemoveAllAuras();
-                    me->GetThreatManager().ClearAllThreat();
+                    me->DeleteThreatList();
                     me->CombatStop(true);
 
                     SetRun(false);
@@ -136,32 +152,59 @@ class npc_mikhail : public CreatureScript
 public:
     npc_mikhail() : CreatureScript("npc_mikhail") { }
 
-    struct npc_mikhailAI : public ScriptedAI
+    bool OnQuestAccept(Player* player, Creature* creature, const Quest* quest) override
     {
-        npc_mikhailAI(Creature* creature) : ScriptedAI(creature) { }
-
-        void QuestAccept(Player* player, Quest const* quest) override
+        if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
         {
-            if (quest->GetQuestId() == QUEST_MISSING_DIPLO_PT11)
-            {
-                Creature* slim = me->FindNearestCreature(NPC_TAPOKE_SLIM_JAHN, 25.0f);
-                if (!slim)
-                    return;
+            Creature* pSlim = creature->FindNearestCreature(NPC_TAPOKE_SLIM_JAHN, 25.0f);
 
-                if (!slim->HasStealthAura())
-                    slim->CastSpell(slim, SPELL_STEALTH, true);
+            if (!pSlim)
+                return false;
 
-                if (npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI* slimAI = CAST_AI(npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI, slim->AI()))
-                    slimAI->Start(false, false, player->GetGUID(), quest);
-            }
+            if (!pSlim->HasStealthAura())
+                pSlim->CastSpell(pSlim, SPELL_STEALTH, true);
+
+            if (npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI* pEscortAI = CAST_AI(npc_tapoke_slim_jahn::npc_tapoke_slim_jahnAI, pSlim->AI()))
+                pEscortAI->Start(false, false, player->GetGUID(), quest);
         }
-    };
-
-    CreatureAI* GetAI(Creature* creature) const override
-    {
-        return new npc_mikhailAI(creature);
+        return false;
     }
 };
+
+enum MarshFire
+{
+    NPC_MARSH_FIRE       = 41628,
+    QUEST_FOR_PEATS_SAKE = 25939
+};
+
+class spell_water_blast : public SpellScript
+{
+    PrepareSpellScript(spell_water_blast);
+
+    void HandleScript(SpellEffIndex /*effIndex*/)
+    {
+        if (!GetHitUnit() || !GetCaster()->IsPlayer() || !GetHitUnit()->ToCreature())
+            return;
+
+        GetCaster()->ToPlayer()->RewardPlayerAndGroupAtEvent(NPC_MARSH_FIRE, GetCaster());
+        //GetHitUnit()->ToCreature()->DisappearAndDie();
+    }
+
+    void SelectTarget(WorldObject*& target)
+    {
+        target = GetCaster()->FindNearestCreature(NPC_MARSH_FIRE, 10.0f, true);
+    }
+
+    void Register() override
+    {
+        OnObjectTargetSelect += SpellObjectTargetSelectFn(spell_water_blast::SelectTarget, EFFECT_0, TARGET_UNIT_NEARBY_ENTRY);
+        OnEffectHitTarget += SpellEffectFn(spell_water_blast::HandleScript, EFFECT_0, SPELL_EFFECT_DUMMY);
+    }
+};
+
+
+
+
 
 /*######
 ## AddSC
@@ -171,4 +214,5 @@ void AddSC_wetlands()
 {
     new npc_tapoke_slim_jahn();
     new npc_mikhail();
+    RegisterSpellScript(spell_water_blast);
 }

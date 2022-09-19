@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -81,9 +81,9 @@ struct boss_dread_captain_lockwood : public BossAI
 		me->ClearUnitState(UNIT_STATE_ROOT);
 		me->NearTeleportTo(me->GetHomePosition());
 		me->RemoveUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
-	//	me->DespawnCreaturesInArea(NPC_ASHVANE_DECKHAND, 125.0f);
-	//	me->DespawnCreaturesInArea(NPC_ASHAVANE_CANNONNEER, 125.0f);
-	//	me->DespawnCreaturesInArea(NPC_CANNON_BARRAGE, 125.0f);
+		me->DespawnCreaturesInArea(NPC_ASHVANE_DECKHAND, 125.0f);
+		me->DespawnCreaturesInArea(NPC_ASHAVANE_CANNONNEER, 125.0f);
+		me->DespawnCreaturesInArea(NPC_CANNON_BARRAGE, 125.0f);
 		Talk(SAY_WIPE);
 		if (!me->HasAura(EVASIVE))
 		{
@@ -91,9 +91,9 @@ struct boss_dread_captain_lockwood : public BossAI
 		}
 	}
 
-	void JustEngagedWith(Unit* u) override
+	void EnterCombat(Unit* u) override
 	{
-		_JustEngagedWith();
+		_EnterCombat();
 		Talk(SAY_AGGRO);
 		events.ScheduleEvent(EVENT_RANGE, 500ms);
 		events.ScheduleEvent(EVENT_SHOOT, 1s);
@@ -107,9 +107,9 @@ struct boss_dread_captain_lockwood : public BossAI
 	{		
 		_JustDied();
 		Talk(SAY_DEATH);
-	//	me->DespawnCreaturesInArea(NPC_ASHVANE_DECKHAND, 125.0f);
-	//	me->DespawnCreaturesInArea(NPC_ASHAVANE_CANNONNEER, 125.0f);
-	//	me->DespawnCreaturesInArea(NPC_CANNON_BARRAGE, 125.0f);
+		me->DespawnCreaturesInArea(NPC_ASHVANE_DECKHAND, 125.0f);
+		me->DespawnCreaturesInArea(NPC_ASHAVANE_CANNONNEER, 125.0f);
+		me->DespawnCreaturesInArea(NPC_CANNON_BARRAGE, 125.0f);
 	}
 
 	void ExecuteEvent(uint32 eventid) override
@@ -135,16 +135,16 @@ struct boss_dread_captain_lockwood : public BossAI
 		case EVENT_GUT_SHOT:
 		{
 			Talk(SAY_GUT);
-			/*UnitList tarlist;
+			UnitList tarlist;
 			SelectTargetList(tarlist, 3, SELECT_TARGET_RANDOM, 45.0f, true);
 			for (Unit* tar : tarlist)
-			DoCast(tar, GUT_SHOT, true);*/
+			DoCast(tar, GUT_SHOT, true);
 			events.Repeat(15s);
 			break;
 		}
 
 		case EVENT_CLEAR_THE_DECK:
-			if (Unit* tar = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 30.0f, true))
+			if (Unit* tar = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 30.0f, true))
 			{
 				DoCastAOE(CLEAR_THE_DECK, true);
 			}
@@ -164,13 +164,13 @@ struct boss_dread_captain_lockwood : public BossAI
 					dread_cannon->CastSpell(nullptr, DREAD_VOLLEY_CHANNEL);
 					if (Creature* lockwoodbunny = me->FindNearestCreature(NPC_DREAD_CANNON_BUNNY, 100.0f, true))
 					{
-					//	lockwoodbunny->GetScheduler().Schedule(3000ms, [lockwoodbunny](TaskContext context)
+						lockwoodbunny->GetScheduler().Schedule(3000ms, [lockwoodbunny](TaskContext context)
 						{
 							std::list<Creature*> c_list;
 							lockwoodbunny->GetCreatureListWithEntryInGrid(c_list, NPC_CANNON_BARRAGE, 250.0f);
 							for (auto & controllers : c_list)
 							lockwoodbunny->AI()->DoCast(controllers, DREAD_VOLLEY_MISSILE);
-						}//);
+						});
 					}
 				}			
 			}
@@ -267,14 +267,12 @@ struct npc_unstable_ordnace : public ScriptedAI
 		ScriptedAI::Reset();		
 	}
 
-	bool GossipHello(Player* player) override 
+	void sGossipHello(Player* player) 
 	{ 
 		me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
 		CloseGossipMenuFor(player);
 		player->CastSpell(player, UNSTABLE_ORDNACE);
 		me->DespawnOrUnsummon();
-
-        return true;
 	}
 };
 

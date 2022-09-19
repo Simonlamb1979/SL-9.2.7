@@ -302,7 +302,7 @@ class boss_admiral_garan : public CreatureScript
              //   if (me->GetLootRecipients() nullptr)
               //  {
                    // if (sObjectMgr->IsDisabledEncounter(eIronMaidensDatas::IronMaidensEncounterID, GetDifficulty()))
-                        me->SetLootRecipient(nullptr);
+                        me->AddLootRecipient(nullptr);
                    // else
                         CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
                 }
@@ -613,7 +613,7 @@ class boss_admiral_garan : public CreatureScript
 
                                 p_Attacker->Kill(l_Maiden);
 
-                                l_Maiden->SetLootRecipient(nullptr);
+                                l_Maiden->AddLootRecipient(nullptr);
                             }
                         }
 
@@ -1034,7 +1034,7 @@ class boss_enforcer_sorka : public CreatureScript
                // if (me->GetLootRecipients() != nullptr)
                 {
                    // if (sObjectMgr->IsDisabledEncounter(eIronMaidensDatas::IronMaidensEncounterID, GetDifficulty()))
-                        me->SetLootRecipient(nullptr);
+                        me->AddLootRecipient(nullptr);
                    // else
                         CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
                 }
@@ -1308,7 +1308,7 @@ class boss_enforcer_sorka : public CreatureScript
 
                                 p_Attacker->Kill(l_Maiden);
 
-                                l_Maiden->SetLootRecipient(nullptr);
+                                l_Maiden->AddLootRecipient(nullptr);
                             }
                         }
 
@@ -1671,7 +1671,7 @@ class boss_marak_the_blooded : public CreatureScript
              //   if (me->GetLootRecipient() != nullptr)
                 {
                    // if (sObjectMgr->IsDisabledEncounter(eIronMaidensDatas::IronMaidensEncounterID, GetDifficulty()))
-                        me->SetLootRecipient(nullptr);
+                        me->AddLootRecipient(nullptr);
                    // else
                         CastSpellToPlayers(me->GetMap(), me, eIronMaidensSpells::IronMaidensBonus, true);
                 }
@@ -1923,7 +1923,7 @@ class boss_marak_the_blooded : public CreatureScript
 
                                 p_Attacker->Kill(l_Maiden);
 
-                                l_Maiden->SetLootRecipient(nullptr);
+                                l_Maiden->AddLootRecipient(nullptr);
                             }
                         }
 
@@ -3584,7 +3584,7 @@ class spell_foundry_convulsive_shadows : public SpellScriptLoader
                     {
                         int32 l_Damage = 40000 * p_DispelInfo->GetRemovedCharges();
 
-                        l_Sorka->CastCustomSpell(l_Target, eSpell::ShadowExplosion, &l_Damage, nullptr, true);
+                        l_Sorka->CastCustomSpell(l_Target, eSpell::ShadowExplosion, &l_Damage, nullptr, nullptr, true);
                     }
                 }
             }
@@ -3716,7 +3716,7 @@ class spell_foundry_sanguine_strikes_proc : public SpellScriptLoader
                 {
                     int32 l_Damage = p_EventInfo.GetDamageInfo()->GetDamage();
 
-                    l_Marak->CastCustomSpell(l_Marak, eSpell::SanguineStrikesProc, &l_Damage, nullptr, true);
+                    l_Marak->CastCustomSpell(l_Marak, eSpell::SanguineStrikesProc, &l_Damage, nullptr, nullptr, true);
                 }
             }
 

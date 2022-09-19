@@ -1455,8 +1455,8 @@ public:
                     who->CastSpell(who, 139075, true); // on soak
                 else if (playerList.size() == 1)
                 {
-                    float damage = 10000000.f;
-                    who->CastCustomSpell(who, 139075, &damage, nullptr, nullptr, true);
+                    int32 damage = 10000000;
+                    who->CastCustomSpell(who, 139075, &damage, NULL, NULL, true);
                 }
                 RemoveAnimaSensitivity();
             }
@@ -1835,7 +1835,8 @@ public:
 
         void Register()
         {
-            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_anima_explosion_players_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_anima_explosion_players_SpellScript::CheckTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+            OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(bfa_spell_anima_explosion_players_SpellScript::CheckTargets, EFFECT_0, TARGET_SRC_CASTER);
             OnEffectHitTarget += SpellEffectFn(bfa_spell_anima_explosion_players_SpellScript::RecalculateDamage, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
             OnEffectHitTarget += SpellEffectFn(bfa_spell_anima_explosion_players_SpellScript::OnHit, EFFECT_0, SPELL_EFFECT_SCHOOL_DAMAGE);
         }

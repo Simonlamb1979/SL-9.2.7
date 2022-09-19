@@ -2874,7 +2874,7 @@ class npc_garrosh_hellscream_minion_of_yshaarj : public CreatureScript
 
                 if (me->GetPower(POWER_ENERGY) >= 100)
                 {
-                    uint32 spellId = sSpellMgr->GetSpellInfo(SPELL_EMPOWERED, DIFFICULTY_NONE)->GetEffect(EFFECT_0)->TriggerSpell;
+                    uint32 spellId = sSpellMgr->GetSpellInfo(SPELL_EMPOWERED)->GetEffect(EFFECT_0)->TriggerSpell;
                     DoCastAOE(spellId, true);
                     me->SetPower(POWER_ENERGY, 0);
                 }
@@ -3835,7 +3835,7 @@ class spell_garrosh_hellscream_empowered_gripping_despair : public SpellScriptLo
 
                 int32 damage = aurEff->GetAmount();
 
-                GetUnitOwner()->CastCustomSpell(GetUnitOwner(), SPELL_EXPLOSIVE_DESPAIR_DMG, &damage, nullptr, true);
+                GetUnitOwner()->CastCustomSpell(GetUnitOwner(), SPELL_EXPLOSIVE_DESPAIR_DMG, &damage, NULL, NULL, true);
                 GetUnitOwner()->CastCustomSpell(SPELL_EXPLOSIVE_DESPAIR_DEBUFF, SpellValueMod::SPELLVALUE_AURA_STACK, GetStackAmount(), GetUnitOwner(), true);
             }
 

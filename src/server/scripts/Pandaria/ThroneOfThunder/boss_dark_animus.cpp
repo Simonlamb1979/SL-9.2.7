@@ -1679,8 +1679,8 @@ public:
                     damageCaster = CalculatePct(target->GetMaxHealth(), damageCaster);
                     damageTarget = CalculatePct(target->GetMaxHealth(), damageTarget);
 
-                    target->CastCustomSpell(targetedPlayer, SPELL_MATTER_SWAP_DAMAGE, &damageTarget, nullptr, true);
-                    targetedPlayer->CastCustomSpell(target, SPELL_MATTER_SWAP_DAMAGE, &damageCaster, nullptr, true);
+                    target->CastCustomSpell(targetedPlayer, SPELL_MATTER_SWAP_DAMAGE, &damageTarget, NULL, NULL, true);
+                    targetedPlayer->CastCustomSpell(target, SPELL_MATTER_SWAP_DAMAGE, &damageCaster, NULL, NULL, true);
 
                     targetedPlayer->NearTeleportTo(target->GetPositionX(), target->GetPositionY(), target->GetPositionZ(), target->GetOrientation(), false);
                     target->NearTeleportTo(targetedPlayer->GetPositionX(), targetedPlayer->GetPositionY(), targetedPlayer->GetPositionZ(), targetedPlayer->GetOrientation(), false);

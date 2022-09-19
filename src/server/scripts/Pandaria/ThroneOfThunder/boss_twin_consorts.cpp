@@ -497,7 +497,7 @@ public:
                 switch (TwinActive(instance, me))
                 {
                 case 1:
-                    me->SetLootRecipient(nullptr);
+                    me->ResetLootRecipients();
                     break;
                 case 0:
                     if (instance)
@@ -907,7 +907,7 @@ public:
                 switch (TwinActive(instance, me))
                 {
                 case 1:
-                    me->SetLootRecipient(nullptr);
+                    me->ResetLootRecipients();
                     break;
                 case 0:
                     if (instance)
@@ -4853,9 +4853,9 @@ public:
             if (!GetCaster() || !GetHitUnit())
                 return;
 
-            float basePoints0 = GetHitUnit()->CountPctFromMaxHealth(GetEffectValue());
+            int32 basePoints0 = int32(GetHitUnit()->CountPctFromMaxHealth(GetEffectValue()));
 
-            GetCaster()->CastCustomSpell(GetHitUnit(), 138300, &basePoints0, nullptr, nullptr, true);
+            GetCaster()->CastCustomSpell(GetHitUnit(), 138300, &basePoints0, NULL, NULL, true);
         }
 
         void Register()

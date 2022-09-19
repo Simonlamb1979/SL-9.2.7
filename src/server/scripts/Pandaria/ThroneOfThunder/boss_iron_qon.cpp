@@ -955,7 +955,7 @@ public:
                             if (Player* player = i->GetSource())
                                 if (player->IsAlive())
                                     players.push_back(player);
-                        Player* validTarget = nullptr;
+                        Player* validTarget = NULL;
                         uint32 expectedPlayers = me->GetMap()->Is25ManRaid() ? 5 : 3;
                         if (players.size())
                         {
@@ -1025,7 +1025,7 @@ public:
                             if (Player* player = i->GetSource())
                                 if (player->IsAlive())
                                     players.push_back(player);
-                        Player* validTarget = nullptr;
+                        Player* validTarget = NULL;
                         uint32 expectedPlayers = me->GetMap()->Is25ManRaid() ? 5 : 3;
                         if (players.size())
                         {
@@ -1776,21 +1776,21 @@ public:
             case NPC_TRAILS_HANDLER_1:
             {
                 Position pos;
-                me->GetNearPoint(nullptr, pos.m_positionX, pos.m_positionY, pos.m_positionZ, DEFAULT_WORLD_OBJECT_SIZE, 180, orientation1);
+                me->GetNearPoint(NULL, pos.m_positionX, pos.m_positionY, pos.m_positionZ, DEFAULT_WORLD_OBJECT_SIZE, 180, orientation1);
                 me->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 break;
             }
             case NPC_TRAILS_HANDLER_2:
             {
                 Position pos;
-                me->GetNearPoint(nullptr, pos.m_positionX, pos.m_positionY, pos.m_positionZ, DEFAULT_WORLD_OBJECT_SIZE, 180, orientation2);
+                me->GetNearPoint(NULL, pos.m_positionX, pos.m_positionY, pos.m_positionZ, DEFAULT_WORLD_OBJECT_SIZE, 180, orientation2);
                 me->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 break;
             }
             case NPC_TRAILS_HANDLER_3:
             {
                 Position pos;
-                me->GetNearPoint(nullptr, pos.m_positionX, pos.m_positionY, pos.m_positionZ, DEFAULT_WORLD_OBJECT_SIZE, 180, orientation3);
+                me->GetNearPoint(NULL, pos.m_positionX, pos.m_positionY, pos.m_positionZ, DEFAULT_WORLD_OBJECT_SIZE, 180, orientation3);
                 me->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 break;
             }
@@ -2072,11 +2072,11 @@ public:
                 if (!eventInfo.GetDamageInfo())
                     return;
 
-                float uiDamages = eventInfo.GetDamageInfo()->GetDamage() * 0.10f; // 10% of damages returned to the player
+                int32 uiDamages = eventInfo.GetDamageInfo()->GetDamage() * 0.10f; // 10% of damages returned to the player
 
                 if (Unit* pVictim = eventInfo.GetActionTarget())
                 {
-                    pVictim->CastCustomSpell(pCaster, 135142, &uiDamages, nullptr, nullptr, true);
+                    pVictim->CastCustomSpell(pCaster, 135142, &uiDamages, NULL, NULL, true);
                 }
             }
         }

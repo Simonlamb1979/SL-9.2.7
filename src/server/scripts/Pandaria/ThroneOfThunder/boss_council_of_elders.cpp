@@ -545,7 +545,7 @@ public:
                 pAI->DoAction(ACTION_COUNCILLOR_DIED);
 
                 if (pAI->GetData(0) < 4)
-                    me->SetLootRecipient(nullptr);
+                    me->ResetLootRecipients();
                 else
                     RewardCurrencyAndUpdateState();
             }
@@ -3345,7 +3345,7 @@ public:
         void Register()
         {
             OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_impl::SelectTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ENEMY);
-            OnEffectHitTarget += SpellEffectFn(spell_impl::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_FORCE_CAST);
+            OnEffectHitTarget += SpellEffectFn(spell_impl::HandleEffectHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
         }
     };
 
@@ -3385,11 +3385,11 @@ public:
                 if (!eventInfo.GetDamageInfo())
                     return;
 
-                float uiDamages = eventInfo.GetDamageInfo()->GetDamage() * 0.4f; // 40% of damages returned to the player
+                int32 uiDamages = eventInfo.GetDamageInfo()->GetDamage() * 0.4f; // 40% of damages returned to the player
 
                 if (Unit* pVictim = eventInfo.GetActionTarget())
                 {
-                    pVictim->CastCustomSpell(pCaster, SPELL_OVERLOAD_DAMAGES, &uiDamages, nullptr, nullptr, true);
+                    pVictim->CastCustomSpell(pCaster, SPELL_OVERLOAD_DAMAGES, &uiDamages, NULL, NULL, true);
                     pVictim->CastSpell(pCaster, SPELL_OVERLOAD_VISUAL, true);
                 }
             }
@@ -3453,13 +3453,13 @@ public:
 
             if (Creature* pOwner = GetOwner()->ToCreature())
             {
-                float uiDamagesInPastSecs = (int32)pOwner->AI()->GetData(DATA_DAMAGES_PAST_SEC) * 0.05f; // 5% of damages taken in past sec
-                float uiDamagesInPastSecsHEROIC = (int32)pOwner->AI()->GetData(DATA_DAMAGES_PAST_SEC) * 0.10f; // 10%
+                int32 uiDamagesInPastSecs = (int32)pOwner->AI()->GetData(DATA_DAMAGES_PAST_SEC) * 0.05f; // 5% of damages taken in past sec
+                int32 uiDamagesInPastSecsHEROIC = (int32)pOwner->AI()->GetData(DATA_DAMAGES_PAST_SEC) * 0.10f; // 10%
                 pOwner->AI()->DoAction(ACTION_RESET_DAMAGES);
                 if (pOwner->GetMap()->IsHeroic())
-                    pOwner->CastCustomSpell(pOwner, SPELL_DISCHARGE_DAMAGES, &uiDamagesInPastSecsHEROIC, nullptr, nullptr, true);
+                    pOwner->CastCustomSpell(pOwner, SPELL_DISCHARGE_DAMAGES, &uiDamagesInPastSecsHEROIC, NULL, NULL, true);
                 else
-                    pOwner->CastCustomSpell(pOwner, SPELL_DISCHARGE_DAMAGES, &uiDamagesInPastSecs, nullptr, nullptr, true);
+                    pOwner->CastCustomSpell(pOwner, SPELL_DISCHARGE_DAMAGES, &uiDamagesInPastSecs, NULL, NULL, true);
                 pOwner->AI()->DoCastAOE(SPELL_DISCHARGE_VISUAL);
             }
         }
@@ -3472,13 +3472,13 @@ public:
             if (!caster || !target)
                 return;
 
-            float damage = eventInfo.GetDamageInfo()->GetDamage() * 0.05f; //5% normal
-            float damageHeroic = eventInfo.GetDamageInfo()->GetDamage() * 0.10f; //10% heroic
+            int32 damage = eventInfo.GetDamageInfo()->GetDamage() * 0.05f; //5% normal
+            int32 damageHeroic = eventInfo.GetDamageInfo()->GetDamage() * 0.10f; //10% heroic
 
             if (caster->GetMap()->IsHeroic())
-                target->CastCustomSpell(caster, SPELL_DISCHARGE_DAMAGES, &damageHeroic, nullptr, nullptr, true);
+                target->CastCustomSpell(caster, SPELL_DISCHARGE_DAMAGES, &damageHeroic, NULL, NULL, true);
             else
-                target->CastCustomSpell(caster, SPELL_DISCHARGE_DAMAGES, &damage, nullptr, nullptr, true);
+                target->CastCustomSpell(caster, SPELL_DISCHARGE_DAMAGES, &damage, NULL, NULL, true);
 
             //target->CastSpell(caster, SPELL_DISCHARGE_VISUAL, true); //visual target to caster because caster has no target when is stunned
         }
@@ -4111,9 +4111,9 @@ public:
 
         void Register()
         {
-            OnEffectApply += AuraEffectApplyFn(bfa_spell_reckless_charge_initialize_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectRemove += AuraEffectRemoveFn(bfa_spell_reckless_charge_initialize_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
-            OnEffectPeriodic += AuraEffectPeriodicFn(bfa_spell_reckless_charge_initialize_AuraScript::HandlePeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY); // CUSTOM FREAKZ DBC
+            OnEffectApply += AuraEffectApplyFn(bfa_spell_reckless_charge_initialize_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(bfa_spell_reckless_charge_initialize_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectPeriodic += AuraEffectPeriodicFn(bfa_spell_reckless_charge_initialize_AuraScript::HandlePeriodic, EFFECT_1, SPELL_AURA_PERIODIC_DUMMY); // CUSTOM FREAKZ DBC
         }
     };
 
@@ -4500,11 +4500,11 @@ class bfa_spell_reckless_charge_failsafe : public SpellScriptLoader
 public:
     bfa_spell_reckless_charge_failsafe() : SpellScriptLoader("bfa_spell_reckless_charge_failsafe") { }
 
-    class bfa_spell_reckless_charge_failsafe_SpellScript : public SpellScript
+    class bfa_spell_reckless_charge_failsafe_AuraScript : public AuraScript
     {
-        PrepareSpellScript(bfa_spell_reckless_charge_failsafe_SpellScript);
+        PrepareAuraScript(bfa_spell_reckless_charge_failsafe_AuraScript);
 
-        void HandleAfterCast()
+        void HandleApply(AuraEffect const* pAuraEffect, AuraEffectHandleModes eMode)
         {
             Unit* caster = GetCaster();
             if (!caster)
@@ -4513,15 +4513,25 @@ public:
             caster->ApplySpellImmune(0, IMMUNITY_ID, 137133, true);
         }
 
+        void HandleRemove(AuraEffect const* AuraEffct, AuraEffectHandleModes mode)
+        {
+            Unit* caster = GetCaster();
+            if (!caster)
+                return;
+            caster->ApplySpellImmune(0, IMMUNITY_ID, 137122, false);
+            caster->ApplySpellImmune(0, IMMUNITY_ID, 137133, false);
+        }
+
         void Register()
         {
-            AfterCast += SpellCastFn(bfa_spell_reckless_charge_failsafe_SpellScript::HandleAfterCast);
+            OnEffectApply += AuraEffectApplyFn(bfa_spell_reckless_charge_failsafe_AuraScript::HandleApply, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            OnEffectRemove += AuraEffectRemoveFn(bfa_spell_reckless_charge_failsafe_AuraScript::HandleRemove, EFFECT_0, SPELL_AURA_DUMMY, AURA_EFFECT_HANDLE_REAL);
         }
     };
 
-    SpellScript* GetSpellScript() const
+    AuraScript* GetAuraScript() const
     {
-        return new bfa_spell_reckless_charge_failsafe_SpellScript();
+        return new bfa_spell_reckless_charge_failsafe_AuraScript();
     }
 };
 

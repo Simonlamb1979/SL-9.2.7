@@ -65,7 +65,7 @@ private:
         me->RemoveAura(PERIODIC_ENERGY_GAIN);
         me->SetPowerType(POWER_ENERGY);
         me->SetPower(POWER_ENERGY, 0);
-        //me->AddAura(AURA_OVERRIDE_POWER_COLOR_RAGE);
+        me->AddAura(AURA_OVERRIDE_POWER_COLOR_RAGE);
         Vehicle* vehicle = me->GetVehicleKit();
         intro = false;
         me->RemoveAllAreaTriggers();
@@ -87,9 +87,9 @@ private:
         }
     }
 
-    void EnterCombat(Unit* /*unit*/) //override
+    void EnterCombat(Unit* /*unit*/) override
     {
-      //  _EnterCombat();    
+        _EnterCombat();    
         DoCast(PERIODIC_ENERGY_GAIN);
         events.ScheduleEvent(EVENT_REVERBERATING_SLAM, 3s);
         events.ScheduleEvent(EVENT_BESTIAL_COMBO, 11s);
@@ -107,8 +107,8 @@ private:
         _JustReachedHome();
         _DespawnAtEvade();
         me->RemoveAllAreaTriggers();
-      //  me->DespawnCreaturesInArea(NPC_APETAGONIZER_3000);
-       // me->DespawnCreaturesInArea(NPC_APETAGONIZE_CORE);
+        me->DespawnCreaturesInArea(NPC_APETAGONIZER_3000);
+        me->DespawnCreaturesInArea(NPC_APETAGONIZE_CORE);
 
         if (auto* encounterDoor = me->FindNearestGameObject(GO_WALL_OF_SPEARS_GRONG, 100.0f))
             encounterDoor->SetGoState(GO_STATE_ACTIVE);
@@ -118,8 +118,8 @@ private:
     {
         _JustDied();
         me->RemoveAllAreaTriggers();
-      //  me->DespawnCreaturesInArea(NPC_APETAGONIZER_3000);
-      //  me->DespawnCreaturesInArea(NPC_APETAGONIZE_CORE);
+        me->DespawnCreaturesInArea(NPC_APETAGONIZER_3000);
+        me->DespawnCreaturesInArea(NPC_APETAGONIZE_CORE);
 
         if (auto* expedition_strongbox = me->FindNearestGameObject(GO_EXPEDITION_STRONGBOX_GRONG, 100.0f))
             expedition_strongbox->RemoveFlag(GO_FLAG_LOCKED);
@@ -223,7 +223,7 @@ private:
             switch (chooseSpell)
             {
             case 0: //Throw
-                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 10.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
                 {
                     target->EnterVehicle(me);                    
                     me->CastSpell(target, BESTIAL_THROW, false);
@@ -243,7 +243,7 @@ private:
                 break;
 
             case 1://Bite
-                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 10.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
                 {
                     me->CastSpell(nullptr, RENDERING_BITE_CAST, false);
                     me->GetScheduler().Schedule(3100ms, [this, target](TaskContext context)
@@ -261,7 +261,7 @@ private:
 
             case 2:
                 //Smash
-                if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT, 0, 10.0f, true))
+                if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO, 0, 10.0f, true))
                 {
                     me->CastSpell(target, BESTIAL_SMASH, false);
                 }
@@ -299,14 +299,13 @@ struct npc_apetagonizer_3000 : public ScriptedAI
     }
 
     void IsSummonedBy(Unit* summoner) override
-    {
-        InstanceScript* instance;
-        me->AddAura(PARACHUTE, me);
+    {        
+        me->AddAura(PARACHUTE);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_APETAGONIZE, 5s);
     }
 
-    void ExecuteEvent(uint32 eventId)// override
+    void ExecuteEvent(uint32 eventId) override
     {
         if (me->HasAura(PARACHUTE) && me->GetPositionZ() <= 341.0f)
         {
@@ -337,7 +336,7 @@ struct npc_apetagonizer_3000 : public ScriptedAI
         }
     }
 
-    void OnSpellCastInterrupt(SpellInfo const* spell) //override
+    void OnSpellCastInterrupt(SpellInfo const* spell) override
     {
         if (spell->Id == APETAGONIZE)
         {
@@ -353,14 +352,11 @@ struct npc_apetagonizer_3000 : public ScriptedAI
 
     void JustDied(Unit* u) override
     {
-        InstanceScript* instance;
         Talk(1);
         DoCastAOE(LIGHTNING_DETONATION);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         me->SummonCreature(NPC_APETAGONIZE_CORE, me->GetPosition(), TEMPSUMMON_MANUAL_DESPAWN);
     }
-private:
-    EventMap events;
 };
 
 //500501
@@ -374,14 +370,12 @@ struct npc_apetagonize_core : public ScriptedAI
         me->SetReactState(REACT_PASSIVE);
     }
 
-    bool GossipHello(Player* player) override
+    void sGossipHello(Player* player) override
     { 
         CloseGossipMenuFor(player);
         me->RemoveNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-        player->AddAura(APETAGONIZE_CORE_BUFF, player);
+        player->AddAura(APETAGONIZE_CORE_BUFF);
         me->DespawnOrUnsummon();
-
-        return true;
     }
 
     void IsSummonedBy(Unit* summoner) override

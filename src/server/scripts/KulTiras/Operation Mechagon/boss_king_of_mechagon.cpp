@@ -56,14 +56,14 @@ struct boss_king_mechagon : public BossAI
 {
     boss_king_mechagon(Creature* creature) : BossAI(creature, DATA_KING_MECHAGON) { }
 
-    void Reset()
+    void Reset() override
     {
         BossAI::Reset();
         me->SetReactState(REACT_PASSIVE);
         me->AddUnitFlag(UNIT_FLAG_NON_ATTACKABLE);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/)
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         me->ForcedDespawn(0, 15s);
         _JustReachedHome();
@@ -84,7 +84,7 @@ struct boss_king_mechagon : public BossAI
         }
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
         Talk(SAY_DEATH);
@@ -96,15 +96,15 @@ struct npc_aeriel_unit : public BossAI
 {
     npc_aeriel_unit(Creature* creature) : BossAI(creature, DATA_KING_MECHAGON) { }
 
-    void Reset()
+    void Reset() override
     {
         ScriptedAI::Reset();        
         vehicle = me->GetVehicleKit();
     }
 
-    void JustEngagedWith(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
-        _JustEngagedWith();
+        _EnterCombat();
         if (Creature* king = me->FindNearestCreature(NPC_KING_MECHAGON, 100.0f, true))
         {
             king->EnterVehicle(me);
@@ -118,7 +118,7 @@ struct npc_aeriel_unit : public BossAI
         events.ScheduleEvent(EVENT_CUTTING_BEAM, 12s);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/)
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         me->ForcedDespawn(0, 15s);
         _JustReachedHome();
@@ -139,7 +139,7 @@ struct npc_aeriel_unit : public BossAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* victim) override
     {        
         if (victim->IsPlayer())
         {
@@ -157,7 +157,7 @@ struct npc_aeriel_unit : public BossAI
         }
     }
 
-    void ExecuteEvent(uint32 eventid)
+    void ExecuteEvent(uint32 eventid) override
     {
         switch (eventid)
         {
@@ -175,7 +175,7 @@ struct npc_aeriel_unit : public BossAI
 
         case EVENT_RECALIBRATE:
         {
-            if (Unit* targets = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))
+            if (Unit* targets = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
             {
                 std::list<Creature*> plasma_orbs_list;
                 plasma_orbs_list.clear();
@@ -187,11 +187,11 @@ struct npc_aeriel_unit : public BossAI
                     {
                         plasma_orbs->CastSpell(targets, SPELL_RECALIBRATE_TAR_DEST_VISUAL, false);
                         plasma_orbs->GetMotionMaster()->MoveCharge(targets->GetPositionX(), targets->GetPositionY(), targets->GetPositionZ(), 80.0f, 1, true);
-                    };
+                    });
                     me->GetScheduler().Schedule(2s, [plasma_orbs, targets] (TaskContext context)
                     {
                         plasma_orbs->AI()->DoCastAOE(SPELL_RECALIBRATE_DAMAGE_KNOCK, true);
-                    };
+                    });
                 }
             }
             events.Repeat(20s);
@@ -202,17 +202,17 @@ struct npc_aeriel_unit : public BossAI
             DoCast(SPELL_TAKE_OFF);
             if (Creature* king = me->FindNearestCreature(NPC_KING_MECHAGON, 100.0f, true))            
                 king->AI()->Talk(SAY_TAKE_OFF);
-                me->GetScheduler().Schedule(11s, [this] (TaskContext context)
+            me->GetScheduler().Schedule(11s, [this] (TaskContext context)
             {
                 me->UpdatePosition(me->GetPositionX() + 0.0f, me->GetPositionY() + 0, me->GetPositionZ() + 15.0f, me->GetOrientation());
                 DoCastSelf(SPELL_CUTTING_BEAM_CREATE_AT);
-            };
+            });
             events.Repeat(30s);
             break;
         }
     }
 
-    void JustDied(Unit* /*killer*/)
+    void JustDied(Unit* /*killer*/) override
     {
         _JustReachedHome();
         if (Creature* king = me->FindNearestCreature(NPC_KING_MECHAGON, 100.0f, true))
@@ -240,7 +240,7 @@ struct npc_omega_buster : public BossAI
 {
     npc_omega_buster(Creature* creature) : BossAI(creature, DATA_KING_MECHAGON) { }
 
-    void Reset()
+    void Reset() override
     {
         ScriptedAI::Reset();
         vehicle = me->GetVehicleKit();
@@ -248,16 +248,16 @@ struct npc_omega_buster : public BossAI
         me->SetCombatReach(40.0f);
     }
 
-    void JustEngagedWith(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
-        _JustEngagedWith();        
+        _EnterCombat();        
         events.ScheduleEvent(EVENT_GIGA_ZAP, 5s);
         events.ScheduleEvent(EVENT_PLASMA_ORBS, 10s);
         events.ScheduleEvent(EVENT_RECALIBRATE, 15s);
         events.ScheduleEvent(EVENT_MAGNETO_ARM, 20s);
     }
 
-    void EnterEvadeMode(EvadeReason /*why*/)
+    void EnterEvadeMode(EvadeReason /*why*/) override
     {
         me->ForcedDespawn(0, 15s);
         _JustReachedHome();
@@ -278,7 +278,7 @@ struct npc_omega_buster : public BossAI
         }
     }
 
-    void KilledUnit(Unit* victim)
+    void KilledUnit(Unit* victim) override
     {
         if (victim->IsPlayer())
         {
@@ -296,7 +296,7 @@ struct npc_omega_buster : public BossAI
         }
     }
 
-    void ExecuteEvent(uint32 eventid)
+    void ExecuteEvent(uint32 eventid) override
     {
         switch (eventid)
         {
@@ -321,7 +321,7 @@ struct npc_omega_buster : public BossAI
 
         case EVENT_RECALIBRATE:
         {
-            if (Unit* targets = SelectTarget(SELECT_TARGET_MAXDISTANCE, 0, 100.0f, true))
+            if (Unit* targets = SelectTarget(SELECT_TARGET_FARTHEST, 0, 100.0f, true))
             {
                 std::list<Creature*> plasma_orbs_list;
                 plasma_orbs_list.clear();
@@ -333,11 +333,11 @@ struct npc_omega_buster : public BossAI
                     {
                         plasma_orbs->CastSpell(targets, SPELL_RECALIBRATE_TAR_DEST_VISUAL, false);
                         plasma_orbs->GetMotionMaster()->MoveCharge(targets->GetPositionX(), targets->GetPositionY(), targets->GetPositionZ(), 80.0f, 1, true);
-                    };
+                    });
                     me->GetScheduler().Schedule(2s, [plasma_orbs, targets](TaskContext context)
                     {
                         plasma_orbs->AI()->DoCastAOE(SPELL_RECALIBRATE_DAMAGE_KNOCK, true);
-                    };
+                    });
                 }
             }
             events.Repeat(25s);
@@ -356,10 +356,11 @@ struct npc_omega_buster : public BossAI
             }
             events.Repeat(30s);
             break;
-        }    
-    }
-}
-    void JustDied(Unit* /*unit*/)
+        }
+        }
+    };
+
+    void JustDied(Unit* /*unit*/) override
     {
         _JustDied();
         me->DespawnCreaturesInArea(NPC_PLASMA_ORB, 125.0f);
@@ -378,7 +379,7 @@ struct npc_plasma_orb : public ScriptedAI
 {
     npc_plasma_orb(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset()
+    void Reset() override
     {
         ScriptedAI::Reset();
         me->SetReactState(REACT_PASSIVE);
@@ -392,7 +393,7 @@ struct npc_transport_mechagon : public ScriptedAI
 {
     npc_transport_mechagon(Creature* creature) : ScriptedAI(creature) { }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         scheduler.Update(diff);
         if (instance)
@@ -405,9 +406,9 @@ struct npc_transport_mechagon : public ScriptedAI
                     me->GetPlayerListInGrid(player_list, 5.0f);            
                     for (auto& players : player_list)
                     {
-                        players->TeleportTo(2097, 633.195f, 551.366f, -266.912f, 5.25f);
+                        players->TeleportTo(2097, king_mechagon_vehicle_escort_pos);
                     }
-                };
+                });
             }
         }
     }

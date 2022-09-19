@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,11 +18,12 @@
 /* ScriptData
 SDName: Western_Plaguelands
 SD%Complete: 90
-SDComment: Quest support: 5097, 5098, 5216, 5219, 5222, 5225, 5229, 5231, 5233, 5235.
+SDComment: Quest support: 5097, 5098, 5216, 5219, 5222, 5225, 5229, 5231, 5233, 5235. To obtain Vitreous Focuser (could use more spesifics about gossip items)
 SDCategory: Western Plaguelands
 EndScriptData */
 
 /* ContentData
+npcs_dithers_and_arbington
 npc_the_scourge_cauldron
 npc_andorhal_tower
 EndContentData */
@@ -32,6 +33,88 @@ EndContentData */
 #include "ScriptedGossip.h"
 #include "Player.h"
 #include "WorldSession.h"
+
+/*######
+## npcs_dithers_and_arbington
+######*/
+
+enum DithersAndArbington
+{
+    GOSSIP_ITEM_ID_FELSTONE_FIELD   = 0,
+    GOSSIP_ITEM_ID_DALSON_S_TEARS   = 1,
+    GOSSIP_ITEM_ID_WRITHING_HAUNT   = 2,
+    GOSSIP_ITEM_ID_GAHRRON_S_WITH   = 3,
+    GOSSIP_MENU_ID_LETS_GET_TO_WORK = 3223,
+    GOSSIP_MENU_ID_VITREOUS_FOCUSER = 3229,
+    NPC_TEXT_OSSEOUS_AGITATORS      = 3980,
+    NPC_TEXT_SOMATIC_INTENSIFIERS_1 = 3981,
+    NPC_TEXT_SOMATIC_INTENSIFIERS_2 = 3982,
+    NPC_TEXT_ECTOPLASMIC_RESONATORS = 3983,
+    NPC_TEXT_LET_S_GET_TO_WORK      = 3985,
+    QUEST_MISSION_ACCOMPLISHED_H    = 5237,
+    QUEST_MISSION_ACCOMPLISHED_A    = 5238,
+    CREATE_ITEM_VITREOUS_FOCUSER    = 17529
+};
+
+class npcs_dithers_and_arbington : public CreatureScript
+{
+public:
+    npcs_dithers_and_arbington() : CreatureScript("npcs_dithers_and_arbington") { }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 /*sender*/, uint32 action) override
+    {
+        ClearGossipMenuFor(player);
+        switch (action)
+        {
+            case GOSSIP_ACTION_TRADE:
+                player->GetSession()->SendListInventory(creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+1:
+                AddGossipItemFor(player, GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                SendGossipMenuFor(player, NPC_TEXT_OSSEOUS_AGITATORS, creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+2:
+                AddGossipItemFor(player, GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                SendGossipMenuFor(player, NPC_TEXT_SOMATIC_INTENSIFIERS_1, creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+3:
+                AddGossipItemFor(player, GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                SendGossipMenuFor(player, NPC_TEXT_SOMATIC_INTENSIFIERS_2, creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+4:
+                AddGossipItemFor(player, GOSSIP_MENU_ID_VITREOUS_FOCUSER, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+                SendGossipMenuFor(player, NPC_TEXT_ECTOPLASMIC_RESONATORS, creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_INFO_DEF+5:
+                CloseGossipMenuFor(player);
+                creature->CastSpell(player, CREATE_ITEM_VITREOUS_FOCUSER, false);
+                break;
+        }
+        return true;
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature) override
+    {
+        if (creature->IsQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
+
+        if (creature->IsVendor())
+            AddGossipItemFor(player, GOSSIP_ICON_VENDOR, GOSSIP_TEXT_BROWSE_GOODS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TRADE);
+
+        if (player->GetQuestRewardStatus(QUEST_MISSION_ACCOMPLISHED_H) || player->GetQuestRewardStatus(QUEST_MISSION_ACCOMPLISHED_A))
+        {
+            AddGossipItemFor(player, GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_FELSTONE_FIELD, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+            AddGossipItemFor(player, GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_DALSON_S_TEARS, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            AddGossipItemFor(player, GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_WRITHING_HAUNT, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            AddGossipItemFor(player, GOSSIP_MENU_ID_LETS_GET_TO_WORK, GOSSIP_ITEM_ID_GAHRRON_S_WITH, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            SendGossipMenuFor(player, NPC_TEXT_LET_S_GET_TO_WORK, creature->GetGUID());
+        }
+        else
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+
+        return true;
+    }
+};
 
 /*######
 ## npc_the_scourge_cauldron
@@ -53,12 +136,12 @@ public:
 
         void Reset() override { }
 
-        void JustEngagedWith(Unit* /*who*/) override { }
+        void EnterCombat(Unit* /*who*/) override { }
 
         void DoDie()
         {
             //summoner dies here
-            me->KillSelf();
+            me->DealDamage(me, me->GetHealth(), nullptr, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, nullptr, false);
             //override any database `spawntimesecs` to prevent duplicated summons
             uint32 rTime = me->GetRespawnDelay();
             if (rTime < 600)
@@ -151,8 +234,74 @@ public:
     };
 };
 
+// Zone 138
+class zone_western_plaguelands : public ZoneScript
+{
+public:
+    zone_western_plaguelands() : ZoneScript("zone_western_plaguelands") { }
+
+        void OnPlayerAreaUpdate(Player* player, uint32 newAreaId, uint32 /*oldAreaId*/) override
+    {
+        // Check paladin class area
+        if (newAreaId == 7638 && !player->IsGameMaster() && (player->getClass() != CLASS_PALADIN || player->getLevel() < 100))
+            player->NearTeleportTo(2283.882080f, -5322.789551f, 89.235878f, 2.362668f);
+    }
+};
+
+/*######
+## npc_myranda_the_hag
+######*/
+
+enum eMyranda
+{
+    QUEST_SUBTERFUGE = 5862,
+    QUEST_IN_DREAMS = 5944,
+    SPELL_SCARLET_ILLUSION = 17961
+};
+
+#define GOSSIP_ITEM_ILLUSION    "I am ready for the illusion, Myranda."
+
+class npc_myranda_the_hag : public CreatureScript
+{
+public:
+    npc_myranda_the_hag() : CreatureScript("npc_myranda_the_hag") { }
+
+    bool OnGossipSelect(Player* player, Creature* /*creature*/, uint32 /*sender*/, uint32 action)
+    {
+        player->PlayerTalkClass->ClearMenus();
+        if (action == GOSSIP_ACTION_INFO_DEF + 1)
+        {
+            CloseGossipMenuFor(player);
+            player->CastSpell(player, SPELL_SCARLET_ILLUSION, false);
+        }
+        return true;
+    }
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (creature->IsQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
+
+        if (player->GetQuestStatus(QUEST_SUBTERFUGE) == QUEST_STATUS_COMPLETE &&
+            !player->GetQuestRewardStatus(QUEST_IN_DREAMS) && !player->HasAura(SPELL_SCARLET_ILLUSION))
+        {
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, GOSSIP_ITEM_ILLUSION, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+            return true;
+        }
+        else
+            SendGossipMenuFor(player, player->GetGossipTextId(creature), creature->GetGUID());
+
+        return true;
+    }
+};
+
+
 void AddSC_western_plaguelands()
 {
+    new npcs_dithers_and_arbington();
     new npc_the_scourge_cauldron();
     new npc_andorhal_tower();
+    new npc_myranda_the_hag();
+    new zone_western_plaguelands();
 }

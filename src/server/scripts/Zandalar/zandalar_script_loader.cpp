@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -72,30 +72,17 @@ void AddSC_boss_zul();
 
 //Battle of Dazaralor
 void AddSC_instance_battle_of_dazaralor();
-void AddSC_instance_battle_of_dazaralor();
 void AddSC_battle_of_dazaralor();
 void AddSC_boss_frida_ironbellows();
-void AddSC_boss_grong();
-void AddSC_boss_high_tinker_mekkatorque();
-void AddSC_boss_conclave_of_the_chosen();
-void AddSC_boss_jadefire_masters();
-void AddSC_boss_jadefire_masters_horde();
-void AddSC_boss_opulence();
-void AddSC_boss_king_rastakhan();
 void AddSC_boss_rawani_kanae();
-
-// The Eternal Palace
-void AddSC_eternal_palace();
-void AddSC_instance_eternal_palace();
-void AddSC_blackwater_behemoth();
-void AddSC_boss_queen_azshara_ep();
-void AddSC_boss_radiance_of_azshara();
-void AddSC_boss_orgozoa();
-void AddSC_boss_zaqul();
-void AddSC_boss_queens_court();
-
-
-void AddSC_nazjatar();
+void AddSC_boss_grong();
+void AddSC_boss_jadefire_masters();
+void AddSC_boss_opulence();
+void AddSC_boss_conclave_of_the_chosen();
+void AddSC_boss_high_tinker_mekkatorque();
+void AddSC_boss_king_rastakhan();
+//void AddSC_boss_stormwall_blockade();
+//void AddSC_boss_lady_jaina_proudmoore();
 
 void AddZandalarScripts()
 {
@@ -158,24 +145,13 @@ void AddZandalarScripts()
     AddSC_instance_battle_of_dazaralor();
     AddSC_battle_of_dazaralor();
     AddSC_boss_frida_ironbellows();
-    AddSC_boss_grong();
-    AddSC_boss_high_tinker_mekkatorque();
-    AddSC_boss_conclave_of_the_chosen();
-    AddSC_boss_jadefire_masters();
-    AddSC_boss_jadefire_masters_horde();
-    AddSC_boss_opulence();
-    AddSC_boss_king_rastakhan();
     AddSC_boss_rawani_kanae();
-    
-    // The Eternal Palace
-    AddSC_eternal_palace();
-    AddSC_instance_eternal_palace();
-    AddSC_blackwater_behemoth();
-    AddSC_boss_queen_azshara_ep();
-    AddSC_boss_radiance_of_azshara();
-    AddSC_boss_orgozoa();
-    AddSC_boss_zaqul();
-    AddSC_boss_queens_court();
-
-    AddSC_nazjatar();
+    AddSC_boss_grong();
+    AddSC_boss_jadefire_masters();
+    AddSC_boss_opulence();
+    AddSC_boss_conclave_of_the_chosen();
+    AddSC_boss_high_tinker_mekkatorque();
+    AddSC_boss_king_rastakhan();
+    //AddSC_boss_stormwall_blockade();
+    //AddSC_boss_lady_jaina_proudmoore();
 }

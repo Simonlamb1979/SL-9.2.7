@@ -144,7 +144,7 @@ public:
         InstanceScript* instance;
         bool introText;
 
-        void MoveInLineOfSight(Unit* who) override
+        void MoveInLineOfSight(Unit* who)
         {
             if (!introText)
             {
@@ -199,7 +199,7 @@ public:
             }
         }
 
-        void Reset() override
+        void Reste()
         {
             events.Reset();
 
@@ -210,23 +210,43 @@ public:
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         }
 
-        void JustDied(Unit*) override
+        void JustDied(Unit*)
         {
-            if (Creature* rpevents = me->FindNearestCreature(NPC_TITAN_KEEPER_HEZREL, 500.0f, true))
-                rpevents->AI()->DoAction(3);
-
             DespawnAurasWipe();
             SelectSoundAndText(me, 4);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode(EvadeReason why)
         {
             Reset();
             _DespawnAtEvade(15);
         }
 
-        void EnterCombat(Unit*)// override
+        bool CheckCheaters()
+        {
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+                if (Player* player = i->GetSource())
+                {
+                    if (!player->IsGameMaster()) //gm check
+                    {
+                        if (me->GetDistance(centerPlatform.GetPositionX(), centerPlatform.GetPositionY(), centerPlatform.GetPositionZ()) >= 30.0f)
+                        {
+                            me->Kill(player, false);
+                            std::ostringstream str;
+                            str << "CHEATERS!";
+                            me->TextEmote(str.str().c_str(), 0, true);
+                            return false;
+                        }
+                    }
+
+                }
+
+            return true;
+        }
+
+        void EnterCombat(Unit*)
         {
             SelectSoundAndText(me, 1);
             events.ScheduleEvent(EVENT_SHOCKWAVE, TIMER_SHOCKWAVE);
@@ -240,7 +260,7 @@ public:
                 events.ScheduleEvent(EVENT_SPAWN_VOLATILE_SPORE, TIMER_SPAWN_VOLATILE_SPORE);
         }
 
-        void OnSpellFinished(SpellInfo const* spellInfo) //override
+        void OnSpellFinished(SpellInfo const* spellInfo) override
         {
             switch (spellInfo->Id)
             {
@@ -316,9 +336,12 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
+
+            if (me->IsInCombat())
+                CheckCheaters();
 
             if (!UpdateVictim())
                 return;
@@ -346,7 +369,7 @@ public:
                 case EVENT_UPHEAVAL:
                 {
                     std::list<Unit*> targets;
-                  //  SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
+                    SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
 
                     targets.remove_if(checkSpec());
 
@@ -412,7 +435,7 @@ public:
         EventMap events;
         bool triggered;
 
-        void Reset() override
+        void Reset()
         {
             events.Reset();
             triggered = false;
@@ -443,7 +466,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -474,14 +497,14 @@ public:
 
         EventMap events;
 
-        void Reset() override
+        void Reset()
         {
             events.Reset();
             events.ScheduleEvent(EVENT_VOLATILE_PODS_EXPLODE, 10 * IN_MILLISECONDS);
             me->DespawnOrUnsummon(12 * IN_MILLISECONDS);
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 

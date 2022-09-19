@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2017-2019 AshamaneProject <https://github.com/AshamaneProject>
- * Copyright (C) 2016 Firestorm Servers <https://firestorm-servers.com>
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -352,7 +351,7 @@ class boss_master_snowdrift : public CreatureScript
                         events.ScheduleEvent(EVENT_TORNADO_KICK, urand(7500, 12500));
                         break;
                     case EVENT_FIST_OF_FURY:
-                        if (Unit* target = SelectTarget(SELECT_TARGET_MAXTHREAT))
+                        if (Unit* target = SelectTarget(SELECT_TARGET_TOPAGGRO))
                             me->CastSpell(target, SPELL_FIST_OF_FURY, false);
 
                         events.ScheduleEvent(EVENT_FIST_OF_FURY, urand(5000, 10000));

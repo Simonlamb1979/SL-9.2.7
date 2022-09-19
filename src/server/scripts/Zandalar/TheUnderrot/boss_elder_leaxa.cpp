@@ -95,7 +95,7 @@ public:
         InstanceScript* instance;
         SummonList summons;
 
-        void Reset() override
+        void Reset()
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
 
@@ -104,7 +104,7 @@ public:
             me->RemoveAllAreaTriggers();
         }
 
-        void JustDied(Unit*) override
+        void JustDied(Unit*)
         {
             SelectSoundAndText(me, 4);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
@@ -112,7 +112,7 @@ public:
             summons.DespawnAll();
         }
 
-        void JustSummoned(Creature* summon) override
+        void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
 
@@ -125,9 +125,32 @@ public:
             }
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode(EvadeReason why)
         {
             _DespawnAtEvade(15);
+        }
+
+        bool CheckCheaters()
+        {
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+                if (Player* player = i->GetSource())
+                {
+                    if (!player->IsGameMaster()) //gm check
+                    {
+                        if (me->GetDistance(centerPlatform.GetPositionX(), centerPlatform.GetPositionY(), centerPlatform.GetPositionZ()) >= 25.0f)
+                        {
+                            me->Kill(player, false);
+                            std::ostringstream str;
+                            str << "CHEATERS!";
+                            me->TextEmote(str.str().c_str(), 0, true);
+                            return false;
+                        }
+                    }
+
+                }
+
+            return true;
         }
 
         void SelectSoundAndText(Creature* me, uint32  selectedTextSound = 0)
@@ -167,12 +190,12 @@ public:
             }
         }
 
-        void KilledUnit(Unit*) override
+        void KilledUnit(Unit*)
         {
             SelectSoundAndText(me, 3);
         }
 
-        void OnSpellFinished(SpellInfo const* spellInfo) //override
+        void OnSpellFinished(SpellInfo const* spellInfo) override
         {
             switch (spellInfo->Id)
             {
@@ -209,11 +232,11 @@ public:
                 break;
             }
 
-        //    me->CastSpell(x, y, me->GetPositionZ(), SPELL_BLOOD_MIRROR_MISSILE);
+            me->CastSpell(x, y, me->GetPositionZ(), SPELL_BLOOD_MIRROR_MISSILE);
             me->SummonCreature(NPC_BLOOD_EFFIGY, x, y, me->GetPositionZ(), TEMPSUMMON_CORPSE_DESPAWN);
         }
 
-        void EnterCombat(Unit*) //override
+        void EnterCombat(Unit*)
         {
             SelectSoundAndText(me, 1);
             instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
@@ -231,7 +254,7 @@ public:
             events.DelayEvents(3 * IN_MILLISECONDS);
 
             std::list<Unit*> targets;
-         //   SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
+            SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
             if (!targets.empty())
                 if (targets.size() >= 1)
                     targets.resize(1);
@@ -254,7 +277,7 @@ public:
                     trigger->CastSpell(trigger, SPELL_CREEPING_ROT_VISUAL, true);
                     //trigger->CastSpell(trigger, SPELL_CREEPING_ROT_TRIGGER, true);
 
-                 //   trigger->GetNearPoint(NULL, pos.m_positionX, pos.m_positionY, pos.m_positionZ, DEFAULT_WORLD_OBJECT_SIZE, 250, orientation);
+                    trigger->GetNearPoint(NULL, pos.m_positionX, pos.m_positionY, pos.m_positionZ, DEFAULT_WORLD_OBJECT_SIZE, 250, orientation);
                     trigger->GetMotionMaster()->MovePoint(0, pos.m_positionX, pos.m_positionY, pos.m_positionZ);
                 }
             }
@@ -265,7 +288,7 @@ public:
             events.DelayEvents(3 * IN_MILLISECONDS);
 
             std::list<Unit*> targets;
-           // SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
+            SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
             if (!targets.empty())
                 if (targets.size() >= 1)
                     targets.resize(1);
@@ -280,7 +303,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -289,6 +312,9 @@ public:
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
+
+            if (me->IsInCombat())
+                CheckCheaters();
 
             while (uint32 eventId = events.ExecuteEvent())
             {
@@ -345,12 +371,12 @@ public:
         }
         uint32 damageTimer;
 
-        void Reset() override
+        void Reset()
         {
             damageTimer = 0;
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             damageTimer += diff;
             if (damageTimer >= 500)
@@ -395,12 +421,12 @@ public:
 
         EventMap events;
 
-        void Reset() override
+        void Reset()
         {
             events.Reset();
         }
 
-        void EnterCombat(Unit*) //override
+        void EnterCombat(Unit*)
         {
             events.ScheduleEvent(EVENT_BLOOD_BOLT, TIMER_BLOOD_BOLT);
 
@@ -411,7 +437,7 @@ public:
         void HandleFeast()
         {
             std::list<Unit*> targets;
-            //SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
+            SelectTargetList(targets, 5, SELECT_TARGET_RANDOM, 500.0f, true);
             if (!targets.empty())
                 if (targets.size() >= 1)
                     targets.resize(1);
@@ -426,7 +452,7 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -470,8 +496,7 @@ public:
     {
         PrepareAuraScript(bfa_spell_taint_of_ghunn_AuraScript);
 
-
-        void HandleAbsorb(AuraEffect* /*aurEff*/, HealInfo& healInfo, uint32& absorbAmount)
+        void HandleAbsorb(AuraEffect* aurEff, HealInfo& healInfo, uint32& absorbAmount)
         {
             uint32 heal = healInfo.GetHeal();
             int32 maxPct = GetAura()->GetEffect(EFFECT_0)->GetAmount();
@@ -501,7 +526,7 @@ public:
 
         void Register() override
         {
-           // OnEffectHealAbsorb += AuraEffectHealAbsorbFn(bfa_spell_taint_of_ghunn_AuraScript::HandleAbsorb, EFFECT_0);
+            OnEffectHealAbsorb += AuraEffectHealAbsorbFn(bfa_spell_taint_of_ghunn_AuraScript::HandleAbsorb, EFFECT_0);
             OnEffectPeriodic += AuraEffectPeriodicFn(bfa_spell_taint_of_ghunn_AuraScript::OnTick, EFFECT_1, SPELL_AURA_PERIODIC_DAMAGE);
         }
     };

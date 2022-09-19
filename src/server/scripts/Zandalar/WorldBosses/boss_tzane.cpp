@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HellgarveCore 
+ * Copyright (C) 2022 BfaCore Reforged 
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -47,13 +47,13 @@ struct boss_tzane : public BossAI
         BossAI::Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void EnterCombat(Unit* who) override
     {
         events.ScheduleEvent(EVENT_CRUSHING_SLAM, 22000);
         events.ScheduleEvent(EVENT_TERROR_WALL, 11000);
         events.ScheduleEvent(EVENT_COALSECED_ESSENCE, 8500);
         events.ScheduleEvent(EVENT_CONSUMING_SPIRITS, 19000);
-        BossAI::JustEngagedWith(who);
+        BossAI::EnterCombat(who);
     }
 
     void UpdateAI(uint32 diff) override
@@ -85,7 +85,7 @@ struct boss_tzane : public BossAI
             case EVENT_CONSUMING_SPIRITS:
                 if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
                 {
-                    me->CastSpell(target, SPELL_CONSUMING_SPIRITS);
+                    me->CastSpell(target, SPELL_CONSUMING_SPIRITS, TRIGGERED_CAN_CAST_WHILE_CASTING_MASK);
                 }
                 events.ScheduleEvent(EVENT_CONSUMING_SPIRITS, 21000);
                 break;
@@ -111,7 +111,7 @@ class spell_coalseced_essence : public SpellScript
 
         if (Unit* orb = caster->SummonCreature(NPC_ORB_OF_SWIRLING, target->GetPosition()))
         {
-            orb->AddAura(SPELL_COALESCED_ESSENCE_VISUAL, orb);
+            orb->AddAura(SPELL_COALESCED_ESSENCE_VISUAL);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,13 +14,13 @@
  * You should have received a copy of the GNU General Public License along
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "AreaTrigger.h"
 #include "AreaTriggerAI.h"
 #include "PlayerAI.h"
 #include "ScriptMgr.h"
 #include "SpellAuraEffects.h"
 #include "shrine_of_the_storm.h"
-#include <sstream>
 
 enum Stormsong
 {
@@ -85,6 +85,29 @@ public:
         InstanceScript* instance;
         SummonList summons;
 
+        bool CheckCheaters()
+        {
+            Map::PlayerList const& playerList = me->GetMap()->GetPlayers();
+            for (Map::PlayerList::const_iterator i = playerList.begin(); i != playerList.end(); ++i)
+                if (Player* player = i->GetSource())
+                {
+                    if (!player->IsGameMaster()) //gm check
+                    {
+                        if (me->GetDistance(cheatersCheck.GetPositionX(), cheatersCheck.GetPositionY(), cheatersCheck.GetPositionZ()) >= 35.0f)
+                        {
+                            me->Kill(player, false);
+                            std::ostringstream str;
+                            str << "CHEATERS!";
+                            me->TextEmote(str.str().c_str(), 0, true);
+                            return false;
+                        }
+                    }
+
+                }
+
+            return true;
+        }
+
         void SelectSoundAndText(Creature* me, uint32  selectedTextSound = 0)
         {
             if (!me)
@@ -101,7 +124,7 @@ public:
             }
         }
 
-        void JustSummoned(Creature* summon) override
+        void JustSummoned(Creature* summon)
         {
             summons.Summon(summon);
 
@@ -113,12 +136,12 @@ public:
             }
         }
 
-        void EnterEvadeMode(EvadeReason why) override
+        void EnterEvadeMode(EvadeReason why)
         {
             summons.DespawnAll();
             _DespawnAtEvade(15);
         }
-        void Reset() override
+        void Reset()
         {
             instance->SendEncounterUnit(ENCOUNTER_FRAME_DISENGAGE, me);
             events.Reset();
@@ -133,7 +156,7 @@ public:
             RemoveAdditionalAura(SPELL_ANCIENT_MINDBENDER);
         }
 
-        void JustEngagedWith(Unit*) override
+        void EnterCombat(Unit*)
         {
             SelectSoundAndText(me, 1);
 
@@ -160,7 +183,7 @@ public:
         void HandleBender()
         {
             std::list<Unit*> targets;
-         //   SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
+            SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
 
             if (!targets.empty())
                 if (targets.size() >= 1)
@@ -175,12 +198,15 @@ public:
             }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
             if (!UpdateVictim())
                 return;
+            
+            if (me->IsInCombat())
+                CheckCheaters();
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
                 return;
@@ -268,14 +294,14 @@ public:
     }
 };
 
-class bfa_spell_discipline_of_the_volzih : public SpellScriptLoader
+class bfa_spell_disciple_of_the_volzith : public SpellScriptLoader
 {
 public:
-    bfa_spell_discipline_of_the_volzih() : SpellScriptLoader("bfa_spell_discipline_of_the_volzih") { }
+    bfa_spell_disciple_of_the_volzith() : SpellScriptLoader("bfa_spell_disciple_of_the_volzith") { }
 
-    class bfa_spell_discipline_of_the_volzih_AuraScript : public AuraScript
+    class bfa_spell_disciple_of_the_volzith_AuraScript : public AuraScript
     {
-        PrepareAuraScript(bfa_spell_discipline_of_the_volzih_AuraScript);
+        PrepareAuraScript(bfa_spell_disciple_of_the_volzith_AuraScript);
 
         void OnPeriodic(AuraEffect const* aurEff)
         {
@@ -295,13 +321,13 @@ public:
 
         void Register()
         {
-            OnEffectPeriodic += AuraEffectPeriodicFn(bfa_spell_discipline_of_the_volzih_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
+            OnEffectPeriodic += AuraEffectPeriodicFn(bfa_spell_disciple_of_the_volzith_AuraScript::OnPeriodic, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY);
         }
     };
 
     AuraScript* GetAuraScript() const
     {
-        return new bfa_spell_discipline_of_the_volzih_AuraScript();
+        return new bfa_spell_disciple_of_the_volzith_AuraScript();
     }
 };
 
@@ -361,17 +387,17 @@ public:
 
         EventMap events;
 
-        void Reset() override
+        void Reset()
         {
-           // me->GetScheduler().Schedule(500ms, [this](TaskContext context)
+            me->GetScheduler().Schedule(500ms, [this](TaskContext context)
                 {
                     me->CastSpell(me, SPELL_WAKEN_THE_VOID_MISSILE, true);
-                }//);
+                });
 
             events.Reset();
         }
 
-        void JustEngagedWith(Unit*) override
+        void EnterCombat(Unit*)
         {
             me->CastSpell(me, SPELL_WAKEN_THE_VOID_AURA, true);
             me->SetReactState(REACT_AGGRESSIVE);
@@ -397,7 +423,7 @@ public:
                 }
         }
 
-        void UpdateAI(uint32 diff) override
+        void UpdateAI(uint32 diff)
         {
             events.Update(diff);
 
@@ -408,7 +434,7 @@ public:
                 case EVENT_FIXATE:
                 {
                     std::list<Unit*> targets;
-                 //   SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
+                    SelectTargetList(targets, 1, SELECT_TARGET_RANDOM, 500.0f, true);
 
                     if (!targets.empty())
                         if (targets.size() >= 1)
@@ -416,7 +442,7 @@ public:
 
                     for (auto target : targets)
                     {
-                    //    me->AddThreat(target, 9999999999.9f);
+                        me->AddThreat(target, 9999999999.9f);
                         me->CastSpell(target, SPELL_FIXATE, true);
                         me->AI()->AttackStart(target);
                     }
@@ -455,5 +481,5 @@ void AddSC_boss_lord_stormsong()
 
     new bfa_spell_ancient_mindbender();
     new bfa_spell_surrender_to_the_void();
-    new bfa_spell_discipline_of_the_volzih();
+    new bfa_spell_disciple_of_the_volzith();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 FuzionCore Project
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -2220,28 +2220,26 @@ class npc_galakras_anti_air_turret : public CreatureScript
                 enabled = true;
             }
 
-            bool GossipHello(Player* player) override
+            void sGossipHello(Player* player) override
             {
                 if (!enabled)
-                    return true;
+                    return;
 
                 if (cooldownTimer)
-                    return true;
+                    return;
 
                 if (!player->IsInCombat())
-                    return true;
+                    return;
 
                 if (me->FindNearestCreature(NPC_LIEUTENANT_KRUGRUK, 10.0f) ||
                     me->FindNearestCreature(NPC_MASTER_CANNONEER_DAGRYN, 10.0f))
-                    return true;
+                    return;
 
                 if (Creature* pGalakras = GetGalakras())
                 {
                     cooldownTimer = ANTI_AIR_TURRET_COOLDOWN;
                     DoCast(pGalakras, SPELL_ANTI_AIR_CANNON);
                 }
-
-                return true;
              }
 
             void DoAction(const int32 action)
@@ -2978,7 +2976,7 @@ struct spell_area_galakras_flames_of_galakrond : AreaTriggerAI
         // We need to change spell damage and cast spell with position
         // there is no default function to to it
 
-        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_FLAMES_OF_GALAKROND_DMG, DIFFICULTY_NONE);
+        SpellInfo const* l_SpellInfo = sSpellMgr->GetSpellInfo(SPELL_FLAMES_OF_GALAKROND_DMG);
         if (!l_SpellInfo)
             return;
 

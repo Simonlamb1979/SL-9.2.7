@@ -41,7 +41,7 @@ struct boss_king_gobbamak : public BossAI
 {
     boss_king_gobbamak(Creature* creature) : BossAI(creature, DATA_KING_GOBBAMAK) { }
 
-    void Reset()
+    void Reset() override
     {
         BossAI::Reset();
         me->SetPowerType(POWER_ENERGY);
@@ -49,10 +49,10 @@ struct boss_king_gobbamak : public BossAI
         me->SetPower(POWER_ENERGY, 0);
     }
 
-    void JustEngagedWith(Unit* /*who*/)
+    void EnterCombat(Unit* /*who*/) override
     {
         this->pack_counter = 0;
-        _JustEngagedWith();
+        _EnterCombat();
         Talk(SAY_AGGRO);
         me->SetPower(POWER_ENERGY, 33);
         DoCastSelf(SPELL_PERIODIC_ENERGY_GAIN);
@@ -62,7 +62,7 @@ struct boss_king_gobbamak : public BossAI
         events.ScheduleEvent(EVENT_GETEM, 17s);
     }
 
-    void JustDied(Unit* killer)
+    void JustDied(Unit* killer) override
     {
         _JustDied();
         Talk(SAY_DEATH);
@@ -72,7 +72,7 @@ struct boss_king_gobbamak : public BossAI
         instance->DoModifyPlayerCurrencies(1553, 35);
     }
 
-    void JustReachedHome() 
+    void JustReachedHome() override
     {
         _JustReachedHome();
 
@@ -91,7 +91,7 @@ struct boss_king_gobbamak : public BossAI
         }
     }
 
-    void KilledUnit(Unit* unit)
+    void KilledUnit(Unit* unit) override
     {
         uint32 randomChance = urand(0, 1);
 
@@ -110,7 +110,7 @@ struct boss_king_gobbamak : public BossAI
         }
     }
 
-    void JustSummoned(Creature* summon)
+    void JustSummoned(Creature* summon) override
     {
         switch (summon->GetEntry())
         {
@@ -120,7 +120,7 @@ struct boss_king_gobbamak : public BossAI
         }
     }
 
-    void ExecuteEvent(uint32 eventid)
+    void ExecuteEvent(uint32 eventid) override
     {
         if (me->GetPower(POWER_ENERGY) == 100)
         {
@@ -157,7 +157,7 @@ struct boss_king_gobbamak : public BossAI
                     context.Repeat(3s);
 
                 else this->pack_counter = 0;
-            };
+            });
             events.Repeat(25s);
             break;
         }
@@ -183,12 +183,12 @@ struct npc_stolen_scrapbot : public ScriptedAI
 {
     npc_stolen_scrapbot(Creature* creature) : ScriptedAI(creature) { }
 
-    void Reset()
+    void Reset() override
     {
         ScriptedAI::Reset();
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         events.Update(diff);
 
@@ -242,7 +242,7 @@ struct npc_stolen_shock_coil : public ScriptedAI
         ScriptedAI::Reset();
     }
 
-    void UpdateAI(uint32 diff)
+    void UpdateAI(uint32 diff) override
     {
         events.Update(diff);
 

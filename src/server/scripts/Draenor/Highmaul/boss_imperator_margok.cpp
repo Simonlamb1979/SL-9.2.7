@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 ShadowCore
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -659,7 +659,7 @@ class boss_imperator_margok : public CreatureScript
 
                     ///< Only Cho'gall can loot in mythic mode
                     if (IsMythic())
-                        me->SetLootRecipient(nullptr);
+                        me->ResetLootRecipients();
                 }
             }
 
@@ -4582,7 +4582,7 @@ public:
                 std::list<Player*> playersAlly;
                 victim->GetPlayerListInGrid(playersAlly, 250.f);
 
-                float finalShieldAmount = m_HealAbsorbAmount / playersAlly.size();
+                int32 finalShieldAmount = m_HealAbsorbAmount / playersAlly.size();
 
                 for (Player* ally : playersAlly)
                     victim->CastCustomSpell(ally, SpellEntropy, &finalShieldAmount, nullptr, nullptr, true);

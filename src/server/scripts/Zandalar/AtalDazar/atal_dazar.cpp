@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 
+ * Copyright (C) 2022 BfaCore Reforged
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -19,7 +19,6 @@
 #include "atal_dazar.h"
 #include "ScriptedCreature.h"
 #include "GameObject.h"
-#include "GameObjectAI.h"
 #include "InstanceScript.h"
 #include "SpellScript.h"
 #include "ScriptedCreature.h"
@@ -56,7 +55,7 @@ struct npc_reanimation_totem : public ScriptedAI
             {
                 npc->RemoveAura(255968);
                 npc->RemoveAura(256956);
-                npc->AddAura(256960, npc);
+                npc->AddAura(256960);
             }
             me->Kill(me);
         }
@@ -120,7 +119,7 @@ struct npc_mob_echo_of_shadra : public ScriptedAI
 
     void Reset() override
     {
-       // events.Reset();
+        events.Reset();
         me->setActive(false);
         me->SetWalk(false);
         me->GetMotionMaster()->MoveRandom(urand(0, 15));
@@ -128,7 +127,7 @@ struct npc_mob_echo_of_shadra : public ScriptedAI
         //need to check the chance
         int chance = urand(0, 3);
         if (chance == 2)
-            me->AddAura(250013, me);
+            me->AddAura(250013);
     }
 
     void InitializeAI() override
@@ -168,6 +167,18 @@ void OpenGate(InstanceScript* instance)
         go->SetGoState(GO_STATE_ACTIVE);
     if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(GO_GATE_004)))
         go->SetGoState(GO_STATE_ACTIVE);
+    if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(GO_GATE_005)))
+        go->SetGoState(GO_STATE_ACTIVE);
+    if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(GO_GATE_006)))
+        go->SetGoState(GO_STATE_ACTIVE);
+    if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(GO_GATE_007)))
+        go->SetGoState(GO_STATE_ACTIVE);
+    if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(GO_GATE_008)))
+        go->SetGoState(GO_STATE_ACTIVE);
+    if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(GO_GATE_009)))
+        go->SetGoState(GO_STATE_ACTIVE);
+    if (GameObject* go = instance->instance->GetGameObject(instance->GetGuidData(GO_GATE_010)))
+        go->SetGoState(GO_STATE_ACTIVE);
 };
 
 class go_ad_switch : public GameObjectScript {
@@ -181,35 +192,18 @@ public:
     }
 };
 
-struct go_waterfall_stairs : public GameObjectAI
-{
-    go_waterfall_stairs(GameObject* go) : GameObjectAI(go) { }
+class go_waterfall_stairs : public GameObjectScript {
+public:
+    go_waterfall_stairs() : GameObjectScript("go_waterfall_stairs") { }
 
-    void Reset() override
+    void OnGameObjectStateChanged(GameObject* go, uint32 state) override
     {
-        me->GetScheduler().CancelAll();
-        me->GetScheduler().Schedule(1s, [this] (TaskContext context)
-        {
-            if (InstanceScript* instance = me->GetInstanceScript())
-            {
-                if (instance->GetBossState(DATA_PRIESTESS_ALUNZA) == DONE && instance->GetBossState(DATA_VOLKAAL) == DONE && instance->GetBossState(DATA_REZAN) == DONE)
-                {
-                    me->SetGoState(GO_STATE_ACTIVE);
-                    if (GameObject* colision = me->GetInstanceScript()->instance->GetGameObject(me->GetInstanceScript()->GetGuidData(GO_COLLISION_WALL)))
+        if (state == GO_STATE_ACTIVE)
+            if (GameObject* colision = go->GetInstanceScript()->instance->GetGameObject(go->GetInstanceScript()->GetGuidData(GO_COLLISION_WALL)))
                 colision->Delete();
-                }
-                context.Repeat(1s);
-            }
-        });
+            if (GameObject* water = go->GetInstanceScript()->instance->GetGameObject(go->GetInstanceScript()->GetGuidData(GO_WATERFALL_STAIRS)))
+                OpenGate(go->GetInstanceScript());
     }
-
-    void UpdateAI(uint32 diff) override
-    {
-        scheduler.Update(diff);
-    }
-
-private:
-    TaskScheduler scheduler;
 };
 
 //256960
@@ -232,8 +226,9 @@ class spell_rooting_decay : public AuraScript
 void AddSC_atal_dazar()
 {
     new go_ad_switch();
-    //RegisterGameObjectAI(go_waterfall_stairs);
+    new go_waterfall_stairs();
     RegisterCreatureAI(npc_mob_echo_of_shadra);
     RegisterCreatureAI(npc_reanimation_totem);
     RegisterAuraScript(spell_rooting_decay);
+
 }

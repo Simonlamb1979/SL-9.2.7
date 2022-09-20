@@ -23,7 +23,7 @@ struct instance_eternal_palace : public InstanceScript
         SetBossNumber(EncounterCount);
     }
 
-    void Initialize() override
+    void Initialize()
     {
         LoadDoorData(doorData);
     }

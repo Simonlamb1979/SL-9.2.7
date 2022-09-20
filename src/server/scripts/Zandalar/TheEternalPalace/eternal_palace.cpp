@@ -28,7 +28,7 @@ struct npc_queen_azshara_154480 : public ScriptedAI
 	void sGossipSelect(Player* player, uint32 /*menuId*/, uint32 /*gossipListId*/)
 	{
 		CloseGossipMenuFor(player);
-		me->AddUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
+		me->HasUnitFlag(UNIT_FLAG_NOT_SELECTABLE);
 
 		if (instance->GetBossState(DATA_COMMANDER_SIVARA) == DONE && me->FindNearestCreature(NPC_SZALIRA, 25.0f, true))
 		{

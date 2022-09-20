@@ -76,7 +76,7 @@ public:
         instance->SetBossState(DATA_RIXXA_FLUXFLAME, FAIL);
     }
 
-    void EnterCombat(Unit* who) override
+    void EnterCombat(Unit* who)
     {
         BossAI::EnterCombat(who);
         Talk(YELL_AGGRO);

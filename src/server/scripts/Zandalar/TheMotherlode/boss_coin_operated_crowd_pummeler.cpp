@@ -84,7 +84,7 @@ struct boss_Coin_operated_crowd_pummeler : public BossAI
 		me->AddAura(SPELL_INSUFFICIENT_FUNDS);
     }
 
-    void EnterCombat(Unit* who) override
+    void EnterCombat(Unit* who) 
     {
 		me->RemoveAura(SPELL_INSUFFICIENT_FUNDS);
         Talk(TALK_AGGRO);

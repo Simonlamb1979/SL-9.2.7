@@ -51,7 +51,7 @@ public:
             DoCast(SPELL_REMOVE_CHARM);
         }
 
-        void EnterCombat(Unit* unit) override
+        void EnterCombat(Unit* unit) 
         {
             events.RescheduleEvent(1, 4000); // SPELL_FEL_GEYZER
             events.RescheduleEvent(3, 7000); // SPELL_GASEOUS_BREATH

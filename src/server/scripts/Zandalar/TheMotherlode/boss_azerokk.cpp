@@ -83,7 +83,7 @@ public:
         instance->SetBossState(DATA_AZEROKK, FAIL);
     }
 
-    void EnterCombat(Unit* who) override
+    void EnterCombat(Unit* who)
     {
         BossAI::EnterCombat(who);
         Talk(YELL_ENTER_COMBAT);

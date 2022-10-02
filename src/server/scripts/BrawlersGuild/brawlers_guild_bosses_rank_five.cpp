@@ -17,7 +17,7 @@
 
 #include "AchievementMgr.h"
 #include "AreaTriggerAI.h"
-#include "BrawlersGuild.h"
+#include "brawlers_guild.h"
 
 enum eSpells
 {

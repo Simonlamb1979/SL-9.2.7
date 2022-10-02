@@ -16,7 +16,7 @@
  */
 
 #include "AchievementMgr.h"
-#include "BrawlersGuild.h"
+#include "brawlers_guild.h"
 #include "ScriptedGossip.h"
 #include "Creature.h"
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 BfaCore Reforged
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -22,14 +22,13 @@ SDComment: Everything seems to work, still need some checking
 SDCategory: Wailing Caverns
 EndScriptData */
 
-//Missing scripts and Bosses
-
 #include "ScriptMgr.h"
 #include "Creature.h"
 #include "InstanceScript.h"
 #include "Log.h"
 #include "Map.h"
 #include "wailing_caverns.h"
+#include <sstream>
 
 #define MAX_ENCOUNTER   9
 
@@ -119,7 +118,7 @@ public:
             return saveStream.str();
         }
 
-        void Load(const char* in) override
+        void Load(char const* in) override
         {
             if (!in)
             {

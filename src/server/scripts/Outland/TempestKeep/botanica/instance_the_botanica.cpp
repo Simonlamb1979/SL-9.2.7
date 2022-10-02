@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 BfaCore Reforged
+ * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -30,6 +30,7 @@ class instance_the_botanica : public InstanceMapScript
             instance_the_botanica_InstanceMapScript(InstanceMap* map) : InstanceScript(map)
             {
                 SetHeaders(DataHeader);
+                SetBossNumber(EncounterCount);
             }
 
             void OnCreatureCreate(Creature* creature) override

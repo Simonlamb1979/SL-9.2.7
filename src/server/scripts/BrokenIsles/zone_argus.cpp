@@ -30,7 +30,7 @@
 #include "Spell.h"
 #include "SpellAuras.h"
 #include "SpellScript.h"
-#include "WorldQuestMgr.h"
+//#include "WorldQuestMgr.h"
 #include "GameEventMgr.h"
 #include "Unit.h"
 

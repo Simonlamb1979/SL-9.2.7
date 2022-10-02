@@ -41,7 +41,7 @@ class npc_canon_maxima : public CreatureScript
     public:
         npc_canon_maxima() : CreatureScript("npc_canon_maxima") { }
 
-        bool OnGossipHello(Player* player, Creature* creature) override
+        bool OnGossipHello(Player* player, Creature* creature) 
         {
             if (creature->IsQuestGiver())
                 player->PrepareQuestMenu(creature->GetGUID());

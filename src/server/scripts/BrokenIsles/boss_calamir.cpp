@@ -122,7 +122,7 @@ public:
             Reset();
         }
 
-        void EnterCombat(Unit* who) override
+        void EnterCombat(Unit* who) 
         {
             if (!who)
                 return;

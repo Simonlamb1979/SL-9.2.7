@@ -55,7 +55,7 @@ public:
             countclons = 0;
         }
 
-        void EnterCombat(Unit* unit) override
+        void EnterCombat(Unit* unit) 
         {
             events.RescheduleEvent(1, 18000);
             events.RescheduleEvent(2, 24000);

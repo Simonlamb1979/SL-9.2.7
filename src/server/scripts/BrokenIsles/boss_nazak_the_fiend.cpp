@@ -53,7 +53,7 @@ public:
             summons.DespawnAll();
         }
 
-        void EnterCombat(Unit* unit) override
+        void EnterCombat(Unit* unit) 
         {
             events.RescheduleEvent(1, 23000);
             events.RescheduleEvent(2, 42000);

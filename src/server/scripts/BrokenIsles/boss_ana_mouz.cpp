@@ -37,7 +37,7 @@ public:
     {
         boss_ana_muzAI(Creature* creature) : ScriptedAI(creature), summons(me)
         {
-            me->AddUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
+            me->HasUnitFlag(UnitFlags(UNIT_FLAG_REMOVE_CLIENT_CONTROL));
         }
 
         EventMap events;

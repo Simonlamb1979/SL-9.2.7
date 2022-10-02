@@ -26,7 +26,7 @@ class zone_argus_antoran_wastes : public ZoneScript
 public:
     zone_argus_antoran_wastes() : ZoneScript("zone_argus_antoran_wastes") { }
 
-    void OnPlayerEnter(Player* player) override
+    void OnPlayerEnter(Player* player) 
     {
         player->GetScheduler().Schedule(Milliseconds(2s), ZONE_ANTORAN_WASTES, [](TaskContext context)
         {

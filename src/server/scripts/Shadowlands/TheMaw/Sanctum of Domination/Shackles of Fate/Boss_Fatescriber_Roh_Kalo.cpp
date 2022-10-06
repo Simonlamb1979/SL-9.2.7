@@ -72,9 +72,18 @@ enum Loot
     Swift_Penitence = 181867,
     Swift_Transference = 181624,
     Thunderous_Paws = 182108,
-    Binding_of_Dark_Destinies_LFR = 186352,
-    Carved Ivory Keepsake_LFR = 186435,
-    
+    Binding_of_Dark_Destinies = 186352,
+    Carved Ivory Keepsake = 186435,
+    Conjunction-Forged_Chainmail = 186340,
+    Cowl_of_Haunting_Precognition = 186330,
+    Demigaunts_of_Predestination = 186345,
+    Diviners_Draped_Finery = 186320,
+    Fate-Threaded_Bindings = 186335,
+    Fateforged_Legplates = 186348,
+    Gloves_of_Forsaken_Purpose = 186326,
+    Oscillating_Ouroboros = 186376,
+    Record_of_Collapsing_Realities = 186419,
+    Weave_of_Warped_Fates = 186434,
 }
 
 struct NPC_Shade_of_Destiny : public CreatureAI

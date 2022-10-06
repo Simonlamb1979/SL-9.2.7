@@ -33,4 +33,41 @@ Script Data End */
 #include "InstanceScript.h"
 #include "SpellAuras.h"
 //#include "zone_the_maw"
-//#include "zone_Sanctum_of_Domination"
+#include "zone_Sanctum_of_Domination.h"
+
+enum Loot
+{
+	Ancient_Anima_Vessel = 186201,
+};
+
+enum Spells
+{
+	Disintegration = 352833,
+	Form Sentry = 352660,
+	Meerahs_Jukebox = 288865,
+};
+
+enum Creatures
+{
+    NPC_Guardian_of_the_First_Ones = 175731,
+};
+
+enum Currencies
+{
+   Stygian_Ember = 1977,
+   Renown = 1822,
+   Deaths_Advance = 1907,
+   Cosmic_Flux = 2009,
+};
+
+struct NPC_Guardian_of_the_First_Ones : public CreatureAI
+{
+	NPC_Guardian_of_the_First_Ones(Creature* Creature) : CreatureData (Data_NPC_Guardian_of_the_First_Ones) { }
+
+
+}
+
+void AddSC_Boss_Guardian_of_the_First_Ones();
+{
+	AddSC_Boss_Guardian_of_the_First_Ones();
+}

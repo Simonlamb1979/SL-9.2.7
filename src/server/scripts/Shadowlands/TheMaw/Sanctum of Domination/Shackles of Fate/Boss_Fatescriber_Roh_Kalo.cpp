@@ -236,6 +236,9 @@ struct Boss_Fatescribe_Roh_Kalo_179390 : public BossAI
     }
 };
 
-
+void AddSC_Boss_Fatescriber_Roh_Kalo();
+{
+    AddSC_Boss_Fatescriber_Roh_Kalo();
+}
 
 //57.4 70.2

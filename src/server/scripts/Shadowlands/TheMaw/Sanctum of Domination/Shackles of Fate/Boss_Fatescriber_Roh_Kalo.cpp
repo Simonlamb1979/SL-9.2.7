@@ -33,29 +33,103 @@ Script Data End */
 #include "InstanceScript.h"
 #include "SpellAuras.h"
 //#include "zone_the_maw"
-//#include "zone_Sanctum_of_Domination.h"
+#include "zone_Sanctum_of_Domination.h"
 //#include "Sanctum_of_Domination.h"
 
-
+enum Creatures
+{
+    NPC_Shade_of_Destiny        = 179124,
+    NPC_Fatespawn_Monstrosity   = 180323,
+};
 
 enum Spells
 {
-    SPELL_ = 319619,
-    SPELL_ = 319636, //23341, 19347
-    SPELL_ = 320834,
-    SPELL_ = 319627,
-    SPELL_ = 334199,
-    SPELL_ = 321948,
-    SPELL_ = 342961,
-    SPELL_ = 320230,
-    SPELL_ = 320232,
-    SPELL_ = 342962,
+    //phase 1
+    SPELL_Fated_Conjunction = 350355,
+    SPELL_Call_of_Eternity = 350819,
+    SPELL_Fate_Fragment = 353162,
+    SPELL_Invoke_Destiny = 351680,
+    SPELL_Diviners_Probe = 353603,
+    SPELL_Despair = 357144,
+    //phase 2
+    SPELL_Runic_Affinity = 354964,
+    SPELL_Darkest_Destiny = 353122,
+    SPELL_Monstrositys_Boon = 357141,
+    SPELL_Anomalous_Blast = 353398,
+    //phase 3
+    SPELL_Echo_of_Eternity = 350826,
+};
+
+enum Loot
+{
+    Arcane_Prodigy = 181509,
+    Brutal_Projectiles = 182649,
+    Demonic_Momentum = 182470,
+    Felfire_Haste = 182324,
+    Front_of_the_Pack = 183469,
+    Resolute_Defender = 182684,
+    Sleight_of_Hand = 183509,
+    Swift_Penitence = 181867,
+    Swift_Transference = 181624,
+    Thunderous_Paws = 182108,
+    Binding_of_Dark_Destinies_LFR = 186352,
+    Carved Ivory Keepsake_LFR = 186435,
+    
+}
+
+struct NPC_Shade_of_Destiny : public CreatureAI
+{
+    NPC_Shade_of_Destiny(Creature* creature) : CreatureData (DATA_NPC_Shade_of_Destiny) { }
+
+    void EnterCombat(Unit* /*who*/) override
+    {
+        _EnterCombat();
+        events.ScheduleEvent(SPELL_Diviners_Probe, 1.5s);
+        void OnSpellFinished(SpellInfo const* spellInfo) override
+    {
+        switch (spellInfo->Id 353603)
+        {
+        case SPELL_:
+        {
+            std::list<Player*> targetList;
+            me->GetPlayerListInGrid(targetList, 100.0f);
+            for (Player* targets : targetList)
+            {
+                me->CastSpell(targets->GetPosition(), SPELL_, true);
+            }
+            break;
+        }
+
+        //case SPELL_:
+        {
+            std::list<AreaTrigger*> atList;
+            me->GetAreaTriggerListWithSpellIDInRange(atList, SPELL_, 100.0f);
+            for (AreaTrigger* at : atList)
+            {
+                if (at->GetPositionZ() < -45.0f)
+                {
+                    at->GetCaster()->CastSpell(at->GetPosition(), SPELL_, true);
+                    at->Remove();
+                }
+            }
+            std::list<Player*> targetList;
+            me->GetPlayerListInGrid(targetList, 100.0f);
+            for (Player* targets : targetList)
+            {
+                if (targets->GetPositionZ() < -45.0f && !targets->HasAura(SPELL_))
+                    me->CastSpell(targets, SPELL_, true);
+            }
+            break;
+        }
+        }    
+    }
+    }
 };
 
 //179390
-struct Boss_Fatescribe_Roh_Kalo : public BossAI
+struct Boss_Fatescribe_Roh_Kalo_179390 : public BossAI
 {
-    //Boss_Fatescribe_Roh_Kalo(Creature* c) : BossAI(c, DATA_FATESCRIBE_ROH_KALO) { }
+    Boss_Fatescribe_Roh_Kalo_179390(Creature* creature) : BossAI(creature, DATA_FATESCRIBE_ROH_KALO_179390) { }
 
     void Reset() override
     {

@@ -37,14 +37,54 @@ Script Data End */
 
 enum Loot
 {
-	Ancient_Anima_Vessel = 186201,
+	Ancient_Anima_Vessel    = 186201,
+	Self-Replicating_Tissue = 186374,
+	Adaptive_Armor_Fragment = 187507,
+	Salvaged_Fusion_Amplifier = 186432,
+	Shard_of_Cor = 187063,
+	Shard_of_Zed = 187079,
+	Shard_of_Bek = 187057,
+	Echoing_Call = 183132,
+	Shard_of_Oth = 187076,
+   Enigmatic_Energy_Circuit = 186284,
+   Layered_Mane = 183487,
+   Shard_of_Dyz = 187073,
+   Shard_of_Jas = 187059,
+   Sandals_of_Sacred_Symmetry = 186354,
+   Shard_of_Kyr = 187065,
+   Shard_of_Tel = 187071,
+   Ancient_Colossus_Chassis = 186347,
+   Unstable_Energizer_Boots = 186363,
+   Disintegration-Proof_Waistband = 186317,
+   Heavy_Rainfall = 182145,
+   Torch_of_Eternal_Knowledge = 186393,
+   Shielding_Words = 182307,
+   Hyperdense_Greaves = 186344,
+   Infinitys_Last_Bulwark = 186416,
+   Tempest_Barrier = 181769,
+   Insatiable_Appetite = 182133,
+   Hack_and_Slash = 181735,
+   Move_with_Grace = 181827,
+   Poisoned_Katar = 183503,
+   Directional_Meltdown_Projector = 186413,
+   Reactive_Defense_Matrix = 186433,
+   Resplendent_Mist = 181505,
+   Pylon_of_the_Great_Purge = 186409,
+   Vantus_Rune_Technique: Sanctum_of_Domination = 186671,
 };
 
 enum Spells
 {
-	Disintegration = 352833,
-	Form Sentry = 352660,
-	Meerahs_Jukebox = 288865,
+	Disintegration          = 352833,
+	Form_Sentry             = 352660,
+	Meerahs_Jukebox         = 288865,
+	Obliterate_355352       = 355352,
+	Obliterate_358619       = 358619,
+	Purging_Protocol_350534 = 350534,
+	Purging_Protocol_352538 = 352538,
+	Shattered Psyche        = 344663,
+	Sunder                  = 350732,
+	Threat Neutralization   = 356090
 };
 
 enum Creatures

@@ -32,7 +32,7 @@ Script Data End */
 #include "AreaTriggerAI.h"
 #include "InstanceScript.h"
 #include "SpellAuras.h"
-//#include "zone_the_maw"
+#include "CreatureAI.h"
 #include "zone_Sanctum_of_Domination.h"
 
 enum Loot
@@ -78,6 +78,7 @@ enum Loot
 
 enum Spells
 {
+	March_of_the_Forsaken = 352090,
 	Adversary = 331934,
 	Dark_Evocation = 352530,
 	Blood_Link = 355804,
@@ -114,6 +115,10 @@ enum Spells
 enum Creatures
 {
 	NPC_Kel_Thuzad = 175559,
+	NPC_Frostbound_Devoted = 180840,
+	NPC_Glacial_Spike = 175861,
+	NPC_Unstoppable_Abomination = 180473,
+	NPC_Remnant_of_Kel_Thuzad = 176929,
 };
 
 enum Currencies
@@ -125,12 +130,42 @@ enum Currencies
 };
 
 
-struct Boss_Kel_Thuzad : public BossAI
+struct NPC_Kel_Thuzad : public CreatureAI
 {
-	Boss_Kel_Thuzad(Creature* Creature) : BossAI(Creature* "Boss_Kel_Thuzad") { }
+	NPC_Kel_Thuzad(Creature* Creature) : CreatureAI(Creature* creature("NPC_Kel_Thuzad")) { }
+};
+
+struct NPC_Frostbound_Devoted
+{
+	NPC_Frostbound_Devoted(Creature* Creature) : CreatureAI(Creature* creature("NPC_Frostbound_Devoted")) { }
+};
+
+struct NPC_Glacial_Spike : public CreatureAI
+{
+	NPC_Glacial_Spike(Creature* Creature) : CreatureAI(Creature* creature("NPC_Glacial_Spike")) { }
+};
+
+struct NPC_Unstoppable_Abomination : public CreatureAI
+{
+	NPC_Unstoppable_Abomination(Creature* Creature) : CreatureAI(Creature* creature("NPC_Unstoppable_Abomination")) { }
+};
+
+struct NPC_Remnant_of_Kel_Thuzad : public CreatureAI
+{
+	NPC_Remnant_of_Kel_Thuzad(Creature* Creature) : CreatureAI(Creature* creature("NPC_Remnant_of_Kel_Thuzad")) { }
 };
 
 void AddSC_Boss_Kel_Thuzad();
+void AddSC_NPC_Kel_Thuzad();
+void AddSC_NPC_Frostbound_Devoted();
+void AddSC_NPC_Glacial_Spike();
+void AddSC_NPC_Unstoppable_Abomination();
+void AddSC_NPC_Remnant_of_Kel_Thuzad();
 {
 	AddSC_Boss_Kel_Thuzad();
+	AddSC_NPC_Kel_Thuzad();
+	AddSC_NPC_Frostbound_Devoted();
+	AddSC_NPC_Glacial_Spike();
+	AddSC_NPC_Unstoppable_Abomination();
+	AddSC_NPC_Remnant_of_Kel_Thuzad();
 }

@@ -82,9 +82,9 @@ enum Spells
 	Obliterate_358619       = 358619,
 	Purging_Protocol_350534 = 350534,
 	Purging_Protocol_352538 = 352538,
-	Shattered Psyche        = 344663,
+	Shattered_Psyche        = 344663,
 	Sunder                  = 350732,
-	Threat Neutralization   = 356090
+	Threat_Neutralization   = 356090
 };
 
 enum Creatures

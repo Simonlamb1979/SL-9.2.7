@@ -33,4 +33,41 @@ Script Data End */
 #include "InstanceScript.h"
 #include "SpellAuras.h"
 //#include "zone_the_maw"
-//#include "zone_Sanctum_of_Domination"
+#include "zone_Sanctum_of_Domination.h"
+
+enum Loot
+{
+	Ancient_Anima_Vessel    = 186201,
+	
+};
+
+enum Spells
+{
+	Blackened_Armor         = 355786,
+	
+};
+
+enum Creatures
+{
+    NPC_Painsmith_Raznal = 176523,
+};
+
+enum Currencies
+{
+   Stygian_Ember = 1977,
+   Renown = 1822,
+   Deaths_Advance = 1907,
+   Cosmic_Flux = 2009,
+};
+
+struct NPC_Painsmith_Raznal : public CreatureAI
+{
+	NPC_Painsmith_Raznal(Creature* Creature) : CreatureAI(Creature* creature("NPC_Painsmith_Raznal")) { }
+};
+
+void AddSC_Boss_Kel_Thuzad();
+void AddSC_NPC_Painsmith_Raznal();
+{
+	AddSC_Boss_Kel_Thuzad();
+    AddSC_NPC_Painsmith_Raznal();
+};
